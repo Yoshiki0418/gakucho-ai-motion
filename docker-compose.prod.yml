@@ -42,7 +42,7 @@ services:
         HF_USERNAME: ${HF_USERNAME}
         HF_TOKEN: ${HF_TOKEN}
     ports:
-      - "127.0.0.1:8077:8077"
+      - "127.0.0.1:8076:8076"
     image: gakucho-ai-backend:prod
     env_file:
       - ./backend/.env
@@ -69,7 +69,7 @@ services:
         condition: service_healthy
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8077/health').read()"]
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8076/health').read()"]
       interval: 10s
       timeout: 3s
       retries: 10

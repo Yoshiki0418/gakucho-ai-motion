@@ -16,6 +16,7 @@ from app.agent.general_conversation.domains import (
     LocationAgent,
     ResearchAgent,
 )
+from app.agent.general_conversation.tools.motion_tool import motion_data_queue_var
 from app.models import llm, tts
 from app.services.history_service import HistoryService
 
@@ -479,6 +480,10 @@ async def char_stream_orchestrator(request: Request):
     PUNCTUATIONS = {"。", "！", "？", "!", "?"}
 
     async def event_stream():
+        # --- モーションキューの初期化 ---
+        motion_queue = []
+        motion_data_queue_var.set(motion_queue)
+
         sentence_buffer = ""
         full_response = ""  # アシスタント応答全文を蓄積
         first_text_logged = False
@@ -490,6 +495,22 @@ async def char_stream_orchestrator(request: Request):
             history=history,
             mode=mode,
         ):
+            # --- 溜まったモーションデータの送信 ---
+            while motion_queue:
+                motion_data = motion_queue.pop(0)
+                yield (
+                    "data: "
+                    + json.dumps(
+                        {
+                            "type": "motion_chunk",
+                            "bvh": motion_data.get("bvh", ""),
+                            "prompt": motion_data.get("prompt", ""),
+                            "latency_ms": round(motion_data.get("latency_seconds", 0) * 1000),
+                        }
+                    )
+                    + "\n\n"
+                )
+
             raw_piece = str(chunk)
             sentence_buffer += raw_piece
 
@@ -639,6 +660,22 @@ async def char_stream_orchestrator(request: Request):
             )
             + "\n\n"
         )
+
+        # --- 最後に残ったモーションデータの送信 ---
+        while motion_queue:
+            motion_data = motion_queue.pop(0)
+            yield (
+                "data: "
+                + json.dumps(
+                    {
+                        "type": "motion_chunk",
+                        "bvh": motion_data.get("bvh", ""),
+                        "prompt": motion_data.get("prompt", ""),
+                        "latency_ms": round(motion_data.get("latency_seconds", 0) * 1000),
+                    }
+                )
+                + "\n\n"
+            )
 
         yield ("data: " + json.dumps({"type": "done", "message": "応答完了"}) + "\n\n")
 

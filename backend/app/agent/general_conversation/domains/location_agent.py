@@ -2,7 +2,7 @@ import os
 from typing import AsyncIterator
 
 from agents import Agent, Runner, WebSearchTool
-from app.agent.general_conversation.tools import get_travel_info, search_nearby_places
+from app.agent.general_conversation.tools import get_travel_info, search_nearby_places, generate_motion
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -70,15 +70,36 @@ class LocationAgent:
                 # =========================================================
                 # 回答スタイル
                 # =========================================================
+                - 人間同士の会話のようにテンポ感を最優先し、非常に簡潔に、自然な話し言葉で返答してください。
+                - 1回の発話は1〜2文（最大3文）におさめること。箇条書きや長い説明は絶対に使わないこと。
                 - 友達に教えるような自然な口調で話す
                 - 店名は2〜3件を自然に紹介する程度にする
                 - 結果が見つからなかった場合は、範囲を広げるか別のカテゴリを提案する
                 - 距離や時間は「だいたい」「くらい」等の自然な表現を使う
+
+                # =========================================================
+                # モーション生成ツール (generate_motion)
+                # =========================================================
+                あなたには日本語指示することで、身体動作を生成する generate_motion ツールがあります。
+                ほぼ毎回、必ず会話の文脈に合わせて generate_motion ツールを呼び出して動作を生成してからテキストを返答してください。
+                立っている状態から、○○といった指示にした方が生成が安定します。
+
+                ■ 使用タイミング（ほぼ毎回使う）:
+                - 挨拶時 → "立っている状態から、右手を振る"
+                - お辞儀 → "立っている状態から、お辞儀する"
+                - 頷き → "立っている状態から、うなずく"
+                - 説明中のジェスチャー → "説明しながら両手でジェスチャーする"
+                - 考え中 → "立っている状態から、腕を組んで考える"
+
+                ■ 重要ルール:
+                - motion_description は必ず日本語で簡潔に記述すること
+                  モーション生成後の返答では、動作について言及しないこと。
             """,
             tools=[
                 search_nearby_places,
                 get_travel_info,
                 WebSearchTool(),
+                generate_motion,
             ],
         )
 

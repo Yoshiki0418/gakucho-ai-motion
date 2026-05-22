@@ -76,7 +76,7 @@ export function useTextChat(endpoint: string) {
     try {
       const apiBase =
         process.env.NEXT_PUBLIC_API_BASE_URL ??
-        'http://localhost:8078'
+        'http://localhost:8076'
       const resetUrl = `${apiBase}/api/text-chat/reset`
       console.log('[useTextChat] Resetting history on backend:', resetUrl)
       await fetch(resetUrl, { method: 'POST' })
@@ -209,7 +209,7 @@ export function useTextChat(endpoint: string) {
     // ★ FastAPI 直叩き用のベースURL
     const apiBase =
       process.env.NEXT_PUBLIC_API_BASE_URL ??
-      'http://localhost:8078' // dev デフォルト
+      'http://localhost:8076' // dev デフォルト
     const fullUrl = `${apiBase}${endpoint}?text=${encodeURIComponent(userText)}&mode=${mode}`
 
     console.log('[useTextChat] SSE connect to:', fullUrl)

@@ -56,5 +56,5 @@ RUN useradd -m appuser
 USER appuser
 
 # 起動コマンド
-# /workspace/app/main.py が存在するため、これで起動します
-CMD ["python3", "-m", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8077"]
+# 起動コマンド（.envの環境変数はdocker-composeなどで上書き可能）
+CMD ["python3", "-m", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8076"]

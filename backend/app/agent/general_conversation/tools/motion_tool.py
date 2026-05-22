@@ -24,12 +24,12 @@ def generate_motion(motion_description: str) -> str:
     テキストで指定された動作に基づいて、3Dモーション（BVHデータ）を生成します。
     身振り手振り・ジェスチャー・動作表現が会話に適していると判断した場合に呼び出してください。
 
-    motion_descriptionは必ず英語で記述してください。
-    例: "a person waves their right hand", "a person bows politely",
-        "a person nods their head", "a person gestures with both hands while explaining"
+    motion_descriptionは必ず日本語で簡潔に記述してください。
+    例: "立っている状態から、右手を振る", "立っている状態から、お辞儀する",
+        "立っている状態から、うなずく", "説明しながら両手でジェスチャーする"
 
     Args:
-        motion_description: 生成したいモーションの英語テキスト説明
+        motion_description: 生成したいモーションの日本語テキスト説明
     """
     try:
         # 1. T2M サーバーにモーション生成をリクエスト
@@ -131,6 +131,13 @@ def generate_motion(motion_description: str) -> str:
                         "status": "success",
                         "message": "Motion generated and sent to frontend successfully.",
                     })
+                except urllib.error.HTTPError as retry_http_e:
+                    retry_body = retry_http_e.read().decode("utf-8")
+                    try:
+                        retry_detail = json.loads(retry_body).get("detail", retry_body)
+                    except json.JSONDecodeError:
+                        retry_detail = retry_body
+                    return json.dumps({"status": "error", "message": f"再試行時にエラーが発生しました (HTTP {retry_http_e.code}): {retry_detail}"})
                 except Exception as retry_e:
                     return json.dumps({"status": "error", "message": f"モデルの自動ロード・再試行に失敗しました: {retry_e}"})
 

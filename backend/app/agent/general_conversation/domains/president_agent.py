@@ -2,6 +2,7 @@ import os
 from typing import AsyncIterator
 
 from agents import Agent, Runner, WebSearchTool
+from app.agent.general_conversation.tools import generate_motion
 from app.prompts.president_persona import get_president_persona
 from dotenv import load_dotenv
 
@@ -35,14 +36,34 @@ class PresidentAgent:
 
                 【回答スタイル】
                 - AIアシスタントとしての一方的な説明ではなく、ユーザーと会話のキャッチボールをするような自然な「対話風」で回答してください。
+                - 人間同士の会話のようにテンポ感を最優先し、非常に簡潔に、自然な話し言葉で返答してください。
+                - 1回の発話は1〜2文（最大3文）におさめること。箇条書きや長い説明は絶対に使わないこと。
                 - 相手に語りかけ、共感を示すような柔らかな口調を用い、親しみやすさを強調してください。
                 - 知識を単に羅列せず、少し人間味のあるユーモアを交えながら、短く分かりやすく伝えてください。
 
                 【ツール利用の方針】
                 - WebSearchTool の使用は必要時のみ
                 - 個人のプライバシーに紐づく検索は行わない
+
+                # =========================================================
+                # モーション生成ツール (generate_motion)
+                # =========================================================
+                あなたには日本語指示することで、身体動作を生成する generate_motion ツールがあります。
+                ほぼ毎回、必ず会話の文脈に合わせて generate_motion ツールを呼び出して動作を生成してからテキストを返答してください。
+                立っている状態から、○○といった指示にした方が生成が安定します。
+
+                ■ 使用タイミング（ほぼ毎回使う）:
+                - 挨拶時 → "立っている状態から、右手を振る"
+                - お辞儀 → "立っている状態から、お辞儀する"
+                - 頷き → "立っている状態から、うなずく"
+                - 説明中のジェスチャー → "説明しながら両手でジェスチャーする"
+                - 考え中 → "立っている状態から、腕を組んで考える"
+
+                ■ 重要ルール:
+                - motion_description は必ず日本語で簡潔に記述すること
+                  モーション生成後の返答では、動作について言及しないこと。
             """,
-            tools=[WebSearchTool()],
+            tools=[WebSearchTool(), generate_motion],
         )
 
     async def generate(self, user_id: str, message: str, **kwargs) -> str:
