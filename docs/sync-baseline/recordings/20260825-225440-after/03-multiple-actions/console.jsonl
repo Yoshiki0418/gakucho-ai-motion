@@ -1,0 +1,61 @@
+{"t": 0.478, "type": "info", "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"}
+{"t": 0.7721, "type": "log", "text": "[BvhViewer] viewMode changed → 'robot'"}
+{"t": 0.8292, "type": "log", "text": "[characterRig] source rig captured: bones=68, flavor=mixamo-like, mapped=55, groundedRootY=0.932"}
+{"t": 0.8419, "type": "log", "text": "[BvhViewer] Robot rig built: parts=96, avgLen=0.18, limbR=0.03, head=Head, chest=Spine4, hips=Hips, shoulders=[LeftShoulder,RightShoulder], hands=[LeftHand,RightHand], feet=[LeftFoot,RightFoot]"}
+{"t": 0.8461, "type": "log", "text": "[BvhViewer] auto-fit dimensions: {maxDim: 1.7919378006648448, fitDist: 4.479844501662112, bCenter: Vector3, bSize: Vector3}"}
+{"t": 0.8951, "type": "warning", "text": "[.WebGL-0x2f7c0178ce00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels"}
+{"t": 0.9767, "type": "warning", "text": "[.WebGL-0x2f7c0178ce00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels"}
+{"t": 1.0124, "type": "warning", "text": "[.WebGL-0x2f7c0178ce00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels"}
+{"t": 1.0307, "type": "warning", "text": "[.WebGL-0x2f7c0178ce00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"}
+{"t": 1.1087, "type": "log", "text": "[characterRig] loaded \"/avatars/character.glb\": flavor=mixamo, bones=67, mapped=52, skinnedMeshes=2, secondaryRigs=0, mergedBones=0, graftedBones=0, headAttached=0, naturalHeight=1.809"}
+{"t": 1.1109, "type": "log", "text": "[characterRig] bound 52 bones (mixamo ← mixamo-like), rest aligned to source T-pose: 14 bones (max 39.2 deg), groundOffset=-0.0032, autoYaw=0.0deg"}
+{"t": 1.1111, "type": "log", "text": "[BvhViewer] character fitted: bvhHeight=1.8, naturalHeight=1.81, scale=0.993, groundY=0.003, yaw=0.0deg"}
+{"t": 1.1112, "type": "log", "text": "[BvhViewer] avatar applied: /avatars/character.glb"}
+{"t": 4.1946, "type": "error", "text": "%s a style property during rerender (%s) when a conflicting property is set (%s) can lead to styling bugs. To avoid this, don't mix shorthand and non-shorthand properties for the same value; instead, replace the shorthand with separate values. Removing borderColor borderBottom"}
+{"t": 4.1953, "type": "error", "text": "%s a style property during rerender (%s) when a conflicting property is set (%s) can lead to styling bugs. To avoid this, don't mix shorthand and non-shorthand properties for the same value; instead, replace the shorthand with separate values. Removing borderColor borderLeft"}
+{"t": 4.1961, "type": "error", "text": "%s a style property during rerender (%s) when a conflicting property is set (%s) can lead to styling bugs. To avoid this, don't mix shorthand and non-shorthand properties for the same value; instead, replace the shorthand with separate values. Removing borderColor borderRight"}
+{"t": 4.197, "type": "error", "text": "%s a style property during rerender (%s) when a conflicting property is set (%s) can lead to styling bugs. To avoid this, don't mix shorthand and non-shorthand properties for the same value; instead, replace the shorthand with separate values. Removing borderColor borderTop"}
+{"t": 4.1981, "type": "error", "text": "%s a style property during rerender (%s) when a conflicting property is set (%s) can lead to styling bugs. To avoid this, don't mix shorthand and non-shorthand properties for the same value; instead, replace the shorthand with separate values. Updating borderColor borderBottom"}
+{"t": 4.199, "type": "error", "text": "%s a style property during rerender (%s) when a conflicting property is set (%s) can lead to styling bugs. To avoid this, don't mix shorthand and non-shorthand properties for the same value; instead, replace the shorthand with separate values. Updating borderColor borderLeft"}
+{"t": 4.1999, "type": "error", "text": "%s a style property during rerender (%s) when a conflicting property is set (%s) can lead to styling bugs. To avoid this, don't mix shorthand and non-shorthand properties for the same value; instead, replace the shorthand with separate values. Updating borderColor borderRight"}
+{"t": 4.2008, "type": "error", "text": "%s a style property during rerender (%s) when a conflicting property is set (%s) can lead to styling bugs. To avoid this, don't mix shorthand and non-shorthand properties for the same value; instead, replace the shorthand with separate values. Updating borderColor borderTop"}
+{"t": 4.2015, "type": "log", "text": "[BvhViewer] character fitted: bvhHeight=1.8, naturalHeight=1.81, scale=0.991, groundY=0.003, yaw=0.0deg"}
+{"t": 4.2018, "type": "log", "text": "[BvhViewer] viewMode changed → 'character'"}
+{"t": 7.4157, "type": "log", "text": "[characterRig] loaded \"/avatars/gakucho_v3_suit.glb\": flavor=unreal, bones=1185, mapped=55, skinnedMeshes=14, secondaryRigs=0, mergedBones=0, graftedBones=0, headAttached=1, naturalHeight=1.680"}
+{"t": 7.4182, "type": "log", "text": "[characterRig] bound 55 bones (unreal ← mixamo-like), rest aligned to source T-pose: 38 bones (max 44.9 deg), groundOffset=-0.0198, autoYaw=0.0deg"}
+{"t": 7.4184, "type": "log", "text": "[BvhViewer] character fitted: bvhHeight=1.8, naturalHeight=1.68, scale=1.068, groundY=0.021, yaw=0.0deg"}
+{"t": 7.4185, "type": "log", "text": "[BvhViewer] avatar applied: /avatars/gakucho_v3_suit.glb"}
+{"t": 21.4779, "type": "log", "text": "[useTextChat] SSE connect to: /api/text-chat/char-stream-orchestrator?text=%E3%81%8A%E8%BE%9E%E5%84%80%E3%82%92%E3%81%97%E3%81%A6%E3%81%8B%E3%82%89%E3%80%81%E6%A4%85%E5%AD%90%E3%81%AB%E5%BA%A7%E3%81%A3%E3%81%A6%E3%81%8F%E3%81%A0%E3%81%95%E3%81%84%E3%80%82&mode=general"}
+{"t": 23.3181, "type": "log", "text": "🔹 [SSE EVENT RECEIVED] {type: text_chunk, content: 承知しました、動作でお応えしますね。}"}
+{"t": 25.3629, "type": "log", "text": "🔹 [SSE EVENT RECEIVED] {type: audio_chunk, sentence: 承知しました、動作でお応えしますね。, audio: UklGRiR4BABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZG…/CgAzAEAAGgAeADcANQA+AEUAHAAYAC4AIwAnAC4ACAAeADgA, segment_id: 1, duration_ms: 3320}"}
+{"t": 25.4474, "type": "log", "text": "[SYNC] audio_scheduled perf=25429.3 startAt=0.122 duration=3.320 ctxNow=0.102"}
+{"t": 25.637, "type": "error", "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"}
+{"t": 25.6372, "type": "log", "text": "[LipSync] start"}
+{"t": 25.8226, "type": "log", "text": "🔹 [SSE EVENT RECEIVED] {type: motion_chunk, bvh: HIERARCHY\nROOT Hips\n{\n    OFFSET 0.000000 0.000000…0.073903 -19.069433 -0.000001 0.058038 -0.000001\n, prompt: 座った状態から、立ち上がる, latency_ms: 1220, segment_id: 2}"}
+{"t": 25.8228, "type": "log", "text": "[useTextChat] motion_chunk received: prompt=\"座った状態から、立ち上がる\", bvh_len=424823, latency_ms=1220"}
+{"t": 25.8229, "type": "log", "text": "[SYNC] motion_received perf=25799.3 ctxNow=0.470 segment=2 prompt=\"座った状態から、立ち上がる\" latency_ms=1220"}
+{"t": 25.8231, "type": "log", "text": "🔹 [SSE EVENT RECEIVED] {type: text_chunk, content: はい、かしこまりました。}"}
+{"t": 25.8258, "type": "log", "text": "🔹 [SSE EVENT RECEIVED] {type: audio_chunk, sentence: はい、かしこまりました。, audio: UklGRiS4AgBXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZG…0AEwAUAAjABMALwA6AEIAPwAIAOr/AgAfABQAIgAVABIADAA=, segment_id: 2, duration_ms: 2020}"}
+{"t": 25.826, "type": "log", "text": "🔹 [SSE EVENT RECEIVED] {type: timing, total_ms: 4080}"}
+{"t": 25.8263, "type": "log", "text": "🔹 [SSE EVENT RECEIVED] {type: done, message: 応答完了}"}
+{"t": 25.9209, "type": "log", "text": "[SYNC] audio_scheduled perf=25902.7 startAt=3.442 duration=2.020 ctxNow=0.572"}
+{"t": 25.9211, "type": "log", "text": "[SYNC] motion_scheduled prompt=\"座った状態から、立ち上がる\" startAt=3.442 segmentDuration=2.020 ctxNow=0.572"}
+{"t": 26.0977, "type": "log", "text": "[BvhViewer] motion queue updated: 1 件待機"}
+{"t": 28.8051, "type": "log", "text": "[SYNC] motion_applied perf=28786.7 ctxNow=3.463 startAt=3.442 lag=21ms prompt=\"座った状態から、立ち上がる\""}
+{"t": 28.8056, "type": "log", "text": "[BvhViewer] loadBvh called: name=\"🤖 AI Generated Motion\", text_len=424823, prompt=\"座った状態から、立ち上がる\", postureIntent=stand/standing, endBehavior=return-to-standing-idle, persistent=standing, refs={scene:true, camera:true, controls:true}"}
+{"t": 28.8058, "type": "log", "text": "[BvhViewer] Parsing BVH text (length=424823, head=\"HIERARCHY\\nROOT Hips\\n{\\n    OFFSET 0.000000 0.000000 0.000000\\n    CHANNELS 6 Xposition Yposition Zposition Zrotation Xrota\")"}
+{"t": 28.833, "type": "log", "text": "[characterRig] source rig captured: bones=68, flavor=mixamo-like, mapped=55, groundedRootY=0.840"}
+{"t": 28.8402, "type": "log", "text": "[characterRig] bound 55 bones (unreal ← mixamo-like), rest aligned to source T-pose: 38 bones (max 44.9 deg), groundOffset=-0.0198, autoYaw=0.0deg"}
+{"t": 28.8404, "type": "log", "text": "[BvhViewer] BVH parsed: bones=68, clip.duration=2.559999942779541s, clip.tracks=110, firstTrackName=\"Hips.position\", firstTrackValuesLen=771"}
+{"t": 28.847, "type": "log", "text": "[BvhViewer] Robot rig built: parts=96, avgLen=0.18, limbR=0.03, head=Head, chest=Spine4, hips=Hips, shoulders=[LeftShoulder,RightShoulder], hands=[LeftHand,RightHand], feet=[LeftFoot,RightFoot]"}
+{"t": 28.8481, "type": "log", "text": "[BvhViewer] character fitted: bvhHeight=1.8, naturalHeight=1.68, scale=1.043, groundY=0.021, yaw=0.0deg"}
+{"t": 28.8497, "type": "log", "text": "[BvhViewer] fit motion to speech: clip=2.56s speech=2.02s timeScale=1.27 (raw 1.27)"}
+{"t": 28.8502, "type": "log", "text": "[BvhViewer] Mixer started: isRunning=true, enabled=true, weight=1, clipDuration=2.559999942779541s, mixer.timeScale=1.2672413509852927"}
+{"t": 30.8097, "type": "log", "text": "[BvhViewer] motion finished → returning to standing idle (0.80s)"}
+{"t": 31.542, "type": "log", "text": "[BvhViewer] idle state entered"}
+{"t": 31.7896, "type": "error", "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"}
+{"t": 31.7899, "type": "log", "text": "[LipSync] stop"}
+{"t": 38.3954, "type": "log", "text": "[BvhViewer] heartbeat: mixerTime=12.26s, timeScale=1.2672413509852927, delta=0.0813s, rootBonePos=[0.00, 0.92, 0.00], rootBoneQuat=[-0.01, 0.00, 0.00, 1.00]"}
+{"t": 48.2116, "type": "log", "text": "[BvhViewer] heartbeat: mixerTime=24.68s, timeScale=1.2672413509852927, delta=0.0784s, rootBonePos=[0.00, 0.92, 0.00], rootBoneQuat=[-0.01, -0.00, 0.00, 1.00]"}
+{"t": 57.9364, "type": "log", "text": "[BvhViewer] heartbeat: mixerTime=37.02s, timeScale=1.2672413509852927, delta=0.0900s, rootBonePos=[0.00, 0.92, 0.00], rootBoneQuat=[-0.01, 0.00, 0.00, 1.00]"}
+{"t": 67.6448, "type": "log", "text": "[BvhViewer] heartbeat: mixerTime=49.32s, timeScale=1.2672413509852927, delta=0.0784s, rootBonePos=[0.00, 0.92, 0.00], rootBoneQuat=[-0.01, -0.00, 0.00, 1.00]"}

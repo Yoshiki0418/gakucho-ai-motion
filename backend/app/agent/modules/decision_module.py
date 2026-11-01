@@ -105,6 +105,71 @@ class LLMDecisionClassifier:
             """
         return await self.classify(user_input, labels=labels, context_rules=rules)
 
+    def classify_rag_vs_dialogue_fast(self, user_input: str) -> Optional[str]:
+        """
+        LLMを呼ばずに確実性の高い入力だけを分類する。
+
+        戻り値がNoneの場合のみ、呼び出し側でLLM分類へフォールバックする。
+        誤ルーティングを避けるため、曖昧な「大学」「学校」だけの表現などは
+        ここでは判定しない。
+        """
+        text = re.sub(r"\s+", "", user_input.strip()).lower()
+        if not text:
+            return "dialogue"
+
+        # KITニュースは学内DBではなくWeb検索を使う既存方針なのでdialogue。
+        if re.search(r"(kit|金沢工業大学).*(ニュース|最新|最近|話題)", text):
+            return "dialogue"
+
+        rag_terms = (
+            "金沢工業大学",
+            "kitナビ",
+            "moodle",
+            "学食",
+            "研究室",
+            "履修",
+            "奨学金",
+            "教務",
+            "学内",
+            "夢考房",
+            "ライブラリーセンター",
+        )
+        if any(term in text for term in rag_terms):
+            return "rag"
+
+        # 所属・場所・制度など、KIT固有情報を尋ねることが明白な表現。
+        if re.search(
+            r"(先生|教員|教授|授業|講義|学科|キャンパス|図書館|施設|入試|学費)"
+            r".*(どこ|誰|いつ|何時|教えて|知りたい|ありますか|ですか)",
+            text,
+        ):
+            return "rag"
+
+        normalized = text.rstrip("！!？?。．、,〜~")
+        greetings = (
+            "おはよう",
+            "おはようございます",
+            "こんにちは",
+            "こんばんは",
+            "やあ",
+            "はじめまして",
+            "よろしくお願いします",
+            "ありがとう",
+            "ありがとうございます",
+        )
+        if normalized in greetings:
+            return "dialogue"
+
+        # 明確な一般ツール・身体動作指示は学内DBを必要としない。
+        if re.search(
+            r"(天気|気温|何時|時間|ニュース|検索|調べて|手を振|お辞儀|"
+            r"うなず|歩いて|拍手|踊って|動いて|挨拶して)",
+            text,
+        ):
+            return "dialogue"
+
+        return None
+
     # 利便メソッド：簡単/複雑
     async def classify_complexity(self, user_input: str) -> str:
         labels = ["simple", "complex"]

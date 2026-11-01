@@ -1,0 +1,59 @@
+{"t": 0.5027, "type": "info", "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"}
+{"t": 0.8657, "type": "log", "text": "[BvhViewer] viewMode changed → 'robot'"}
+{"t": 0.8661, "type": "log", "text": "[BvhViewer] bvhText prop changed: null/undefined"}
+{"t": 0.9246, "type": "log", "text": "[characterRig] source rig captured: bones=68, flavor=mixamo-like, mapped=55, groundedRootY=0.932"}
+{"t": 0.9372, "type": "log", "text": "[BvhViewer] Robot rig built: parts=96, avgLen=0.18, limbR=0.03, head=Head, chest=Spine4, hips=Hips, shoulders=[LeftShoulder,RightShoulder], hands=[LeftHand,RightHand], feet=[LeftFoot,RightFoot]"}
+{"t": 0.9418, "type": "log", "text": "[BvhViewer] auto-fit dimensions: {maxDim: 1.7919378006648448, fitDist: 4.479844501662112, bCenter: Vector3, bSize: Vector3}"}
+{"t": 1.0188, "type": "warning", "text": "[.WebGL-0x3c24018e6e00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels"}
+{"t": 1.1052, "type": "warning", "text": "[.WebGL-0x3c24018e6e00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels"}
+{"t": 1.1376, "type": "warning", "text": "[.WebGL-0x3c24018e6e00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels"}
+{"t": 1.165, "type": "warning", "text": "[.WebGL-0x3c24018e6e00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"}
+{"t": 1.2125, "type": "log", "text": "[characterRig] loaded \"/avatars/character.glb\": flavor=mixamo, bones=67, mapped=52, skinnedMeshes=2, secondaryRigs=0, mergedBones=0, graftedBones=0, headAttached=0, naturalHeight=1.809"}
+{"t": 1.2145, "type": "log", "text": "[characterRig] bound 52 bones (mixamo ← mixamo-like), rest aligned to source T-pose: 14 bones (max 39.2 deg), groundOffset=-0.0032, autoYaw=0.0deg"}
+{"t": 1.2147, "type": "log", "text": "[BvhViewer] character fitted: bvhHeight=1.8, naturalHeight=1.81, scale=0.991, groundY=0.003, yaw=0.0deg"}
+{"t": 1.215, "type": "log", "text": "[BvhViewer] avatar applied: /avatars/character.glb"}
+{"t": 4.3302, "type": "error", "text": "%s a style property during rerender (%s) when a conflicting property is set (%s) can lead to styling bugs. To avoid this, don't mix shorthand and non-shorthand properties for the same value; instead, replace the shorthand with separate values. Removing borderColor borderBottom"}
+{"t": 4.3305, "type": "error", "text": "%s a style property during rerender (%s) when a conflicting property is set (%s) can lead to styling bugs. To avoid this, don't mix shorthand and non-shorthand properties for the same value; instead, replace the shorthand with separate values. Removing borderColor borderLeft"}
+{"t": 4.3309, "type": "error", "text": "%s a style property during rerender (%s) when a conflicting property is set (%s) can lead to styling bugs. To avoid this, don't mix shorthand and non-shorthand properties for the same value; instead, replace the shorthand with separate values. Removing borderColor borderRight"}
+{"t": 4.3316, "type": "error", "text": "%s a style property during rerender (%s) when a conflicting property is set (%s) can lead to styling bugs. To avoid this, don't mix shorthand and non-shorthand properties for the same value; instead, replace the shorthand with separate values. Removing borderColor borderTop"}
+{"t": 4.3326, "type": "error", "text": "%s a style property during rerender (%s) when a conflicting property is set (%s) can lead to styling bugs. To avoid this, don't mix shorthand and non-shorthand properties for the same value; instead, replace the shorthand with separate values. Updating borderColor borderBottom"}
+{"t": 4.3332, "type": "error", "text": "%s a style property during rerender (%s) when a conflicting property is set (%s) can lead to styling bugs. To avoid this, don't mix shorthand and non-shorthand properties for the same value; instead, replace the shorthand with separate values. Updating borderColor borderLeft"}
+{"t": 4.3339, "type": "error", "text": "%s a style property during rerender (%s) when a conflicting property is set (%s) can lead to styling bugs. To avoid this, don't mix shorthand and non-shorthand properties for the same value; instead, replace the shorthand with separate values. Updating borderColor borderRight"}
+{"t": 4.3363, "type": "error", "text": "%s a style property during rerender (%s) when a conflicting property is set (%s) can lead to styling bugs. To avoid this, don't mix shorthand and non-shorthand properties for the same value; instead, replace the shorthand with separate values. Updating borderColor borderTop"}
+{"t": 4.3364, "type": "log", "text": "[BvhViewer] character fitted: bvhHeight=1.8, naturalHeight=1.81, scale=0.993, groundY=0.003, yaw=0.0deg"}
+{"t": 4.3366, "type": "log", "text": "[BvhViewer] viewMode changed → 'character'"}
+{"t": 7.3334, "type": "log", "text": "[characterRig] loaded \"/avatars/gakucho_v3_suit.glb\": flavor=unreal, bones=1185, mapped=55, skinnedMeshes=14, secondaryRigs=0, mergedBones=0, graftedBones=0, headAttached=1, naturalHeight=1.680"}
+{"t": 7.3337, "type": "log", "text": "[characterRig] bound 55 bones (unreal ← mixamo-like), rest aligned to source T-pose: 38 bones (max 44.9 deg), groundOffset=-0.0198, autoYaw=0.0deg"}
+{"t": 7.3338, "type": "log", "text": "[BvhViewer] character fitted: bvhHeight=1.8, naturalHeight=1.68, scale=1.069, groundY=0.021, yaw=0.0deg"}
+{"t": 7.334, "type": "log", "text": "[BvhViewer] avatar applied: /avatars/gakucho_v3_suit.glb"}
+{"t": 21.6303, "type": "log", "text": "[useTextChat] SSE connect to: /api/text-chat/char-stream-orchestrator?text=%E5%A4%A7%E5%AD%A6%E3%81%AE%E3%82%AD%E3%83%A3%E3%83%B3%E3%83%91%E3%82%B9%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6%E8%A9%B3%E3%81%97%E3%81%8F%E6%95%99%E3%81%88%E3%81%A6%E3%81%8F%E3%81%A0%E3%81%95%E3%81%84%E3%80%82&mode=general"}
+{"t": 23.7712, "type": "log", "text": "🔹 [SSE EVENT RECEIVED] {type: text_chunk, content: 金沢工業大学のキャンパスには、様々な施設が整っています。}"}
+{"t": 24.1697, "type": "log", "text": "🔹 [SSE EVENT RECEIVED] {type: audio_chunk, sentence: 金沢工業大学のキャンパスには、様々な施設が整っています。, audio: UklGRiQsBwBXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZG…mAEMAOwALAAYAEQADAAIA/v/Q/77/1v/o//H/8v/V/+//8P8=}"}
+{"t": 24.173, "type": "log", "text": "🔹 [SSE EVENT RECEIVED] {type: text_chunk, content: 例えば、7号館1階には自習室があり、利用時間は365日24時間です。}"}
+{"t": 24.2578, "type": "log", "text": "[SYNC] audio_scheduled perf=24244.7 startAt=0.122 duration=5.329 ctxNow=0.102"}
+{"t": 24.4188, "type": "error", "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"}
+{"t": 24.4191, "type": "log", "text": "[LipSync] start"}
+{"t": 24.4456, "type": "log", "text": "🔹 [SSE EVENT RECEIVED] {type: audio_chunk, sentence: 例えば、7号館1階には自習室があり、利用時間は365日24時間です。, audio: UklGRiSQCQBXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZG…iADIAMgAdAB4AJwAZAB4AKwD4/9P/0f/s/+X/CQAfABcAEQA=}"}
+{"t": 24.4459, "type": "log", "text": "🔹 [SSE EVENT RECEIVED] {type: text_chunk, content: ここでは、個人学習やグループ討議に活用できます。また}"}
+{"t": 24.5268, "type": "log", "text": "[SYNC] audio_scheduled perf=24513.5 startAt=5.451 duration=7.105 ctxNow=0.372"}
+{"t": 24.757, "type": "log", "text": "🔹 [SSE EVENT RECEIVED] {type: audio_chunk, sentence: ここでは、個人学習やグループ討議に活用できます。また, audio: UklGRiSYBgBXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZG…AYABrAEsARQBqAGcAUwBVAC4AAQAIAC4AKwA8ACsAIAAAAA==}"}
+{"t": 24.7573, "type": "log", "text": "🔹 [SSE EVENT RECEIVED] {type: text_chunk, content: 、各建物にはラウンジもあり、利用時間は建物ごとに異なります。}"}
+{"t": 24.8334, "type": "log", "text": "[SYNC] audio_scheduled perf=24820.3 startAt=12.556 duration=4.899 ctxNow=0.682"}
+{"t": 25.2057, "type": "log", "text": "🔹 [SSE EVENT RECEIVED] {type: audio_chunk, sentence: 、各建物にはラウンジもあり、利用時間は建物ごとに異なります。, audio: UklGRiQgBwBXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZG…+AFsAZABDADgASwBOAFEAUAAhAP7/CgApADAAOAAoADAAIQA=}"}
+{"t": 25.206, "type": "log", "text": "🔹 [SSE EVENT RECEIVED] {type: text_chunk, content: また、南校地にはアントレプレナーズラボがあり、学生がイノベーションに向けた活動を行う場となっています。}"}
+{"t": 25.2895, "type": "log", "text": "[SYNC] audio_scheduled perf=25276.2 startAt=17.455 duration=5.294 ctxNow=1.132"}
+{"t": 25.812, "type": "log", "text": "🔹 [SSE EVENT RECEIVED] {type: audio_chunk, sentence: また、南校地にはアントレプレナーズラボがあり、学生がイノベーションに向けた活動を行う場となっています。, audio: UklGRiR4CgBXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZG…/y//S/8X/pv+m/6z/o/+x/8r/zf/u/xcAFAAeACsAAQD//wcA}"}
+{"t": 25.8123, "type": "log", "text": "🔹 [SSE EVENT RECEIVED] {type: text_chunk, content: プロジェクトブースやデザインスタジオもあり、地域社会の課題解決に取り組むプロジェクトが展開されています。}"}
+{"t": 25.8885, "type": "log", "text": "[SYNC] audio_scheduled perf=25875.4 startAt=22.749 duration=7.779 ctxNow=1.733"}
+{"t": 26.271, "type": "log", "text": "🔹 [SSE EVENT RECEIVED] {type: audio_chunk, sentence: プロジェクトブースやデザインスタジオもあり、地域社会の課題解決に取り組むプロジェクトが展開されています。, audio: UklGRiSoCgBXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZG…AdgCQAJcAgwB/AI4AiAB4AGwAWABeAGkAVQBbAHAASwA4ADwA}"}
+{"t": 26.2712, "type": "log", "text": "🔹 [SSE EVENT RECEIVED] {type: text_chunk, content: さらに、天池自然学苑では、体育の授業や課外活動が行われており、広大な施設が利用可能です。}"}
+{"t": 26.3538, "type": "log", "text": "[SYNC] audio_scheduled perf=26340.8 startAt=30.528 duration=7.918 ctxNow=2.200"}
+{"t": 26.4635, "type": "log", "text": "🔹 [SSE EVENT RECEIVED] {type: audio_chunk, sentence: さらに、天池自然学苑では、体育の授業や課外活動が行われており、広大な施設が利用可能です。, audio: UklGRiRMCwBXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZG…YACkALAAZABgAIgAbABkAGAD2/9v/5P/5//3/AADy//T/5v8=}"}
+{"t": 26.4637, "type": "log", "text": "🔹 [SSE EVENT RECEIVED] {type: text_chunk, content: 研究活動はやつかほリサーチキャンパスで行われ}"}
+{"t": 26.4759, "type": "log", "text": "🔹 [SSE EVENT RECEIVED] {type: audio_chunk, sentence: 研究活動はやつかほリサーチキャンパスで行われ, audio: UklGRiSwBQBXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZG…AOQBQAFcAQABFAFoAVgBTAFIALgAVAB8AOAA8AD4AMwBDADUA}"}
+{"t": 26.4761, "type": "log", "text": "🔹 [SSE EVENT RECEIVED] {type: timing, total_ms: 4594}"}
+{"t": 26.4765, "type": "log", "text": "🔹 [SSE EVENT RECEIVED] {type: done, message: 応答完了}"}
+{"t": 26.5621, "type": "log", "text": "[SYNC] audio_scheduled perf=26548.6 startAt=38.446 duration=8.394 ctxNow=2.412"}
+{"t": 26.5623, "type": "log", "text": "[SYNC] audio_scheduled perf=26549.3 startAt=46.840 duration=4.226 ctxNow=2.412"}
+{"t": 76.1234, "type": "error", "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"}
+{"t": 76.1236, "type": "log", "text": "[LipSync] stop"}

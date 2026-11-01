@@ -37,22 +37,19 @@ WORKDIR /workspace
 COPY requirements.txt /workspace/
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . .
-
 RUN python3 -c "import pyopenjtalk; pyopenjtalk._lazy_init()"
 
-# Hugging Faceのモデルダウンロード
-ARG HF_USERNAME
-ARG HF_TOKEN
-ENV HF_USERNAME=${HF_USERNAME}
-ENV HF_TOKEN=${HF_TOKEN}
-
-# 認証を通してモデルをダウンロード
-RUN git clone https://${HF_USERNAME}:${HF_TOKEN}@huggingface.co/ku-nlp/deberta-v2-large-japanese-char-wwm \
+# 公開されている日本語DeBERTaモデルを取得する。
+# 認証情報をDockerレイヤーやビルドログへ埋め込まない。
+RUN git clone https://huggingface.co/ku-nlp/deberta-v2-large-japanese-char-wwm \
     /usr/local/lib/python3.10/dist-packages/style_bert_vits2/bert/deberta-v2-large-japanese-char-wwm || echo "Model clone failed or already exists"
 
 # 実行ユーザーの作成
 RUN useradd -m appuser
+
+# アプリケーションコードは最後にコピーし、コード変更時もモデル層を再利用する。
+COPY . .
+
 USER appuser
 
 # 起動コマンド

@@ -1,0 +1,13 @@
+{
+  "id": "03-multiple-actions",
+  "title": "複数動作の連続指示",
+  "input": "お辞儀をしてから、椅子に座ってください。",
+  "backend": true,
+  "duration_sec": 45,
+  "watch": [
+    "2つの動作が両方出るか(現構成は bvhText が単一なので上書きされる可能性)",
+    "順序が指示どおりか",
+    "座位が維持されるか(BvhViewer の hold-final-as-posture)"
+  ],
+  "why": "1発話に複数モーションを載せられるかを見る。現構成の構造的な上限が出る。"
+}

@@ -1,0 +1,50 @@
+{
+  "label": "sentiavatar",
+  "url": "http://localhost:4000",
+  "avatar": "gakucho_v3_suit.glb",
+  "recorded_at": "20260826-102351",
+  "results": [
+    {
+      "id": "01-greeting",
+      "logs": 65,
+      "sync": 6,
+      "video": true,
+      "audio_chunks": 2
+    },
+    {
+      "id": "02-long-explanation",
+      "logs": 181,
+      "sync": 35,
+      "video": true,
+      "audio_chunks": 7
+    },
+    {
+      "id": "03-multiple-actions",
+      "logs": 82,
+      "sync": 10,
+      "video": true,
+      "audio_chunks": 2
+    },
+    {
+      "id": "04-no-gesture",
+      "logs": 80,
+      "sync": 11,
+      "video": true,
+      "audio_chunks": 3
+    },
+    {
+      "id": "05-consecutive-turns",
+      "logs": 119,
+      "sync": 16,
+      "video": true,
+      "audio_chunks": 4
+    },
+    {
+      "id": "06-offline-motion",
+      "logs": 42,
+      "sync": 1,
+      "video": true,
+      "audio_chunks": 0
+    }
+  ]
+}

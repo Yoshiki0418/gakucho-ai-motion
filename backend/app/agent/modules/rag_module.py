@@ -76,6 +76,11 @@ class RAGModule:
         prompt = template.replace("{{query}}", query)
         prompt = prompt.replace("{{context}}", context_text)
 
+        # RAG(学内情報)経路では行動生成を行わない。
+        # 身体動作は日常対話のマルチエージェント側だけの責務という設計方針のため、
+        # テンプレートにプレースホルダが残っていても空にして落とす。
+        prompt = prompt.replace("{{action_tags}}", "")
+
         print("\n[DEBUG RAG] ===================")
         print(f"Retrieved Context:\n{context_text}")
         print("=================================\n")

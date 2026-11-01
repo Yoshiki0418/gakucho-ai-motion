@@ -1,0 +1,538 @@
+{
+  "version": 1,
+  "created_at": "2026-10-13T13:13:45Z",
+  "usage": "User-authorized room navigation prototype. Generated motion primitives plus deterministic path placement/contact correction; no reinforcement-learning policy.",
+  "normalization": {
+    "height_meters": 1.8,
+    "axes": "Y-up, +X left",
+    "walk": "Loop frames260–372 inclusive; remove root X/Z, preserve Y and all generated rotations.",
+    "stand": "Exact reverse of the same generated sit. Not an independently generated or recorded stand-up."
+  },
+  "assets": [
+    {
+      "kind": "walk",
+      "url": "/motions/room-prototype/walk.bvh",
+      "provenance": "t2m_generated",
+      "source_path": "/tmp/gakucho-motion-analysis-20261012/final-walk-1.bvh",
+      "derived_from": null,
+      "bytes": 1222629,
+      "sha256": "47b97edde3cf0c047dc7f8af84ba2da493c18b7bd3c5d8f3ae25838c3f6fbfa0"
+    },
+    {
+      "kind": "sit",
+      "url": "/motions/room-prototype/sit.bvh",
+      "provenance": "t2m_generated",
+      "source_path": "/gpu-server/yamamoto/Custom-T2M-Lab/web_viewer/static/results/realtime_23201f4ad386495983534028dd5a673c.bvh",
+      "derived_from": null,
+      "bytes": 457437,
+      "sha256": "98f045e63113373ac12618cda3a3b219008a5b81193e86ec1329727599924f8a"
+    },
+    {
+      "kind": "stand",
+      "url": "/motions/room-prototype/stand.bvh",
+      "provenance": "reversed_t2m_generated_sit",
+      "source_path": "/gpu-server/yamamoto/Custom-T2M-Lab/web_viewer/static/results/realtime_23201f4ad386495983534028dd5a673c.bvh",
+      "derived_from": "sit.bvh",
+      "bytes": 457437,
+      "sha256": "807198308da55f4b3f460de965172426812277cc21e13bd71bc0760fb54e1edd"
+    }
+  ],
+  "total_bytes": 2137503,
+  "analysis": {
+    "walkLoop": {
+      "startFrame": 260,
+      "endFrame": 372,
+      "startSeconds": 2.6,
+      "endSeconds": 3.72,
+      "periodSeconds": 1.12,
+      "strideMeters": 0.6483920017138907,
+      "speedMetersPerSecond": 0.5789214301016881,
+      "travelHeadingRadians": 0.09220043721550454,
+      "rootYRangeMeters": 0.035196125507354736,
+      "boundaryMaxRotationRadians": 4.2146848510894035e-8,
+      "boundaryRootYErrorMeters": 0
+    },
+    "sharedGeneratedRig": {
+      "boneNamesIdentical": true,
+      "boneOffsetsIdentical": true,
+      "heightMeters": 1.8
+    },
+    "poses": {
+      "walk": {
+        "kind": "walk",
+        "sourceUrl": "/motions/room-prototype/walk.bvh",
+        "provenance": "t2m_generated",
+        "intentPrompt": "歩く",
+        "generationPrompt": "立っている状態から、歩く。",
+        "sourceDurationSeconds": 7.68,
+        "durationSeconds": 1.12,
+        "frameCount": 769,
+        "frameTimeSeconds": 0.01,
+        "sourceRestHeightMeters": 1.592,
+        "normalizedHeightMeters": 1.8,
+        "scale": 1.1306532663316582,
+        "restGroundedRootPosition": [
+          0,
+          0.8835060301507537,
+          0
+        ],
+        "rootStartPosition": [
+          0,
+          0.9534121155738831,
+          0
+        ],
+        "rootEndPosition": [
+          0,
+          0.9534121155738831,
+          0
+        ],
+        "sourceRootStartPosition": [
+          0,
+          0.9290001392364502,
+          0
+        ],
+        "sourceRootEndPosition": [
+          0.31839874386787415,
+          0.9611479640007019,
+          3.716202974319458
+        ],
+        "nativeHeadingRadians": 0.09220043721550454,
+        "firstPose": {
+          "hips": [
+            0,
+            0.9534121155738831,
+            0
+          ],
+          "leftHip": [
+            0.09458051404382306,
+            0.9537222064316505,
+            0.00553925959638361
+          ],
+          "rightHip": [
+            -0.09458051404382306,
+            0.9531020247161156,
+            -0.00553925959638361
+          ],
+          "leftKnee": [
+            0.07345987668496332,
+            0.5670377308050869,
+            0.1460759949433742
+          ],
+          "rightKnee": [
+            -0.07923300958273982,
+            0.5414825232973519,
+            -0.012980873474362324
+          ],
+          "leftFoot": [
+            0.05718171674185423,
+            0.15745334687080803,
+            0.1401888175855202
+          ],
+          "rightFoot": [
+            -0.04365456198212121,
+            0.16682366839825596,
+            -0.17553523215758218
+          ],
+          "leftToe": [
+            0.05887880911094476,
+            0.10895094877583811,
+            0.28727338414714787
+          ],
+          "rightToe": [
+            -0.07784070641050125,
+            0.09808353385825352,
+            -0.041016335523517966
+          ],
+          "head": [
+            -0.017883104635072325,
+            1.6746882523592086,
+            0.05108272292378031
+          ],
+          "footFloorY": 0.09808353385825352,
+          "hipToFootFloor": 0.8553285817156295,
+          "leftKneeFlexionDegrees": 20.785365903359306,
+          "rightKneeFlexionDegrees": 22.552932719322225,
+          "kneeForwardHeadingRadians": -0.04334881883217823
+        },
+        "finalPose": {
+          "hips": [
+            0,
+            0.9534121155738831,
+            0
+          ],
+          "leftHip": [
+            0.09458051404382306,
+            0.9537222064316505,
+            0.00553925959638361
+          ],
+          "rightHip": [
+            -0.09458051404382306,
+            0.9531020247161156,
+            -0.00553925959638361
+          ],
+          "leftKnee": [
+            0.07345987668496332,
+            0.5670377308050869,
+            0.1460759949433742
+          ],
+          "rightKnee": [
+            -0.07923300958273982,
+            0.5414825232973519,
+            -0.012980873474362324
+          ],
+          "leftFoot": [
+            0.05718171674185423,
+            0.15745334687080803,
+            0.1401888175855202
+          ],
+          "rightFoot": [
+            -0.04365456198212121,
+            0.16682366839825596,
+            -0.17553523215758218
+          ],
+          "leftToe": [
+            0.05887880911094476,
+            0.10895094877583811,
+            0.28727338414714787
+          ],
+          "rightToe": [
+            -0.07784070641050125,
+            0.09808353385825352,
+            -0.041016335523517966
+          ],
+          "head": [
+            -0.017883104635072325,
+            1.6746882523592086,
+            0.05108272292378031
+          ],
+          "footFloorY": 0.09808353385825352,
+          "hipToFootFloor": 0.8553285817156295,
+          "leftKneeFlexionDegrees": 20.785365903359306,
+          "rightKneeFlexionDegrees": 22.552932719322225,
+          "kneeForwardHeadingRadians": -0.04334881883217823
+        },
+        "walkLoop": {
+          "startFrame": 260,
+          "endFrame": 372,
+          "startSeconds": 2.6,
+          "endSeconds": 3.72,
+          "periodSeconds": 1.12,
+          "strideMeters": 0.6483920017138907,
+          "speedMetersPerSecond": 0.5789214301016881,
+          "travelHeadingRadians": 0.09220043721550454,
+          "rootYRangeMeters": 0.035196125507354736,
+          "boundaryMaxRotationRadians": 4.2146848510894035e-8,
+          "boundaryRootYErrorMeters": 0
+        }
+      },
+      "sit": {
+        "kind": "sit",
+        "sourceUrl": "/motions/room-prototype/sit.bvh",
+        "provenance": "t2m_generated",
+        "intentPrompt": "椅子に座る",
+        "generationPrompt": null,
+        "sourceDurationSeconds": 2.7600000000000002,
+        "durationSeconds": 2.7600000000000002,
+        "frameCount": 277,
+        "frameTimeSeconds": 0.01,
+        "sourceRestHeightMeters": 1.592,
+        "normalizedHeightMeters": 1.8,
+        "scale": 1.1306532663316582,
+        "restGroundedRootPosition": [
+          0,
+          0.8835060301507537,
+          0
+        ],
+        "rootStartPosition": [
+          0,
+          0.8492200970649719,
+          0
+        ],
+        "rootEndPosition": [
+          -0.014563944190740585,
+          0.5458273887634277,
+          -0.3254472315311432
+        ],
+        "sourceRootStartPosition": [
+          0,
+          0.8492200970649719,
+          0
+        ],
+        "sourceRootEndPosition": [
+          -0.014563944190740585,
+          0.5458273887634277,
+          -0.3254472315311432
+        ],
+        "nativeHeadingRadians": -0.006862014489614336,
+        "firstPose": {
+          "hips": [
+            0,
+            0.8492200970649719,
+            0
+          ],
+          "leftHip": [
+            0.09473853536184412,
+            0.8500831801985839,
+            0.00034379279931353153
+          ],
+          "rightHip": [
+            -0.09473853536184412,
+            0.84835701393136,
+            -0.00034379279931353153
+          ],
+          "leftKnee": [
+            0.09206838785091528,
+            0.48856335164819187,
+            0.19787308857619346
+          ],
+          "rightKnee": [
+            -0.0913241905988149,
+            0.49703587219681256,
+            0.21479181541725476
+          ],
+          "leftFoot": [
+            0.07242682843000411,
+            0.09302385954814363,
+            0.09194044956593722
+          ],
+          "rightFoot": [
+            -0.07965213710897541,
+            0.09926942605706363,
+            0.1162798031969566
+          ],
+          "leftToe": [
+            0.0930496192572697,
+            0.0310652518887228,
+            0.2323863958181293
+          ],
+          "rightToe": [
+            -0.10872607657207414,
+            0.03524984774228439,
+            0.2542849890613455
+          ],
+          "head": [
+            -0.026780953378804283,
+            1.3716402873686508,
+            0.49598907150416494
+          ],
+          "footFloorY": 0.0310652518887228,
+          "hipToFootFloor": 0.8181548451762491,
+          "leftKneeFlexionDegrees": 43.68901088218499,
+          "rightKneeFlexionDegrees": 45.39771603983683,
+          "kneeForwardHeadingRadians": 0.0018033916578165414
+        },
+        "finalPose": {
+          "hips": [
+            -0.014563944190740585,
+            0.5458273887634277,
+            -0.3254472315311432
+          ],
+          "leftHip": [
+            0.08013157333217986,
+            0.5445536093500339,
+            -0.32816561989493653
+          ],
+          "rightHip": [
+            -0.10925946171366104,
+            0.5471011681768215,
+            -0.32272884316734984
+          ],
+          "leftKnee": [
+            0.12106312478303329,
+            0.5284811519295745,
+            0.08145350510819244
+          ],
+          "rightKnee": [
+            -0.15580453333478278,
+            0.5198258147800607,
+            0.08569636415960102
+          ],
+          "leftFoot": [
+            0.09455161847961813,
+            0.12337433877217757,
+            0.02449192201033959
+          ],
+          "rightFoot": [
+            -0.13148332125301876,
+            0.12310013431790101,
+            -0.014683943664396404
+          ],
+          "leftToe": [
+            0.12170468404246045,
+            0.059537965333008674,
+            0.1629724690951299
+          ],
+          "rightToe": [
+            -0.2116556219831881,
+            0.05802179925550954,
+            0.10075627404000809
+          ],
+          "head": [
+            -0.027292279274256037,
+            1.2611432627625572,
+            -0.4040192415703238
+          ],
+          "footFloorY": 0.05802179925550954,
+          "hipToFootFloor": 0.4878055895079182,
+          "leftKneeFlexionDegrees": 96.08631792028932,
+          "rightKneeFlexionDegrees": 100.68347763665528,
+          "kneeForwardHeadingRadians": -0.006862014489614336
+        }
+      },
+      "stand": {
+        "kind": "stand",
+        "sourceUrl": "/motions/room-prototype/stand.bvh",
+        "provenance": "reversed_t2m_generated_sit",
+        "intentPrompt": "椅子から立ち上がる",
+        "generationPrompt": null,
+        "sourceDurationSeconds": 2.7600000000000002,
+        "durationSeconds": 2.7600000000000002,
+        "frameCount": 277,
+        "frameTimeSeconds": 0.01,
+        "sourceRestHeightMeters": 1.592,
+        "normalizedHeightMeters": 1.8,
+        "scale": 1.1306532663316582,
+        "restGroundedRootPosition": [
+          0,
+          0.8835060301507537,
+          0
+        ],
+        "rootStartPosition": [
+          -0.014563944190740585,
+          0.5458273887634277,
+          -0.3254472315311432
+        ],
+        "rootEndPosition": [
+          0,
+          0.8492200970649719,
+          0
+        ],
+        "sourceRootStartPosition": [
+          -0.014563944190740585,
+          0.5458273887634277,
+          -0.3254472315311432
+        ],
+        "sourceRootEndPosition": [
+          0,
+          0.8492200970649719,
+          0
+        ],
+        "nativeHeadingRadians": -0.006862014489614336,
+        "firstPose": {
+          "hips": [
+            -0.014563944190740585,
+            0.5458273887634277,
+            -0.3254472315311432
+          ],
+          "leftHip": [
+            0.08013157333217986,
+            0.5445536093500339,
+            -0.32816561989493653
+          ],
+          "rightHip": [
+            -0.10925946171366104,
+            0.5471011681768215,
+            -0.32272884316734984
+          ],
+          "leftKnee": [
+            0.12106312478303329,
+            0.5284811519295745,
+            0.08145350510819244
+          ],
+          "rightKnee": [
+            -0.15580453333478278,
+            0.5198258147800607,
+            0.08569636415960102
+          ],
+          "leftFoot": [
+            0.09455161847961813,
+            0.12337433877217757,
+            0.02449192201033959
+          ],
+          "rightFoot": [
+            -0.13148332125301876,
+            0.12310013431790101,
+            -0.014683943664396404
+          ],
+          "leftToe": [
+            0.12170468404246045,
+            0.059537965333008674,
+            0.1629724690951299
+          ],
+          "rightToe": [
+            -0.2116556219831881,
+            0.05802179925550954,
+            0.10075627404000809
+          ],
+          "head": [
+            -0.027292279274256037,
+            1.2611432627625572,
+            -0.4040192415703238
+          ],
+          "footFloorY": 0.05802179925550954,
+          "hipToFootFloor": 0.4878055895079182,
+          "leftKneeFlexionDegrees": 96.08631792028932,
+          "rightKneeFlexionDegrees": 100.68347763665528,
+          "kneeForwardHeadingRadians": -0.006862014489614336
+        },
+        "finalPose": {
+          "hips": [
+            0,
+            0.8492200970649719,
+            0
+          ],
+          "leftHip": [
+            0.09473853536184412,
+            0.8500831801985839,
+            0.00034379279931353153
+          ],
+          "rightHip": [
+            -0.09473853536184412,
+            0.84835701393136,
+            -0.00034379279931353153
+          ],
+          "leftKnee": [
+            0.09206838785091528,
+            0.48856335164819187,
+            0.19787308857619346
+          ],
+          "rightKnee": [
+            -0.0913241905988149,
+            0.49703587219681256,
+            0.21479181541725476
+          ],
+          "leftFoot": [
+            0.07242682843000411,
+            0.09302385954814363,
+            0.09194044956593722
+          ],
+          "rightFoot": [
+            -0.07965213710897541,
+            0.09926942605706363,
+            0.1162798031969566
+          ],
+          "leftToe": [
+            0.0930496192572697,
+            0.0310652518887228,
+            0.2323863958181293
+          ],
+          "rightToe": [
+            -0.10872607657207414,
+            0.03524984774228439,
+            0.2542849890613455
+          ],
+          "head": [
+            -0.026780953378804283,
+            1.3716402873686508,
+            0.49598907150416494
+          ],
+          "footFloorY": 0.0310652518887228,
+          "hipToFootFloor": 0.8181548451762491,
+          "leftKneeFlexionDegrees": 43.68901088218499,
+          "rightKneeFlexionDegrees": 45.39771603983683,
+          "kneeForwardHeadingRadians": 0.0018033916578165414
+        }
+      }
+    }
+  }
+}

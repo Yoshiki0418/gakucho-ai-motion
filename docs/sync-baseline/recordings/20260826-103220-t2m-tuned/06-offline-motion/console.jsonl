@@ -1,0 +1,42 @@
+{"t": 0.627, "type": "info", "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"}
+{"t": 0.9846, "type": "log", "text": "[BvhViewer] viewMode changed → 'robot'"}
+{"t": 1.0206, "type": "log", "text": "[characterRig] source rig captured: bones=68, flavor=mixamo-like, mapped=55, groundedRootY=0.932"}
+{"t": 1.0328, "type": "log", "text": "[BvhViewer] Robot rig built: parts=96, avgLen=0.18, limbR=0.03, head=Head, chest=Spine4, hips=Hips, shoulders=[LeftShoulder,RightShoulder], hands=[LeftHand,RightHand], feet=[LeftFoot,RightFoot]"}
+{"t": 1.0367, "type": "log", "text": "[BvhViewer] auto-fit dimensions: {maxDim: 1.7919378006648448, fitDist: 4.479844501662112, bCenter: Vector3, bSize: Vector3}"}
+{"t": 1.1083, "type": "warning", "text": "[.WebGL-0xe94016aba00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels"}
+{"t": 1.1984, "type": "warning", "text": "[.WebGL-0xe94016aba00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels"}
+{"t": 1.2389, "type": "warning", "text": "[.WebGL-0xe94016aba00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels"}
+{"t": 1.2618, "type": "warning", "text": "[.WebGL-0xe94016aba00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"}
+{"t": 1.357, "type": "log", "text": "[characterRig] loaded \"/avatars/character.glb\": flavor=mixamo, bones=67, mapped=52, skinnedMeshes=2, secondaryRigs=0, mergedBones=0, graftedBones=0, headAttached=0, naturalHeight=1.809"}
+{"t": 1.3589, "type": "log", "text": "[characterRig] bound 52 bones (mixamo ← mixamo-like), rest aligned to source T-pose: 14 bones (max 39.2 deg), groundOffset=-0.0032, autoYaw=0.0deg"}
+{"t": 1.3591, "type": "log", "text": "[BvhViewer] character fitted: bvhHeight=1.8, naturalHeight=1.81, scale=0.991, groundY=0.003, yaw=0.0deg"}
+{"t": 1.3593, "type": "log", "text": "[BvhViewer] avatar applied: /avatars/character.glb"}
+{"t": 4.527, "type": "error", "text": "%s a style property during rerender (%s) when a conflicting property is set (%s) can lead to styling bugs. To avoid this, don't mix shorthand and non-shorthand properties for the same value; instead, replace the shorthand with separate values. Removing borderColor borderBottom"}
+{"t": 4.5278, "type": "error", "text": "%s a style property during rerender (%s) when a conflicting property is set (%s) can lead to styling bugs. To avoid this, don't mix shorthand and non-shorthand properties for the same value; instead, replace the shorthand with separate values. Removing borderColor borderLeft"}
+{"t": 4.5293, "type": "error", "text": "%s a style property during rerender (%s) when a conflicting property is set (%s) can lead to styling bugs. To avoid this, don't mix shorthand and non-shorthand properties for the same value; instead, replace the shorthand with separate values. Removing borderColor borderRight"}
+{"t": 4.531, "type": "error", "text": "%s a style property during rerender (%s) when a conflicting property is set (%s) can lead to styling bugs. To avoid this, don't mix shorthand and non-shorthand properties for the same value; instead, replace the shorthand with separate values. Removing borderColor borderTop"}
+{"t": 4.5323, "type": "error", "text": "%s a style property during rerender (%s) when a conflicting property is set (%s) can lead to styling bugs. To avoid this, don't mix shorthand and non-shorthand properties for the same value; instead, replace the shorthand with separate values. Updating borderColor borderBottom"}
+{"t": 4.5329, "type": "error", "text": "%s a style property during rerender (%s) when a conflicting property is set (%s) can lead to styling bugs. To avoid this, don't mix shorthand and non-shorthand properties for the same value; instead, replace the shorthand with separate values. Updating borderColor borderLeft"}
+{"t": 4.5339, "type": "error", "text": "%s a style property during rerender (%s) when a conflicting property is set (%s) can lead to styling bugs. To avoid this, don't mix shorthand and non-shorthand properties for the same value; instead, replace the shorthand with separate values. Updating borderColor borderRight"}
+{"t": 4.5347, "type": "error", "text": "%s a style property during rerender (%s) when a conflicting property is set (%s) can lead to styling bugs. To avoid this, don't mix shorthand and non-shorthand properties for the same value; instead, replace the shorthand with separate values. Updating borderColor borderTop"}
+{"t": 4.5355, "type": "log", "text": "[BvhViewer] character fitted: bvhHeight=1.8, naturalHeight=1.81, scale=0.992, groundY=0.003, yaw=0.0deg"}
+{"t": 4.5361, "type": "log", "text": "[BvhViewer] viewMode changed → 'character'"}
+{"t": 7.6834, "type": "log", "text": "[characterRig] loaded \"/avatars/gakucho_v3_suit.glb\": flavor=unreal, bones=1185, mapped=55, skinnedMeshes=14, secondaryRigs=0, mergedBones=0, graftedBones=0, headAttached=1, naturalHeight=1.680"}
+{"t": 7.6909, "type": "log", "text": "[characterRig] bound 55 bones (unreal ← mixamo-like), rest aligned to source T-pose: 38 bones (max 44.9 deg), groundOffset=-0.0198, autoYaw=0.0deg"}
+{"t": 7.6913, "type": "log", "text": "[BvhViewer] character fitted: bvhHeight=1.8, naturalHeight=1.68, scale=1.070, groundY=0.021, yaw=0.0deg"}
+{"t": 7.6916, "type": "log", "text": "[BvhViewer] avatar applied: /avatars/gakucho_v3_suit.glb"}
+{"t": 20.8977, "type": "log", "text": "[BvhViewer] loadBvh called: name=\"100.bvh\", text_len=3410236, prompt=\"100.bvh\", postureIntent=other/standing, endBehavior=return-to-standing-idle, persistent=standing, refs={scene:true, camera:true, controls:true}"}
+{"t": 20.8979, "type": "log", "text": "[BvhViewer] Parsing BVH text (length=3410236, head=\"HIERARCHY\r\\nROOT Hips\r\\n{\r\\n    OFFSET 0.000000 0.000000 0.000000\r\\n    CHANNELS 6 Xposition Yposition Zposition Zrotation X\")"}
+{"t": 20.9759, "type": "log", "text": "[characterRig] source rig captured: bones=68, flavor=mixamo-like, mapped=55, groundedRootY=0.932"}
+{"t": 20.9828, "type": "log", "text": "[characterRig] bound 55 bones (unreal ← mixamo-like), rest aligned to source T-pose: 38 bones (max 44.9 deg), groundOffset=-0.0198, autoYaw=0.0deg"}
+{"t": 20.9831, "type": "log", "text": "[BvhViewer] BVH parsed: bones=68, clip.duration=15.779999732971191s, clip.tracks=110, firstTrackName=\"Hips.position\", firstTrackValuesLen=4737"}
+{"t": 20.9889, "type": "log", "text": "[BvhViewer] Robot rig built: parts=96, avgLen=0.18, limbR=0.03, head=Head, chest=Spine4, hips=Hips, shoulders=[LeftShoulder,RightShoulder], hands=[LeftHand,RightHand], feet=[LeftFoot,RightFoot]"}
+{"t": 20.99, "type": "log", "text": "[BvhViewer] character fitted: bvhHeight=1.8, naturalHeight=1.68, scale=1.064, groundY=0.021, yaw=0.0deg"}
+{"t": 20.9919, "type": "log", "text": "[SYNC] motion_playing clip=15.78 timeScale=1.00 played=15.78"}
+{"t": 20.9921, "type": "log", "text": "[BvhViewer] Mixer started: isRunning=true, enabled=true, weight=1, clipDuration=15.779999732971191s, mixer.timeScale=1"}
+{"t": 28.568, "type": "log", "text": "[BvhViewer] heartbeat: mixerTime=7.74s, timeScale=1, delta=0.0580s, rootBonePos=[-0.57, 0.84, 0.22], rootBoneQuat=[-0.01, -0.96, 0.24, 0.12]"}
+{"t": 36.1443, "type": "log", "text": "[BvhViewer] heartbeat: mixerTime=15.32s, timeScale=1, delta=0.0697s, rootBonePos=[0.61, 0.88, -0.42], rootBoneQuat=[0.26, 0.25, 0.02, 0.93]"}
+{"t": 36.6529, "type": "log", "text": "[BvhViewer] motion finished → returning to standing idle (0.85s)"}
+{"t": 37.4964, "type": "log", "text": "[BvhViewer] idle state entered"}
+{"t": 43.9929, "type": "log", "text": "[BvhViewer] heartbeat: mixerTime=23.16s, timeScale=1, delta=0.0610s, rootBonePos=[0.00, 1.01, 0.00], rootBoneQuat=[-0.02, 0.00, 0.00, 1.00]"}
+{"t": 51.8167, "type": "log", "text": "[BvhViewer] heartbeat: mixerTime=30.99s, timeScale=1, delta=0.0726s, rootBonePos=[0.00, 1.01, 0.00], rootBoneQuat=[-0.01, -0.00, 0.00, 1.00]"}

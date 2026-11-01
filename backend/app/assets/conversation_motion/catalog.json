@@ -1,0 +1,2701 @@
+{
+ "version": 1,
+ "fps": 30.0,
+ "rootHeight": 0.8340002074325631,
+ "clips": [
+  {
+   "id": "MOT_701",
+   "label": "右手を肩の高さに上げ、手のひらを前方に向けて軽く左右に振って挨拶する",
+   "source": "mocap",
+   "sourcePath": "BVH/0010/01/005/001/001.bvh",
+   "sourceSha256": "55390f3c65dcd929b0a709f096c00a29ffc381fc71cfdad47dd4bdab40b6a037",
+   "duration": 6.333,
+   "stroke": 0.633,
+   "groups": {
+    "right_arm": {
+     "rangeDeg": 95.1,
+     "active": true
+    },
+    "left_arm": {
+     "rangeDeg": 12.9,
+     "active": true
+    },
+    "head": {
+     "rangeDeg": 4.1,
+     "active": false
+    },
+    "spine": {
+     "rangeDeg": 1.8,
+     "active": false
+    },
+    "hips": {
+     "rangeDeg": 10.1,
+     "active": true
+    }
+   },
+   "repairedFrames": 0,
+   "quality": {
+    "hipDropM": 0.0,
+    "rootTravelM": 0.024,
+    "maxAngularSpeed": 5.5,
+    "footSlideM": 0.163
+   },
+   "reference": "clipStartOntoViewerNeutral",
+   "frameStart": 0
+  },
+  {
+   "id": "MOT_702",
+   "label": "頭部をゆっくり上下に動かして同意のうなずきをする",
+   "source": "mocap",
+   "sourcePath": "BVH/0010/01/005/001/002.bvh",
+   "sourceSha256": "f1c5fa723f260c7eb9a9594dfb9a8f714eff564263cc9b71d2fcaa2ed93c7dcc",
+   "duration": 6.8,
+   "stroke": 0.8,
+   "groups": {
+    "right_arm": {
+     "rangeDeg": 5.2,
+     "active": false
+    },
+    "left_arm": {
+     "rangeDeg": 8.1,
+     "active": false
+    },
+    "head": {
+     "rangeDeg": 13.0,
+     "active": true
+    },
+    "spine": {
+     "rangeDeg": 1.5,
+     "active": false
+    },
+    "hips": {
+     "rangeDeg": 3.5,
+     "active": false
+    }
+   },
+   "repairedFrames": 0,
+   "quality": {
+    "hipDropM": 0.002,
+    "rootTravelM": 0.028,
+    "maxAngularSpeed": 1.4,
+    "footSlideM": 0.088
+   },
+   "reference": "clipStartOntoViewerNeutral",
+   "frameStart": 191
+  },
+  {
+   "id": "MOT_703",
+   "label": "頭部をゆっくり左右に振って否定・拒否の意思を示す",
+   "source": "mocap",
+   "sourcePath": "BVH/0010/01/005/001/003.bvh",
+   "sourceSha256": "9752f4386bd7f7ccb1547792363d9a53ac35c8b8062ede481cc6b46277c4fab3",
+   "duration": 6.533,
+   "stroke": 0.533,
+   "groups": {
+    "right_arm": {
+     "rangeDeg": 5.0,
+     "active": false
+    },
+    "left_arm": {
+     "rangeDeg": 4.7,
+     "active": false
+    },
+    "head": {
+     "rangeDeg": 14.1,
+     "active": true
+    },
+    "spine": {
+     "rangeDeg": 1.0,
+     "active": false
+    },
+    "hips": {
+     "rangeDeg": 3.7,
+     "active": false
+    }
+   },
+   "repairedFrames": 0,
+   "quality": {
+    "hipDropM": 0.0,
+    "rootTravelM": 0.03,
+    "maxAngularSpeed": 1.5,
+    "footSlideM": 0.066
+   },
+   "reference": "clipStartOntoViewerNeutral",
+   "frameStart": 396
+  },
+  {
+   "id": "MOT_704",
+   "label": "右手を前方に差し出し、相手の右手と握手する動作をする",
+   "source": "mocap",
+   "sourcePath": "BVH/0010/01/005/001/004.bvh",
+   "sourceSha256": "1dd44323528d4eddb6eea342c9db8f5941f69e6dfc2b0851bd119e58ff85e906",
+   "duration": 6.967,
+   "stroke": 0.6,
+   "groups": {
+    "right_arm": {
+     "rangeDeg": 63.7,
+     "active": true
+    },
+    "left_arm": {
+     "rangeDeg": 8.5,
+     "active": false
+    },
+    "head": {
+     "rangeDeg": 8.0,
+     "active": true
+    },
+    "spine": {
+     "rangeDeg": 2.1,
+     "active": false
+    },
+    "hips": {
+     "rangeDeg": 17.9,
+     "active": true
+    }
+   },
+   "repairedFrames": 0,
+   "quality": {
+    "hipDropM": 0.0,
+    "rootTravelM": 0.06,
+    "maxAngularSpeed": 7.0,
+    "footSlideM": 0.196
+   },
+   "reference": "clipStartOntoViewerNeutral",
+   "frameStart": 593
+  },
+  {
+   "id": "MOT_705",
+   "label": "右腕を前方に伸ばし、人差し指で正面を指差す",
+   "source": "mocap",
+   "sourcePath": "BVH/0010/01/005/001/005.bvh",
+   "sourceSha256": "6b59cbf19a9f5ba8037a774b7208db6ace00c34f24f26d1abeac1d479771cc2b",
+   "duration": 4.4,
+   "stroke": 0.8,
+   "groups": {
+    "right_arm": {
+     "rangeDeg": 87.0,
+     "active": true
+    },
+    "left_arm": {
+     "rangeDeg": 28.6,
+     "active": true
+    },
+    "head": {
+     "rangeDeg": 9.8,
+     "active": true
+    },
+    "spine": {
+     "rangeDeg": 5.0,
+     "active": false
+    },
+    "hips": {
+     "rangeDeg": 42.4,
+     "active": true
+    }
+   },
+   "repairedFrames": 0,
+   "quality": {
+    "hipDropM": 0.009,
+    "rootTravelM": 0.158,
+    "maxAngularSpeed": 10.2,
+    "footSlideM": 0.139
+   },
+   "reference": "clipStartOntoViewerNeutral",
+   "frameStart": 803
+  },
+  {
+   "id": "MOT_706",
+   "label": "右手の親指と人差し指で輪を作り「OK」のサインを前方に向けて示す",
+   "source": "mocap",
+   "sourcePath": "BVH/0010/01/005/001/006.bvh",
+   "sourceSha256": "84e26b06afc54382e6442a9d398fbd579670fd1e1b23c10dc3db9115e0c625ec",
+   "duration": 4.067,
+   "stroke": 0.533,
+   "groups": {
+    "right_arm": {
+     "rangeDeg": 99.1,
+     "active": true
+    },
+    "left_arm": {
+     "rangeDeg": 10.6,
+     "active": false
+    },
+    "head": {
+     "rangeDeg": 4.4,
+     "active": false
+    },
+    "spine": {
+     "rangeDeg": 3.8,
+     "active": false
+    },
+    "hips": {
+     "rangeDeg": 19.9,
+     "active": true
+    }
+   },
+   "repairedFrames": 0,
+   "quality": {
+    "hipDropM": 0.0,
+    "rootTravelM": 0.027,
+    "maxAngularSpeed": 8.2,
+    "footSlideM": 0.082
+   },
+   "reference": "clipStartOntoViewerNeutral",
+   "frameStart": 936
+  },
+  {
+   "id": "MOT_707",
+   "label": "右手のひらを前方に向けて腕を前方に伸ばし「ストップ」のサインを示す",
+   "source": "mocap",
+   "sourcePath": "BVH/0010/01/005/001/007.bvh",
+   "sourceSha256": "49ecd06a97ab7947c9cfdd736cf1362dd60b3bcbebad0cbd2c956a5e92d9a3e7",
+   "duration": 3.6,
+   "stroke": 0.667,
+   "groups": {
+    "right_arm": {
+     "rangeDeg": 90.8,
+     "active": true
+    },
+    "left_arm": {
+     "rangeDeg": 9.7,
+     "active": false
+    },
+    "head": {
+     "rangeDeg": 8.8,
+     "active": true
+    },
+    "spine": {
+     "rangeDeg": 2.7,
+     "active": false
+    },
+    "hips": {
+     "rangeDeg": 22.7,
+     "active": true
+    }
+   },
+   "repairedFrames": 0,
+   "quality": {
+    "hipDropM": 0.001,
+    "rootTravelM": 0.027,
+    "maxAngularSpeed": 10.1,
+    "footSlideM": 0.075
+   },
+   "reference": "clipStartOntoViewerNeutral",
+   "frameStart": 1059
+  },
+  {
+   "id": "MOT_708",
+   "label": "両肩を同時に上方に持ち上げ、少し間をおいて元に戻すことで「わからない」を表す",
+   "source": "mocap",
+   "sourcePath": "BVH/0010/01/005/001/008.bvh",
+   "sourceSha256": "d5f7fe571fcd9dcdaf2446dd251da567c3ddd264f7e1451e50f98f7e3f7ff0f9",
+   "duration": 4.133,
+   "stroke": 0.467,
+   "groups": {
+    "right_arm": {
+     "rangeDeg": 138.7,
+     "active": true
+    },
+    "left_arm": {
+     "rangeDeg": 139.1,
+     "active": true
+    },
+    "head": {
+     "rangeDeg": 12.6,
+     "active": true
+    },
+    "spine": {
+     "rangeDeg": 2.3,
+     "active": false
+    },
+    "hips": {
+     "rangeDeg": 4.1,
+     "active": false
+    }
+   },
+   "repairedFrames": 0,
+   "quality": {
+    "hipDropM": 0.003,
+    "rootTravelM": 0.03,
+    "maxAngularSpeed": 10.2,
+    "footSlideM": 0.058
+   },
+   "reference": "clipStartOntoViewerNeutral",
+   "frameStart": 1168
+  },
+  {
+   "id": "MOT_709",
+   "label": "両手のひらを合わせてリズミカルに拍手する",
+   "source": "mocap",
+   "sourcePath": "BVH/0010/01/005/001/009.bvh",
+   "sourceSha256": "6fb5cd1aecbecd170d13314956557c29f54c6db80dc0c7decf1871977ed5b210",
+   "duration": 6.667,
+   "stroke": 0.633,
+   "groups": {
+    "right_arm": {
+     "rangeDeg": 117.4,
+     "active": true
+    },
+    "left_arm": {
+     "rangeDeg": 110.6,
+     "active": true
+    },
+    "head": {
+     "rangeDeg": 4.8,
+     "active": false
+    },
+    "spine": {
+     "rangeDeg": 0.6,
+     "active": false
+    },
+    "hips": {
+     "rangeDeg": 3.8,
+     "active": false
+    }
+   },
+   "repairedFrames": 1,
+   "quality": {
+    "hipDropM": 0.001,
+    "rootTravelM": 0.025,
+    "maxAngularSpeed": 9.8,
+    "footSlideM": 0.122
+   },
+   "reference": "clipStartOntoViewerNeutral",
+   "frameStart": 1293
+  },
+  {
+   "id": "MOT_710",
+   "label": "右手を右こめかみ付近に当てて敬礼のポーズを取る",
+   "source": "mocap",
+   "sourcePath": "BVH/0010/01/005/001/010.bvh",
+   "sourceSha256": "5f3b0c57cfc420a828b62e3e6a539d370693f40a3f32e0444e4f198a86959725",
+   "duration": 4.067,
+   "stroke": 0.567,
+   "groups": {
+    "right_arm": {
+     "rangeDeg": 106.9,
+     "active": true
+    },
+    "left_arm": {
+     "rangeDeg": 7.2,
+     "active": false
+    },
+    "head": {
+     "rangeDeg": 4.8,
+     "active": false
+    },
+    "spine": {
+     "rangeDeg": 2.0,
+     "active": false
+    },
+    "hips": {
+     "rangeDeg": 12.7,
+     "active": true
+    }
+   },
+   "repairedFrames": 0,
+   "quality": {
+    "hipDropM": 0.0,
+    "rootTravelM": 0.027,
+    "maxAngularSpeed": 9.2,
+    "footSlideM": 0.055
+   },
+   "reference": "clipStartOntoViewerNeutral",
+   "frameStart": 1494
+  },
+  {
+   "id": "MOT_711",
+   "label": "腰を前方に曲げて頭を下げ、礼をする",
+   "source": "mocap",
+   "sourcePath": "BVH/0010/01/005/001/011.bvh",
+   "sourceSha256": "de7c65943e8f9c7d32b91a93528ab590b08f3bb36563a8af16a35572cf900b6e",
+   "duration": 6.433,
+   "stroke": 1.867,
+   "groups": {
+    "right_arm": {
+     "rangeDeg": 69.2,
+     "active": true
+    },
+    "left_arm": {
+     "rangeDeg": 54.0,
+     "active": true
+    },
+    "head": {
+     "rangeDeg": 4.7,
+     "active": false
+    },
+    "spine": {
+     "rangeDeg": 9.8,
+     "active": true
+    },
+    "hips": {
+     "rangeDeg": 36.0,
+     "active": true
+    }
+   },
+   "repairedFrames": 0,
+   "quality": {
+    "hipDropM": 0.006,
+    "rootTravelM": 0.239,
+    "maxAngularSpeed": 7.1,
+    "footSlideM": 0.161
+   },
+   "reference": "clipStartOntoViewerNeutral",
+   "frameStart": 1617
+  },
+  {
+   "id": "MOT_712",
+   "label": "右手を上げて相手の左手と高い位置でハイタッチをする動作をする",
+   "source": "mocap",
+   "sourcePath": "BVH/0010/01/005/001/012.bvh",
+   "sourceSha256": "ac184370addd4e6efa1b6e3e953d00de74dc5b72ed69716e69b2e80f8c9309b6",
+   "duration": 4.967,
+   "stroke": 0.733,
+   "groups": {
+    "right_arm": {
+     "rangeDeg": 105.8,
+     "active": true
+    },
+    "left_arm": {
+     "rangeDeg": 22.8,
+     "active": true
+    },
+    "head": {
+     "rangeDeg": 7.9,
+     "active": true
+    },
+    "spine": {
+     "rangeDeg": 4.0,
+     "active": false
+    },
+    "hips": {
+     "rangeDeg": 29.7,
+     "active": true
+    }
+   },
+   "repairedFrames": 0,
+   "quality": {
+    "hipDropM": 0.001,
+    "rootTravelM": 0.059,
+    "maxAngularSpeed": 16.6,
+    "footSlideM": 0.273
+   },
+   "reference": "clipStartOntoViewerNeutral",
+   "frameStart": 1811
+  },
+  {
+   "id": "MOT_713",
+   "label": "右手の人差し指を左右に振って「ダメ・禁止」を示す",
+   "source": "mocap",
+   "sourcePath": "BVH/0010/01/005/001/013.bvh",
+   "sourceSha256": "1a4a24df1fb0b33b5fc58e9b2a03164e40424d9741dbd7801bf9f3431641154d",
+   "duration": 6.367,
+   "stroke": 0.767,
+   "groups": {
+    "right_arm": {
+     "rangeDeg": 67.4,
+     "active": true
+    },
+    "left_arm": {
+     "rangeDeg": 10.0,
+     "active": false
+    },
+    "head": {
+     "rangeDeg": 1.6,
+     "active": false
+    },
+    "spine": {
+     "rangeDeg": 1.5,
+     "active": false
+    },
+    "hips": {
+     "rangeDeg": 7.5,
+     "active": false
+    }
+   },
+   "repairedFrames": 0,
+   "quality": {
+    "hipDropM": 0.0,
+    "rootTravelM": 0.019,
+    "maxAngularSpeed": 8.9,
+    "footSlideM": 0.165
+   },
+   "reference": "clipStartOntoViewerNeutral",
+   "frameStart": 1961
+  },
+  {
+   "id": "MOT_714",
+   "label": "右手の親指を上に立てて「いいね・賛成」のサムズアップを示す",
+   "source": "mocap",
+   "sourcePath": "BVH/0010/01/005/001/014.bvh",
+   "sourceSha256": "fd861125ac8ced7f7412f0f37f2be3e8c41aa6bd73808c4f954eab5daac9d5f1",
+   "duration": 6.733,
+   "stroke": 0.833,
+   "groups": {
+    "right_arm": {
+     "rangeDeg": 110.2,
+     "active": true
+    },
+    "left_arm": {
+     "rangeDeg": 31.9,
+     "active": true
+    },
+    "head": {
+     "rangeDeg": 7.0,
+     "active": true
+    },
+    "spine": {
+     "rangeDeg": 1.7,
+     "active": false
+    },
+    "hips": {
+     "rangeDeg": 14.5,
+     "active": true
+    }
+   },
+   "repairedFrames": 2,
+   "quality": {
+    "hipDropM": 0.001,
+    "rootTravelM": 0.044,
+    "maxAngularSpeed": 19.9,
+    "footSlideM": 0.143
+   },
+   "reference": "clipStartOntoViewerNeutral",
+   "frameStart": 2153
+  },
+  {
+   "id": "MOT_715",
+   "label": "右手の親指を下に向けて「ダメ・反対」のサムズダウンを示す",
+   "source": "mocap",
+   "sourcePath": "BVH/0010/01/005/001/015.bvh",
+   "sourceSha256": "be9eca9c94e5e8c96cb9c7af3a706e21f04114685350683f11ec220138e6ad2f",
+   "duration": 6.433,
+   "stroke": 1.0,
+   "groups": {
+    "right_arm": {
+     "rangeDeg": 91.9,
+     "active": true
+    },
+    "left_arm": {
+     "rangeDeg": 14.3,
+     "active": true
+    },
+    "head": {
+     "rangeDeg": 3.5,
+     "active": false
+    },
+    "spine": {
+     "rangeDeg": 2.6,
+     "active": false
+    },
+    "hips": {
+     "rangeDeg": 6.3,
+     "active": false
+    }
+   },
+   "repairedFrames": 0,
+   "quality": {
+    "hipDropM": 0.0,
+    "rootTravelM": 0.018,
+    "maxAngularSpeed": 12.1,
+    "footSlideM": 0.099
+   },
+   "reference": "clipStartOntoViewerNeutral",
+   "frameStart": 2356
+  },
+  {
+   "id": "MOT_716",
+   "label": "右手の人差し指と中指をV字に開いてピースサインを作る",
+   "source": "mocap",
+   "sourcePath": "BVH/0010/01/005/001/016.bvh",
+   "sourceSha256": "0aa7f4011bb6199efeb0dca01feae142ef3e4b2428e6a54278b60dfb9a84c6f4",
+   "duration": 6.367,
+   "stroke": 0.6,
+   "groups": {
+    "right_arm": {
+     "rangeDeg": 94.7,
+     "active": true
+    },
+    "left_arm": {
+     "rangeDeg": 5.6,
+     "active": false
+    },
+    "head": {
+     "rangeDeg": 2.0,
+     "active": false
+    },
+    "spine": {
+     "rangeDeg": 1.4,
+     "active": false
+    },
+    "hips": {
+     "rangeDeg": 6.0,
+     "active": false
+    }
+   },
+   "repairedFrames": 1,
+   "quality": {
+    "hipDropM": 0.0,
+    "rootTravelM": 0.016,
+    "maxAngularSpeed": 15.6,
+    "footSlideM": 0.045
+   },
+   "reference": "clipStartOntoViewerNeutral",
+   "frameStart": 2550
+  },
+  {
+   "id": "MOT_717",
+   "label": "右手のひらで自分の胸を軽く叩いて「自分・私」を示す",
+   "source": "mocap",
+   "sourcePath": "BVH/0010/01/005/001/017.bvh",
+   "sourceSha256": "e50af3901f49e87d8e55aaf5af67f64da3ce8e33028e74eeff791dd15adc8f00",
+   "duration": 5.1,
+   "stroke": 0.633,
+   "groups": {
+    "right_arm": {
+     "rangeDeg": 140.1,
+     "active": true
+    },
+    "left_arm": {
+     "rangeDeg": 28.8,
+     "active": true
+    },
+    "head": {
+     "rangeDeg": 5.6,
+     "active": false
+    },
+    "spine": {
+     "rangeDeg": 0.8,
+     "active": false
+    },
+    "hips": {
+     "rangeDeg": 12.5,
+     "active": true
+    }
+   },
+   "repairedFrames": 0,
+   "quality": {
+    "hipDropM": 0.001,
+    "rootTravelM": 0.015,
+    "maxAngularSpeed": 8.7,
+    "footSlideM": 0.13
+   },
+   "reference": "clipStartOntoViewerNeutral",
+   "frameStart": 2742
+  },
+  {
+   "id": "MOT_718",
+   "label": "右手の人差し指で相手の方向を指差して「あなた・そちら」を示す",
+   "source": "mocap",
+   "sourcePath": "BVH/0010/01/005/001/018.bvh",
+   "sourceSha256": "656d916110f78d11697e890beda113992c52b22acf94ae50fe8fde19db8ea9b0",
+   "duration": 4.533,
+   "stroke": 0.467,
+   "groups": {
+    "right_arm": {
+     "rangeDeg": 86.8,
+     "active": true
+    },
+    "left_arm": {
+     "rangeDeg": 9.3,
+     "active": false
+    },
+    "head": {
+     "rangeDeg": 5.4,
+     "active": false
+    },
+    "spine": {
+     "rangeDeg": 1.4,
+     "active": false
+    },
+    "hips": {
+     "rangeDeg": 5.7,
+     "active": false
+    }
+   },
+   "repairedFrames": 0,
+   "quality": {
+    "hipDropM": 0.0,
+    "rootTravelM": 0.022,
+    "maxAngularSpeed": 14.1,
+    "footSlideM": 0.048
+   },
+   "reference": "clipStartOntoViewerNeutral",
+   "frameStart": 2896
+  },
+  {
+   "id": "MOT_719",
+   "label": "右手のひらを下に向けて前後に動かして「こちらに来て」と招く",
+   "source": "mocap",
+   "sourcePath": "BVH/0010/01/005/001/019.bvh",
+   "sourceSha256": "78d1d509f4524584315ab109f9b14dd0e70276b641482540c3b2eeaf8a3c9ec2",
+   "duration": 4.867,
+   "stroke": 0.533,
+   "groups": {
+    "right_arm": {
+     "rangeDeg": 73.1,
+     "active": true
+    },
+    "left_arm": {
+     "rangeDeg": 12.6,
+     "active": true
+    },
+    "head": {
+     "rangeDeg": 9.9,
+     "active": true
+    },
+    "spine": {
+     "rangeDeg": 1.2,
+     "active": false
+    },
+    "hips": {
+     "rangeDeg": 2.9,
+     "active": false
+    }
+   },
+   "repairedFrames": 0,
+   "quality": {
+    "hipDropM": 0.002,
+    "rootTravelM": 0.012,
+    "maxAngularSpeed": 13.6,
+    "footSlideM": 0.081
+   },
+   "reference": "clipStartOntoViewerNeutral",
+   "frameStart": 3033
+  },
+  {
+   "id": "MOT_720",
+   "label": "右手のひらを上に向けて前方に差し出して「どうぞ・お先に」と示す",
+   "source": "mocap",
+   "sourcePath": "BVH/0010/01/005/001/020.bvh",
+   "sourceSha256": "5d52dc6d75681ac6d7feb1468a5117f495c5767a8bc1c4f73d40858f0238c0ac",
+   "duration": 4.433,
+   "stroke": 0.6,
+   "groups": {
+    "right_arm": {
+     "rangeDeg": 123.0,
+     "active": true
+    },
+    "left_arm": {
+     "rangeDeg": 15.4,
+     "active": true
+    },
+    "head": {
+     "rangeDeg": 9.0,
+     "active": true
+    },
+    "spine": {
+     "rangeDeg": 1.0,
+     "active": false
+    },
+    "hips": {
+     "rangeDeg": 2.9,
+     "active": false
+    }
+   },
+   "repairedFrames": 1,
+   "quality": {
+    "hipDropM": 0.0,
+    "rootTravelM": 0.018,
+    "maxAngularSpeed": 12.4,
+    "footSlideM": 0.069
+   },
+   "reference": "clipStartOntoViewerNeutral",
+   "frameStart": 3180
+  },
+  {
+   "id": "MOT_721",
+   "label": "右腕を肩の高さに横に伸ばし、右方向を人差し指で指差して方向を示す",
+   "source": "mocap",
+   "sourcePath": "BVH/0010/01/005/001/021.bvh",
+   "sourceSha256": "631548eda5697b24903fca36312e65a34b468891a7e8b65d93c48da4b34aae52",
+   "duration": 4.767,
+   "stroke": 0.6,
+   "groups": {
+    "right_arm": {
+     "rangeDeg": 89.0,
+     "active": true
+    },
+    "left_arm": {
+     "rangeDeg": 14.1,
+     "active": true
+    },
+    "head": {
+     "rangeDeg": 5.9,
+     "active": false
+    },
+    "spine": {
+     "rangeDeg": 2.3,
+     "active": false
+    },
+    "hips": {
+     "rangeDeg": 7.7,
+     "active": false
+    }
+   },
+   "repairedFrames": 1,
+   "quality": {
+    "hipDropM": 0.0,
+    "rootTravelM": 0.01,
+    "maxAngularSpeed": 21.5,
+    "footSlideM": 0.069
+   },
+   "reference": "clipStartOntoViewerNeutral",
+   "frameStart": 3314
+  },
+  {
+   "id": "MOT_722",
+   "label": "右手の指を全て揃えて額の右側に当て、斜め前方に払い出す敬礼をする",
+   "source": "mocap",
+   "sourcePath": "BVH/0010/01/005/001/022.bvh",
+   "sourceSha256": "dfd3898a903824ef8154c2fded4dd44ac43abad0e82091bc6e36420b3cfd6ba2",
+   "duration": 4.5,
+   "stroke": 1.3,
+   "groups": {
+    "right_arm": {
+     "rangeDeg": 110.5,
+     "active": true
+    },
+    "left_arm": {
+     "rangeDeg": 16.2,
+     "active": true
+    },
+    "head": {
+     "rangeDeg": 4.8,
+     "active": false
+    },
+    "spine": {
+     "rangeDeg": 2.9,
+     "active": false
+    },
+    "hips": {
+     "rangeDeg": 11.9,
+     "active": true
+    }
+   },
+   "repairedFrames": 0,
+   "quality": {
+    "hipDropM": 0.0,
+    "rootTravelM": 0.103,
+    "maxAngularSpeed": 13.5,
+    "footSlideM": 0.174
+   },
+   "reference": "clipStartOntoViewerNeutral",
+   "frameStart": 3458
+  },
+  {
+   "id": "MOT_723",
+   "label": "右手の人差し指を立てて唇の前に当て「シー・静かに」のサインを示す",
+   "source": "mocap",
+   "sourcePath": "BVH/0010/01/005/001/023.bvh",
+   "sourceSha256": "040e2c6aacbe9c0e40a77f275c7bf4e19cb0905ca51180cfa6fb3c192945418b",
+   "duration": 6.133,
+   "stroke": 1.1,
+   "groups": {
+    "right_arm": {
+     "rangeDeg": 97.9,
+     "active": true
+    },
+    "left_arm": {
+     "rangeDeg": 4.3,
+     "active": false
+    },
+    "head": {
+     "rangeDeg": 5.8,
+     "active": false
+    },
+    "spine": {
+     "rangeDeg": 1.1,
+     "active": false
+    },
+    "hips": {
+     "rangeDeg": 9.6,
+     "active": true
+    }
+   },
+   "repairedFrames": 1,
+   "quality": {
+    "hipDropM": 0.003,
+    "rootTravelM": 0.085,
+    "maxAngularSpeed": 10.5,
+    "footSlideM": 0.088
+   },
+   "reference": "clipStartOntoViewerNeutral",
+   "frameStart": 3594
+  },
+  {
+   "id": "MOT_724",
+   "label": "右手の人差し指を立てて「一番・第一」を示す数字ジェスチャーをする",
+   "source": "mocap",
+   "sourcePath": "BVH/0010/01/005/001/024.bvh",
+   "sourceSha256": "af024e952fbc1d1a4301c856ce161721e4293092fd503ec226ccdc7761acb31a",
+   "duration": 4.833,
+   "stroke": 1.067,
+   "groups": {
+    "right_arm": {
+     "rangeDeg": 99.4,
+     "active": true
+    },
+    "left_arm": {
+     "rangeDeg": 17.1,
+     "active": true
+    },
+    "head": {
+     "rangeDeg": 5.7,
+     "active": false
+    },
+    "spine": {
+     "rangeDeg": 1.6,
+     "active": false
+    },
+    "hips": {
+     "rangeDeg": 18.7,
+     "active": true
+    }
+   },
+   "repairedFrames": 0,
+   "quality": {
+    "hipDropM": 0.002,
+    "rootTravelM": 0.025,
+    "maxAngularSpeed": 9.2,
+    "footSlideM": 0.126
+   },
+   "reference": "clipStartOntoViewerNeutral",
+   "frameStart": 3779
+  },
+  {
+   "id": "MOT_725",
+   "label": "右手の五本指を全て広げて「5」を示す数字ジェスチャーをする",
+   "source": "mocap",
+   "sourcePath": "BVH/0010/01/005/001/025.bvh",
+   "sourceSha256": "7f7b572c160e9e79169262bd911003ee1c323ce51bb7c2a1ca207ab947ce01d5",
+   "duration": 5.233,
+   "stroke": 0.6,
+   "groups": {
+    "right_arm": {
+     "rangeDeg": 107.8,
+     "active": true
+    },
+    "left_arm": {
+     "rangeDeg": 8.9,
+     "active": false
+    },
+    "head": {
+     "rangeDeg": 4.2,
+     "active": false
+    },
+    "spine": {
+     "rangeDeg": 1.9,
+     "active": false
+    },
+    "hips": {
+     "rangeDeg": 7.9,
+     "active": false
+    }
+   },
+   "repairedFrames": 0,
+   "quality": {
+    "hipDropM": 0.001,
+    "rootTravelM": 0.026,
+    "maxAngularSpeed": 16.0,
+    "footSlideM": 0.085
+   },
+   "reference": "clipStartOntoViewerNeutral",
+   "frameStart": 3925
+  },
+  {
+   "id": "MOT_726",
+   "label": "右手のひらを上に向けて下から上に上げて「スタンドアップ」を示す",
+   "source": "mocap",
+   "sourcePath": "BVH/0010/01/005/001/026.bvh",
+   "sourceSha256": "4c2ad2827c75aba1c103341f07293c801191d6c39681c0ba8dfdce43b00b8bcd",
+   "duration": 4.867,
+   "stroke": 0.733,
+   "groups": {
+    "right_arm": {
+     "rangeDeg": 132.3,
+     "active": true
+    },
+    "left_arm": {
+     "rangeDeg": 9.6,
+     "active": false
+    },
+    "head": {
+     "rangeDeg": 6.5,
+     "active": true
+    },
+    "spine": {
+     "rangeDeg": 1.1,
+     "active": false
+    },
+    "hips": {
+     "rangeDeg": 4.1,
+     "active": false
+    }
+   },
+   "repairedFrames": 0,
+   "quality": {
+    "hipDropM": 0.001,
+    "rootTravelM": 0.032,
+    "maxAngularSpeed": 12.6,
+    "footSlideM": 0.062
+   },
+   "reference": "clipStartOntoViewerNeutral",
+   "frameStart": 4083
+  },
+  {
+   "id": "MOT_727",
+   "label": "両腕を前方に伸ばして軽く広げ、相手に抱擁を求める動作をする",
+   "source": "mocap",
+   "sourcePath": "BVH/0010/01/005/001/027.bvh",
+   "sourceSha256": "cd78855219d3cec32674299c35d1cc84ddc7739369f702d620c753d9ed7fe1e9",
+   "duration": 4.1,
+   "stroke": 0.433,
+   "groups": {
+    "right_arm": {
+     "rangeDeg": 88.9,
+     "active": true
+    },
+    "left_arm": {
+     "rangeDeg": 83.7,
+     "active": true
+    },
+    "head": {
+     "rangeDeg": 3.5,
+     "active": false
+    },
+    "spine": {
+     "rangeDeg": 1.5,
+     "active": false
+    },
+    "hips": {
+     "rangeDeg": 8.1,
+     "active": true
+    }
+   },
+   "repairedFrames": 0,
+   "quality": {
+    "hipDropM": 0.001,
+    "rootTravelM": 0.033,
+    "maxAngularSpeed": 7.0,
+    "footSlideM": 0.038
+   },
+   "reference": "clipStartOntoViewerNeutral",
+   "frameStart": 4230
+  },
+  {
+   "id": "MOT_728",
+   "label": "右手の親指・人差し指・小指を立ててシャカサインを示す",
+   "source": "mocap",
+   "sourcePath": "BVH/0010/01/005/001/028.bvh",
+   "sourceSha256": "bbc5dd16dbd4063e1518238a6541dc98e4c7dec18653c5c8a7c1c07e77f00175",
+   "duration": 5.1,
+   "stroke": 0.7,
+   "groups": {
+    "right_arm": {
+     "rangeDeg": 155.6,
+     "active": true
+    },
+    "left_arm": {
+     "rangeDeg": 7.2,
+     "active": false
+    },
+    "head": {
+     "rangeDeg": 9.0,
+     "active": true
+    },
+    "spine": {
+     "rangeDeg": 2.0,
+     "active": false
+    },
+    "hips": {
+     "rangeDeg": 11.5,
+     "active": true
+    }
+   },
+   "repairedFrames": 0,
+   "quality": {
+    "hipDropM": 0.002,
+    "rootTravelM": 0.032,
+    "maxAngularSpeed": 13.4,
+    "footSlideM": 0.145
+   },
+   "reference": "clipStartOntoViewerNeutral",
+   "frameStart": 4354
+  },
+  {
+   "id": "MOT_729",
+   "label": "右手の親指と小指を立てて耳と口の近くに持ってきて電話で話すジェスチャーをする",
+   "source": "mocap",
+   "sourcePath": "BVH/0010/01/005/001/029.bvh",
+   "sourceSha256": "1d2d0365a720f2f7ac417687c0626caf37889aa455542a9712d14163a2c9a317",
+   "duration": 3.667,
+   "stroke": 0.533,
+   "groups": {
+    "right_arm": {
+     "rangeDeg": 135.4,
+     "active": true
+    },
+    "left_arm": {
+     "rangeDeg": 3.8,
+     "active": false
+    },
+    "head": {
+     "rangeDeg": 6.9,
+     "active": true
+    },
+    "spine": {
+     "rangeDeg": 1.5,
+     "active": false
+    },
+    "hips": {
+     "rangeDeg": 4.4,
+     "active": false
+    }
+   },
+   "repairedFrames": 0,
+   "quality": {
+    "hipDropM": 0.0,
+    "rootTravelM": 0.017,
+    "maxAngularSpeed": 7.6,
+    "footSlideM": 0.033
+   },
+   "reference": "clipStartOntoViewerNeutral",
+   "frameStart": 4508
+  },
+  {
+   "id": "MOT_730",
+   "label": "両手の指を互いに絡め合わせて「団結・一緒に」を示す",
+   "source": "mocap",
+   "sourcePath": "BVH/0010/01/005/001/030.bvh",
+   "sourceSha256": "550042d90e742866e5d6e8993d9d06fa10c53af0cdf110a865773f7be83edb65",
+   "duration": 3.333,
+   "stroke": 0.667,
+   "groups": {
+    "right_arm": {
+     "rangeDeg": 112.8,
+     "active": true
+    },
+    "left_arm": {
+     "rangeDeg": 103.5,
+     "active": true
+    },
+    "head": {
+     "rangeDeg": 3.9,
+     "active": false
+    },
+    "spine": {
+     "rangeDeg": 1.1,
+     "active": false
+    },
+    "hips": {
+     "rangeDeg": 1.8,
+     "active": false
+    }
+   },
+   "repairedFrames": 0,
+   "quality": {
+    "hipDropM": 0.0,
+    "rootTravelM": 0.012,
+    "maxAngularSpeed": 14.1,
+    "footSlideM": 0.018
+   },
+   "reference": "clipStartOntoViewerNeutral",
+   "frameStart": 4619
+  },
+  {
+   "id": "MOT_731",
+   "label": "両手を両耳の後ろに当てて「聞こえない・もう一度言って」を示す",
+   "source": "mocap",
+   "sourcePath": "BVH/0010/01/005/001/031.bvh",
+   "sourceSha256": "c3df10b1505691ad04047eaec2b5352eb59c53b76f0f0f44bcb6da50e91bc7d8",
+   "duration": 4.233,
+   "stroke": 0.4,
+   "groups": {
+    "right_arm": {
+     "rangeDeg": 109.1,
+     "active": true
+    },
+    "left_arm": {
+     "rangeDeg": 110.6,
+     "active": true
+    },
+    "head": {
+     "rangeDeg": 9.4,
+     "active": true
+    },
+    "spine": {
+     "rangeDeg": 5.4,
+     "active": false
+    },
+    "hips": {
+     "rangeDeg": 17.9,
+     "active": true
+    }
+   },
+   "repairedFrames": 0,
+   "quality": {
+    "hipDropM": 0.012,
+    "rootTravelM": 0.042,
+    "maxAngularSpeed": 10.4,
+    "footSlideM": 0.058
+   },
+   "reference": "clipStartOntoViewerNeutral",
+   "frameStart": 4720
+  },
+  {
+   "id": "MOT_732",
+   "label": "右手のひらを上向きにして肩の高さで前後に繰り返し動かして「来て」と示す",
+   "source": "mocap",
+   "sourcePath": "BVH/0010/01/005/001/032.bvh",
+   "sourceSha256": "3ac6190131ec421630697913f1d8065079165211825577d965dd0df8467e7cb8",
+   "duration": 5.7,
+   "stroke": 0.733,
+   "groups": {
+    "right_arm": {
+     "rangeDeg": 154.1,
+     "active": true
+    },
+    "left_arm": {
+     "rangeDeg": 42.9,
+     "active": true
+    },
+    "head": {
+     "rangeDeg": 8.3,
+     "active": true
+    },
+    "spine": {
+     "rangeDeg": 1.3,
+     "active": false
+    },
+    "hips": {
+     "rangeDeg": 20.7,
+     "active": true
+    }
+   },
+   "repairedFrames": 0,
+   "quality": {
+    "hipDropM": 0.0,
+    "rootTravelM": 0.032,
+    "maxAngularSpeed": 12.7,
+    "footSlideM": 0.181
+   },
+   "reference": "clipStartOntoViewerNeutral",
+   "frameStart": 4848
+  },
+  {
+   "id": "MOT_733",
+   "label": "右手の人差し指でこめかみをトントンと叩いて「考えて・頭を使って」を示す",
+   "source": "mocap",
+   "sourcePath": "BVH/0010/01/005/001/033.bvh",
+   "sourceSha256": "75af679b00e89dea65cce04f8a579e3b8f576e1c1e94a9aca1ab62170a951f79",
+   "duration": 4.533,
+   "stroke": 0.5,
+   "groups": {
+    "right_arm": {
+     "rangeDeg": 117.7,
+     "active": true
+    },
+    "left_arm": {
+     "rangeDeg": 2.0,
+     "active": false
+    },
+    "head": {
+     "rangeDeg": 8.4,
+     "active": true
+    },
+    "spine": {
+     "rangeDeg": 0.6,
+     "active": false
+    },
+    "hips": {
+     "rangeDeg": 3.4,
+     "active": false
+    }
+   },
+   "repairedFrames": 0,
+   "quality": {
+    "hipDropM": 0.006,
+    "rootTravelM": 0.049,
+    "maxAngularSpeed": 10.1,
+    "footSlideM": 0.045
+   },
+   "reference": "clipStartOntoViewerNeutral",
+   "frameStart": 5020
+  },
+  {
+   "id": "MOT_734",
+   "label": "両腕を胸の前でX字に交差させて「ノー・バツ・却下」を示す",
+   "source": "mocap",
+   "sourcePath": "BVH/0010/01/005/001/034.bvh",
+   "sourceSha256": "25bb0dcfaecab84f642ad6a8687ac226e301742cc5c14a15eeb86758baf03f65",
+   "duration": 4.267,
+   "stroke": 0.633,
+   "groups": {
+    "right_arm": {
+     "rangeDeg": 90.7,
+     "active": true
+    },
+    "left_arm": {
+     "rangeDeg": 92.0,
+     "active": true
+    },
+    "head": {
+     "rangeDeg": 4.9,
+     "active": false
+    },
+    "spine": {
+     "rangeDeg": 1.0,
+     "active": false
+    },
+    "hips": {
+     "rangeDeg": 3.7,
+     "active": false
+    }
+   },
+   "repairedFrames": 0,
+   "quality": {
+    "hipDropM": 0.0,
+    "rootTravelM": 0.044,
+    "maxAngularSpeed": 5.8,
+    "footSlideM": 0.047
+   },
+   "reference": "clipStartOntoViewerNeutral",
+   "frameStart": 5157
+  },
+  {
+   "id": "MOT_735",
+   "label": "右腕を肘から折り曲げて上に伸ばし、握りこぶしを作って「頑張れ・ガッツポーズ」を示す",
+   "source": "mocap",
+   "sourcePath": "BVH/0010/01/005/001/035.bvh",
+   "sourceSha256": "99076b7329a17f73f9ebf9293f5e75320f3ca28010ad9bda1df6d7f7add97175",
+   "duration": 4.867,
+   "stroke": 0.767,
+   "groups": {
+    "right_arm": {
+     "rangeDeg": 140.4,
+     "active": true
+    },
+    "left_arm": {
+     "rangeDeg": 11.9,
+     "active": false
+    },
+    "head": {
+     "rangeDeg": 4.8,
+     "active": false
+    },
+    "spine": {
+     "rangeDeg": 2.7,
+     "active": false
+    },
+    "hips": {
+     "rangeDeg": 12.8,
+     "active": true
+    }
+   },
+   "repairedFrames": 0,
+   "quality": {
+    "hipDropM": 0.0,
+    "rootTravelM": 0.055,
+    "maxAngularSpeed": 9.8,
+    "footSlideM": 0.072
+   },
+   "reference": "clipStartOntoViewerNeutral",
+   "frameStart": 5286
+  },
+  {
+   "id": "MOT_736",
+   "label": "右手の人差し指と親指を揃えて銃の形を作り、相手に向けて撃つ",
+   "source": "mocap",
+   "sourcePath": "BVH/0010/01/005/001/036.bvh",
+   "sourceSha256": "c026223ec25024d93e8e179c24a3a7063eff15a3ddebb144d799279811a76986",
+   "duration": 3.767,
+   "stroke": 0.867,
+   "groups": {
+    "right_arm": {
+     "rangeDeg": 114.7,
+     "active": true
+    },
+    "left_arm": {
+     "rangeDeg": 10.3,
+     "active": false
+    },
+    "head": {
+     "rangeDeg": 7.4,
+     "active": true
+    },
+    "spine": {
+     "rangeDeg": 3.3,
+     "active": false
+    },
+    "hips": {
+     "rangeDeg": 24.5,
+     "active": true
+    }
+   },
+   "repairedFrames": 1,
+   "quality": {
+    "hipDropM": 0.002,
+    "rootTravelM": 0.035,
+    "maxAngularSpeed": 18.3,
+    "footSlideM": 0.099
+   },
+   "reference": "clipStartOntoViewerNeutral",
+   "frameStart": 5433
+  },
+  {
+   "id": "MOT_737",
+   "label": "右手のひらで自分の口をふさいで「しまった・言い過ぎた」を表現する",
+   "source": "mocap",
+   "sourcePath": "BVH/0010/01/005/001/037.bvh",
+   "sourceSha256": "49a5889a703bd64ec244f9fa3bb38f20f15b076f6927ffe7fd4d83d68fa43d68",
+   "duration": 3.333,
+   "stroke": 0.533,
+   "groups": {
+    "right_arm": {
+     "rangeDeg": 127.7,
+     "active": true
+    },
+    "left_arm": {
+     "rangeDeg": 7.8,
+     "active": false
+    },
+    "head": {
+     "rangeDeg": 4.2,
+     "active": false
+    },
+    "spine": {
+     "rangeDeg": 1.9,
+     "active": false
+    },
+    "hips": {
+     "rangeDeg": 19.0,
+     "active": true
+    }
+   },
+   "repairedFrames": 0,
+   "quality": {
+    "hipDropM": 0.007,
+    "rootTravelM": 0.064,
+    "maxAngularSpeed": 9.6,
+    "footSlideM": 0.076
+   },
+   "reference": "clipStartOntoViewerNeutral",
+   "frameStart": 5547
+  },
+  {
+   "id": "MOT_738",
+   "label": "右手のひらを自分の胸に当てて「ありがとう・感謝しています」を示す",
+   "source": "mocap",
+   "sourcePath": "BVH/0010/01/005/001/038.bvh",
+   "sourceSha256": "da35d2cdb7ec26d141ece6aec27d6f8e875c1d745926634cac317a6bda7150da",
+   "duration": 4.6,
+   "stroke": 0.533,
+   "groups": {
+    "right_arm": {
+     "rangeDeg": 127.8,
+     "active": true
+    },
+    "left_arm": {
+     "rangeDeg": 4.2,
+     "active": false
+    },
+    "head": {
+     "rangeDeg": 2.7,
+     "active": false
+    },
+    "spine": {
+     "rangeDeg": 0.9,
+     "active": false
+    },
+    "hips": {
+     "rangeDeg": 6.6,
+     "active": false
+    }
+   },
+   "repairedFrames": 0,
+   "quality": {
+    "hipDropM": 0.002,
+    "rootTravelM": 0.018,
+    "maxAngularSpeed": 9.2,
+    "footSlideM": 0.106
+   },
+   "reference": "clipStartOntoViewerNeutral",
+   "frameStart": 5648
+  },
+  {
+   "id": "MOT_739",
+   "label": "両手を合わせて「お願いします」という懇願のジェスチャーをする",
+   "source": "mocap",
+   "sourcePath": "BVH/0010/01/005/001/039.bvh",
+   "sourceSha256": "dc7cf39974b27a49f24634e5542975dc113beca9617099ff0ac6fc0c374eab4d",
+   "duration": 4.667,
+   "stroke": 0.633,
+   "groups": {
+    "right_arm": {
+     "rangeDeg": 98.0,
+     "active": true
+    },
+    "left_arm": {
+     "rangeDeg": 95.7,
+     "active": true
+    },
+    "head": {
+     "rangeDeg": 5.3,
+     "active": false
+    },
+    "spine": {
+     "rangeDeg": 0.9,
+     "active": false
+    },
+    "hips": {
+     "rangeDeg": 3.0,
+     "active": false
+    }
+   },
+   "repairedFrames": 0,
+   "quality": {
+    "hipDropM": 0.001,
+    "rootTravelM": 0.024,
+    "maxAngularSpeed": 6.5,
+    "footSlideM": 0.067
+   },
+   "reference": "clipStartOntoViewerNeutral",
+   "frameStart": 5787
+  },
+  {
+   "id": "MOT_740",
+   "label": "右腕を前方に大きく振りながら手のひらを前方に向けて「さようなら」と手を振る",
+   "source": "mocap",
+   "sourcePath": "BVH/0010/01/005/001/040.bvh",
+   "sourceSha256": "f79347e3a665d819d3ab65ae61bcabe5b4f479d58c45f6f7cc04de11dc50b5f8",
+   "duration": 6.367,
+   "stroke": 0.967,
+   "groups": {
+    "right_arm": {
+     "rangeDeg": 103.1,
+     "active": true
+    },
+    "left_arm": {
+     "rangeDeg": 26.9,
+     "active": true
+    },
+    "head": {
+     "rangeDeg": 3.8,
+     "active": false
+    },
+    "spine": {
+     "rangeDeg": 1.4,
+     "active": false
+    },
+    "hips": {
+     "rangeDeg": 15.7,
+     "active": true
+    }
+   },
+   "repairedFrames": 6,
+   "quality": {
+    "hipDropM": 0.0,
+    "rootTravelM": 0.037,
+    "maxAngularSpeed": 36.9,
+    "footSlideM": 0.376
+   },
+   "reference": "clipStartOntoViewerNeutral",
+   "frameStart": 5928
+  },
+  {
+   "id": "MOT_741",
+   "label": "両手のひらを上向きにして両手を広げながら「わからない・何もない」を示す",
+   "source": "mocap",
+   "sourcePath": "BVH/0010/01/005/001/041.bvh",
+   "sourceSha256": "e0faf81205d9732201eb6a7461b06a4cd607c1766a2c3f292bbb434304df8a11",
+   "duration": 3.167,
+   "stroke": 0.833,
+   "groups": {
+    "right_arm": {
+     "rangeDeg": 137.8,
+     "active": true
+    },
+    "left_arm": {
+     "rangeDeg": 143.7,
+     "active": true
+    },
+    "head": {
+     "rangeDeg": 10.5,
+     "active": true
+    },
+    "spine": {
+     "rangeDeg": 1.8,
+     "active": false
+    },
+    "hips": {
+     "rangeDeg": 6.1,
+     "active": false
+    }
+   },
+   "repairedFrames": 0,
+   "quality": {
+    "hipDropM": 0.002,
+    "rootTravelM": 0.02,
+    "maxAngularSpeed": 8.1,
+    "footSlideM": 0.028
+   },
+   "reference": "clipStartOntoViewerNeutral",
+   "frameStart": 6120
+  },
+  {
+   "id": "MOT_742",
+   "label": "右腕を前方に水平に伸ばし、手のひらを外側に向けて止まれのポーズをとる",
+   "source": "mocap",
+   "sourcePath": "BVH/0010/01/005/001/042.bvh",
+   "sourceSha256": "a29730ce4a361797a8c9069619e03d240b4d262e86b404192f8a91006facecf7",
+   "duration": 3.833,
+   "stroke": 0.667,
+   "groups": {
+    "right_arm": {
+     "rangeDeg": 89.0,
+     "active": true
+    },
+    "left_arm": {
+     "rangeDeg": 6.3,
+     "active": false
+    },
+    "head": {
+     "rangeDeg": 3.2,
+     "active": false
+    },
+    "spine": {
+     "rangeDeg": 1.9,
+     "active": false
+    },
+    "hips": {
+     "rangeDeg": 7.8,
+     "active": false
+    }
+   },
+   "repairedFrames": 0,
+   "quality": {
+    "hipDropM": 0.0,
+    "rootTravelM": 0.01,
+    "maxAngularSpeed": 10.3,
+    "footSlideM": 0.046
+   },
+   "reference": "clipStartOntoViewerNeutral",
+   "frameStart": 6216
+  },
+  {
+   "id": "MOT_743",
+   "label": "右腕を肘から曲げて上方向に動かして「上に行け・増やせ」を示す",
+   "source": "mocap",
+   "sourcePath": "BVH/0010/01/005/001/043.bvh",
+   "sourceSha256": "8b710868ead6eec503d7834045682e147e57583a26217ee9dedea0746fcbe417",
+   "duration": 5.867,
+   "stroke": 1.5,
+   "groups": {
+    "right_arm": {
+     "rangeDeg": 116.9,
+     "active": true
+    },
+    "left_arm": {
+     "rangeDeg": 11.4,
+     "active": false
+    },
+    "head": {
+     "rangeDeg": 5.1,
+     "active": false
+    },
+    "spine": {
+     "rangeDeg": 2.3,
+     "active": false
+    },
+    "hips": {
+     "rangeDeg": 18.1,
+     "active": true
+    }
+   },
+   "repairedFrames": 0,
+   "quality": {
+    "hipDropM": 0.002,
+    "rootTravelM": 0.023,
+    "maxAngularSpeed": 11.9,
+    "footSlideM": 0.151
+   },
+   "reference": "clipStartOntoViewerNeutral",
+   "frameStart": 6332
+  },
+  {
+   "id": "MOT_744",
+   "label": "右腕を肘から曲げて下方向に動かして「下に行け・減らせ」を示す",
+   "source": "mocap",
+   "sourcePath": "BVH/0010/01/005/001/044.bvh",
+   "sourceSha256": "218aa6a2fa09b885e33a5e3848e1947de81bedc1aa8608f9c0a2851a3193731b",
+   "duration": 6.167,
+   "stroke": 0.633,
+   "groups": {
+    "right_arm": {
+     "rangeDeg": 77.7,
+     "active": true
+    },
+    "left_arm": {
+     "rangeDeg": 15.8,
+     "active": true
+    },
+    "head": {
+     "rangeDeg": 11.0,
+     "active": true
+    },
+    "spine": {
+     "rangeDeg": 1.7,
+     "active": false
+    },
+    "hips": {
+     "rangeDeg": 2.9,
+     "active": false
+    }
+   },
+   "repairedFrames": 0,
+   "quality": {
+    "hipDropM": 0.0,
+    "rootTravelM": 0.032,
+    "maxAngularSpeed": 5.7,
+    "footSlideM": 0.108
+   },
+   "reference": "clipStartOntoViewerNeutral",
+   "frameStart": 6509
+  },
+  {
+   "id": "MOT_745",
+   "label": "両腕を左右に大きく広げて手のひらを下に向けながら「広げる・拡大」を示す",
+   "source": "mocap",
+   "sourcePath": "BVH/0010/01/005/001/045.bvh",
+   "sourceSha256": "115c87fe210f8245610fba38ab8b6ade2362a6ee2d2e0c3edc09dad7ee8a5034",
+   "duration": 4.467,
+   "stroke": 1.0,
+   "groups": {
+    "right_arm": {
+     "rangeDeg": 80.4,
+     "active": true
+    },
+    "left_arm": {
+     "rangeDeg": 65.2,
+     "active": true
+    },
+    "head": {
+     "rangeDeg": 8.2,
+     "active": true
+    },
+    "spine": {
+     "rangeDeg": 1.6,
+     "active": false
+    },
+    "hips": {
+     "rangeDeg": 10.4,
+     "active": true
+    }
+   },
+   "repairedFrames": 1,
+   "quality": {
+    "hipDropM": 0.011,
+    "rootTravelM": 0.074,
+    "maxAngularSpeed": 18.6,
+    "footSlideM": 0.153
+   },
+   "reference": "clipStartOntoViewerNeutral",
+   "frameStart": 6695
+  },
+  {
+   "id": "MOT_746",
+   "label": "両手を胸の前に持ってきて、両手指先を向かい合わせて「小さい・狭い」を示す",
+   "source": "mocap",
+   "sourcePath": "BVH/0010/01/005/001/046.bvh",
+   "sourceSha256": "8c0c7fb723d77c9de6cfe32520f811fa75508b2cebee5bf251c5606f88480605",
+   "duration": 5.133,
+   "stroke": 0.667,
+   "groups": {
+    "right_arm": {
+     "rangeDeg": 98.2,
+     "active": true
+    },
+    "left_arm": {
+     "rangeDeg": 99.2,
+     "active": true
+    },
+    "head": {
+     "rangeDeg": 11.1,
+     "active": true
+    },
+    "spine": {
+     "rangeDeg": 2.6,
+     "active": false
+    },
+    "hips": {
+     "rangeDeg": 7.7,
+     "active": false
+    }
+   },
+   "repairedFrames": 0,
+   "quality": {
+    "hipDropM": 0.016,
+    "rootTravelM": 0.119,
+    "maxAngularSpeed": 6.3,
+    "footSlideM": 0.098
+   },
+   "reference": "clipStartOntoViewerNeutral",
+   "frameStart": 6830
+  },
+  {
+   "id": "MOT_747",
+   "label": "右手の人差し指で円を描くように空中に「OK・了解」を示すジェスチャーをする",
+   "source": "mocap",
+   "sourcePath": "BVH/0010/01/005/001/047.bvh",
+   "sourceSha256": "b70e781d3cd9218e35b5ddf904c94673bf7229946c395d06614263d91addf5ef",
+   "duration": 4.033,
+   "stroke": 0.533,
+   "groups": {
+    "right_arm": {
+     "rangeDeg": 90.8,
+     "active": true
+    },
+    "left_arm": {
+     "rangeDeg": 8.2,
+     "active": false
+    },
+    "head": {
+     "rangeDeg": 13.0,
+     "active": true
+    },
+    "spine": {
+     "rangeDeg": 1.8,
+     "active": false
+    },
+    "hips": {
+     "rangeDeg": 16.8,
+     "active": true
+    }
+   },
+   "repairedFrames": 0,
+   "quality": {
+    "hipDropM": 0.015,
+    "rootTravelM": 0.101,
+    "maxAngularSpeed": 8.2,
+    "footSlideM": 0.291
+   },
+   "reference": "clipStartOntoViewerNeutral",
+   "frameStart": 6985
+  },
+  {
+   "id": "MOT_748",
+   "label": "右手の人差し指を唇に当てて「考え中・迷っている」を示す",
+   "source": "mocap",
+   "sourcePath": "BVH/0010/01/005/001/048.bvh",
+   "sourceSha256": "3e2959e835463d39a77acd00a5166bbe74f31ab176cfa6b123432a81da9faea0",
+   "duration": 4.633,
+   "stroke": 0.3,
+   "groups": {
+    "right_arm": {
+     "rangeDeg": 66.7,
+     "active": true
+    },
+    "left_arm": {
+     "rangeDeg": 3.5,
+     "active": false
+    },
+    "head": {
+     "rangeDeg": 3.3,
+     "active": false
+    },
+    "spine": {
+     "rangeDeg": 0.5,
+     "active": false
+    },
+    "hips": {
+     "rangeDeg": 5.8,
+     "active": false
+    }
+   },
+   "repairedFrames": 0,
+   "quality": {
+    "hipDropM": 0.0,
+    "rootTravelM": 0.013,
+    "maxAngularSpeed": 4.1,
+    "footSlideM": 0.017
+   },
+   "reference": "clipStartOntoViewerNeutral",
+   "frameStart": 7107
+  },
+  {
+   "id": "MOT_749",
+   "label": "両手を水平に前方に差し出し、手のひらを上向きにして「受け取る・もらう」を示す",
+   "source": "mocap",
+   "sourcePath": "BVH/0010/01/005/001/049.bvh",
+   "sourceSha256": "d8d8fc56a5b706e76520aeabf56d7f4302722914c3df7004eb4d7cc1b6622c5d",
+   "duration": 4.667,
+   "stroke": 1.267,
+   "groups": {
+    "right_arm": {
+     "rangeDeg": 127.6,
+     "active": true
+    },
+    "left_arm": {
+     "rangeDeg": 104.0,
+     "active": true
+    },
+    "head": {
+     "rangeDeg": 13.5,
+     "active": true
+    },
+    "spine": {
+     "rangeDeg": 1.9,
+     "active": false
+    },
+    "hips": {
+     "rangeDeg": 6.5,
+     "active": false
+    }
+   },
+   "repairedFrames": 0,
+   "quality": {
+    "hipDropM": 0.005,
+    "rootTravelM": 0.073,
+    "maxAngularSpeed": 16.2,
+    "footSlideM": 0.039
+   },
+   "reference": "clipStartOntoViewerNeutral",
+   "frameStart": 7247
+  },
+  {
+   "id": "MOT_750",
+   "label": "右手を前方に差し出し、物を渡すように手のひらを下向きに動かして「あげる・渡す」を示す",
+   "source": "mocap",
+   "sourcePath": "BVH/0010/01/005/001/050.bvh",
+   "sourceSha256": "b61d3efc568c71a412037cadf55c99796bb3da545dd6abbcb6cd8d6726f421d1",
+   "duration": 3.367,
+   "stroke": 0.733,
+   "groups": {
+    "right_arm": {
+     "rangeDeg": 89.5,
+     "active": true
+    },
+    "left_arm": {
+     "rangeDeg": 8.6,
+     "active": false
+    },
+    "head": {
+     "rangeDeg": 7.9,
+     "active": true
+    },
+    "spine": {
+     "rangeDeg": 1.6,
+     "active": false
+    },
+    "hips": {
+     "rangeDeg": 33.2,
+     "active": true
+    }
+   },
+   "repairedFrames": 0,
+   "quality": {
+    "hipDropM": 0.005,
+    "rootTravelM": 0.175,
+    "maxAngularSpeed": 5.6,
+    "footSlideM": 0.302
+   },
+   "reference": "clipStartOntoViewerNeutral",
+   "frameStart": 7388
+  },
+  {
+   "id": "MOT_752",
+   "label": "右手のひらを自分の方向に向けて手前に引き寄せるように動かして「こっちに来い・引き寄せる」を示す",
+   "source": "mocap",
+   "sourcePath": "BVH/0010/01/005/001/052.bvh",
+   "sourceSha256": "4eac1040c81a6fa922d8d0545e5d889348a4ef274cbb2e445855d4f6f9ba19ee",
+   "duration": 3.067,
+   "stroke": 0.633,
+   "groups": {
+    "right_arm": {
+     "rangeDeg": 153.1,
+     "active": true
+    },
+    "left_arm": {
+     "rangeDeg": 7.4,
+     "active": false
+    },
+    "head": {
+     "rangeDeg": 7.5,
+     "active": true
+    },
+    "spine": {
+     "rangeDeg": 2.5,
+     "active": false
+    },
+    "hips": {
+     "rangeDeg": 15.0,
+     "active": true
+    }
+   },
+   "repairedFrames": 0,
+   "quality": {
+    "hipDropM": 0.0,
+    "rootTravelM": 0.023,
+    "maxAngularSpeed": 12.2,
+    "footSlideM": 0.05
+   },
+   "reference": "clipStartOntoViewerNeutral",
+   "frameStart": 7490
+  },
+  {
+   "id": "MOT_753",
+   "label": "両手のひらを合わせて顔の横に当て、頭を傾けて眠るポーズを取る",
+   "source": "mocap",
+   "sourcePath": "BVH/0010/01/005/001/053.bvh",
+   "sourceSha256": "c579a414e75afc81c1d44556d347b480d864745d0fc4d51e8bc6b22bebb351e7",
+   "duration": 3.867,
+   "stroke": 0.733,
+   "groups": {
+    "right_arm": {
+     "rangeDeg": 97.0,
+     "active": true
+    },
+    "left_arm": {
+     "rangeDeg": 115.5,
+     "active": true
+    },
+    "head": {
+     "rangeDeg": 15.7,
+     "active": true
+    },
+    "spine": {
+     "rangeDeg": 4.5,
+     "active": false
+    },
+    "hips": {
+     "rangeDeg": 6.9,
+     "active": false
+    }
+   },
+   "repairedFrames": 0,
+   "quality": {
+    "hipDropM": 0.0,
+    "rootTravelM": 0.035,
+    "maxAngularSpeed": 5.3,
+    "footSlideM": 0.052
+   },
+   "reference": "clipStartOntoViewerNeutral",
+   "frameStart": 7583
+  },
+  {
+   "id": "MOT_754",
+   "label": "右手の人差し指と中指で自分の目を指差した後、前方を指差して「見ている・注目している」を示す",
+   "source": "mocap",
+   "sourcePath": "BVH/0010/01/005/001/054.bvh",
+   "sourceSha256": "9cbad6ce9f54afe30c0db46ad36a979180ad0cb57622094037eae633fff70e1f",
+   "duration": 3.9,
+   "stroke": 0.6,
+   "groups": {
+    "right_arm": {
+     "rangeDeg": 125.9,
+     "active": true
+    },
+    "left_arm": {
+     "rangeDeg": 15.8,
+     "active": true
+    },
+    "head": {
+     "rangeDeg": 10.7,
+     "active": true
+    },
+    "spine": {
+     "rangeDeg": 2.8,
+     "active": false
+    },
+    "hips": {
+     "rangeDeg": 17.9,
+     "active": true
+    }
+   },
+   "repairedFrames": 0,
+   "quality": {
+    "hipDropM": 0.0,
+    "rootTravelM": 0.037,
+    "maxAngularSpeed": 14.8,
+    "footSlideM": 0.061
+   },
+   "reference": "clipStartOntoViewerNeutral",
+   "frameStart": 7700
+  },
+  {
+   "id": "MOT_756",
+   "label": "右手のひらを自分の額に当てて軽くたたき「しまった・面倒」を表す",
+   "source": "mocap",
+   "sourcePath": "BVH/0010/01/005/001/056.bvh",
+   "sourceSha256": "f4308d5706928e24bb8adbc8005730fa80ae7a68566deae6ef3b9ece0fe3b50a",
+   "duration": 3.4,
+   "stroke": 0.6,
+   "groups": {
+    "right_arm": {
+     "rangeDeg": 130.3,
+     "active": true
+    },
+    "left_arm": {
+     "rangeDeg": 9.6,
+     "active": false
+    },
+    "head": {
+     "rangeDeg": 14.0,
+     "active": true
+    },
+    "spine": {
+     "rangeDeg": 1.1,
+     "active": false
+    },
+    "hips": {
+     "rangeDeg": 4.2,
+     "active": false
+    }
+   },
+   "repairedFrames": 0,
+   "quality": {
+    "hipDropM": 0.001,
+    "rootTravelM": 0.054,
+    "maxAngularSpeed": 7.4,
+    "footSlideM": 0.04
+   },
+   "reference": "clipStartOntoViewerNeutral",
+   "frameStart": 7818
+  },
+  {
+   "id": "MOT_757",
+   "label": "右手の親指と人差し指で髪や頬などを触りながら「照れている・恥ずかしい」を示す",
+   "source": "mocap",
+   "sourcePath": "BVH/0010/01/005/001/057.bvh",
+   "sourceSha256": "0abfb67a0e5f5e7af3ab20b72f58ad8831140e695e9ab0c235a7b97b94cae66c",
+   "duration": 5.367,
+   "stroke": 0.567,
+   "groups": {
+    "right_arm": {
+     "rangeDeg": 123.4,
+     "active": true
+    },
+    "left_arm": {
+     "rangeDeg": 1.8,
+     "active": false
+    },
+    "head": {
+     "rangeDeg": 8.3,
+     "active": true
+    },
+    "spine": {
+     "rangeDeg": 0.7,
+     "active": false
+    },
+    "hips": {
+     "rangeDeg": 3.6,
+     "active": false
+    }
+   },
+   "repairedFrames": 0,
+   "quality": {
+    "hipDropM": 0.0,
+    "rootTravelM": 0.027,
+    "maxAngularSpeed": 8.1,
+    "footSlideM": 0.041
+   },
+   "reference": "clipStartOntoViewerNeutral",
+   "frameStart": 7921
+  },
+  {
+   "id": "MOT_759",
+   "label": "右手を前に差し出して相手の肩を軽く叩く動作をして激励する",
+   "source": "mocap",
+   "sourcePath": "BVH/0010/01/005/001/059.bvh",
+   "sourceSha256": "104b9fc3ebe7e84a505e313bc55891411123d63504706a080eaa39c04f91dad0",
+   "duration": 4.967,
+   "stroke": 1.067,
+   "groups": {
+    "right_arm": {
+     "rangeDeg": 75.9,
+     "active": true
+    },
+    "left_arm": {
+     "rangeDeg": 6.9,
+     "active": false
+    },
+    "head": {
+     "rangeDeg": 11.1,
+     "active": true
+    },
+    "spine": {
+     "rangeDeg": 3.8,
+     "active": false
+    },
+    "hips": {
+     "rangeDeg": 41.9,
+     "active": true
+    }
+   },
+   "repairedFrames": 0,
+   "quality": {
+    "hipDropM": 0.005,
+    "rootTravelM": 0.089,
+    "maxAngularSpeed": 7.4,
+    "footSlideM": 0.098
+   },
+   "reference": "clipStartOntoViewerNeutral",
+   "frameStart": 8083
+  },
+  {
+   "id": "MOT_760",
+   "label": "右手の人差し指を立てて前方に向けて「あそこに・あれだ」と遠くを指し示す",
+   "source": "mocap",
+   "sourcePath": "BVH/0010/01/005/001/060.bvh",
+   "sourceSha256": "8936196ddfc21650876b076b6e7925c1990ba5031cf425e7eaac4e6efe5969bf",
+   "duration": 3.767,
+   "stroke": 1.0,
+   "groups": {
+    "right_arm": {
+     "rangeDeg": 90.1,
+     "active": true
+    },
+    "left_arm": {
+     "rangeDeg": 32.9,
+     "active": true
+    },
+    "head": {
+     "rangeDeg": 6.5,
+     "active": true
+    },
+    "spine": {
+     "rangeDeg": 2.8,
+     "active": false
+    },
+    "hips": {
+     "rangeDeg": 31.5,
+     "active": true
+    }
+   },
+   "repairedFrames": 0,
+   "quality": {
+    "hipDropM": 0.003,
+    "rootTravelM": 0.051,
+    "maxAngularSpeed": 9.2,
+    "footSlideM": 0.147
+   },
+   "reference": "clipStartOntoViewerNeutral",
+   "frameStart": 8233
+  },
+  {
+   "id": "MOT_761",
+   "label": "右手の人差し指と親指を合わせてひっかくように動かして「金・お金」のジェスチャーをする",
+   "source": "mocap",
+   "sourcePath": "BVH/0010/01/005/001/061.bvh",
+   "sourceSha256": "d85f3c94bceae0becf044c909ed21bf9a684f5a9dcfaa8a99fd6f695615b0117",
+   "duration": 3.433,
+   "stroke": 0.5,
+   "groups": {
+    "right_arm": {
+     "rangeDeg": 152.6,
+     "active": true
+    },
+    "left_arm": {
+     "rangeDeg": 6.3,
+     "active": false
+    },
+    "head": {
+     "rangeDeg": 5.6,
+     "active": false
+    },
+    "spine": {
+     "rangeDeg": 1.1,
+     "active": false
+    },
+    "hips": {
+     "rangeDeg": 12.7,
+     "active": true
+    }
+   },
+   "repairedFrames": 0,
+   "quality": {
+    "hipDropM": 0.0,
+    "rootTravelM": 0.024,
+    "maxAngularSpeed": 10.7,
+    "footSlideM": 0.061
+   },
+   "reference": "clipStartOntoViewerNeutral",
+   "frameStart": 8347
+  },
+  {
+   "id": "MOT_762",
+   "label": "右手をグーにして下から上に動かして「乾杯」のジェスチャーをする",
+   "source": "mocap",
+   "sourcePath": "BVH/0010/01/005/001/062.bvh",
+   "sourceSha256": "dbf2ee35b471d360570456e0a124b16f7d057313cb0b1490ee9f50fb81ce66e7",
+   "duration": 3.9,
+   "stroke": 0.767,
+   "groups": {
+    "right_arm": {
+     "rangeDeg": 108.8,
+     "active": true
+    },
+    "left_arm": {
+     "rangeDeg": 31.9,
+     "active": true
+    },
+    "head": {
+     "rangeDeg": 10.7,
+     "active": true
+    },
+    "spine": {
+     "rangeDeg": 3.5,
+     "active": false
+    },
+    "hips": {
+     "rangeDeg": 29.5,
+     "active": true
+    }
+   },
+   "repairedFrames": 0,
+   "quality": {
+    "hipDropM": 0.003,
+    "rootTravelM": 0.033,
+    "maxAngularSpeed": 10.3,
+    "footSlideM": 0.104
+   },
+   "reference": "clipStartOntoViewerNeutral",
+   "frameStart": 8451
+  },
+  {
+   "id": "MOT_764",
+   "label": "両手で輪を作るように丸く形を取り顔の前で保持して「眼鏡をかけている・メガネマン」を示す",
+   "source": "mocap",
+   "sourcePath": "BVH/0010/01/005/001/064.bvh",
+   "sourceSha256": "adff28c0b2ae923cb68c0855770e68ac5e657b00bcadf25dbe7e768e6b353bb0",
+   "duration": 4.2,
+   "stroke": 0.8,
+   "groups": {
+    "right_arm": {
+     "rangeDeg": 95.7,
+     "active": true
+    },
+    "left_arm": {
+     "rangeDeg": 98.9,
+     "active": true
+    },
+    "head": {
+     "rangeDeg": 5.3,
+     "active": false
+    },
+    "spine": {
+     "rangeDeg": 1.7,
+     "active": false
+    },
+    "hips": {
+     "rangeDeg": 7.5,
+     "active": false
+    }
+   },
+   "repairedFrames": 0,
+   "quality": {
+    "hipDropM": 0.002,
+    "rootTravelM": 0.039,
+    "maxAngularSpeed": 7.4,
+    "footSlideM": 0.03
+   },
+   "reference": "clipStartOntoViewerNeutral",
+   "frameStart": 8569
+  },
+  {
+   "id": "MOT_765",
+   "label": "右手のひらを下向きに上下に小刻みに振って「落ち着いて・ゆっくり」を示す",
+   "source": "mocap",
+   "sourcePath": "BVH/0010/01/005/001/065.bvh",
+   "sourceSha256": "fae3f8cae7b8c2133820a3a0657481d5e3dcfc2e2a1f3a1bc2a9cab6dd3087a6",
+   "duration": 4.9,
+   "stroke": 0.7,
+   "groups": {
+    "right_arm": {
+     "rangeDeg": 76.8,
+     "active": true
+    },
+    "left_arm": {
+     "rangeDeg": 8.2,
+     "active": false
+    },
+    "head": {
+     "rangeDeg": 6.4,
+     "active": true
+    },
+    "spine": {
+     "rangeDeg": 1.0,
+     "active": false
+    },
+    "hips": {
+     "rangeDeg": 12.7,
+     "active": true
+    }
+   },
+   "repairedFrames": 0,
+   "quality": {
+    "hipDropM": 0.0,
+    "rootTravelM": 0.025,
+    "maxAngularSpeed": 4.5,
+    "footSlideM": 0.071
+   },
+   "reference": "clipStartOntoViewerNeutral",
+   "frameStart": 8696
+  },
+  {
+   "id": "MOT_766",
+   "label": "両手を丸めて口の前に持ってきて叫ぶポーズを取り「大声で呼ぶ・叫ぶ」を示す",
+   "source": "mocap",
+   "sourcePath": "BVH/0010/01/005/001/066.bvh",
+   "sourceSha256": "8fbdae2c9154f7b051271dc890780f963a5b4e81cec450a023bd22d91797b062",
+   "duration": 5.3,
+   "stroke": 0.8,
+   "groups": {
+    "right_arm": {
+     "rangeDeg": 95.5,
+     "active": true
+    },
+    "left_arm": {
+     "rangeDeg": 107.0,
+     "active": true
+    },
+    "head": {
+     "rangeDeg": 5.8,
+     "active": false
+    },
+    "spine": {
+     "rangeDeg": 3.1,
+     "active": false
+    },
+    "hips": {
+     "rangeDeg": 15.5,
+     "active": true
+    }
+   },
+   "repairedFrames": 0,
+   "quality": {
+    "hipDropM": 0.02,
+    "rootTravelM": 0.143,
+    "maxAngularSpeed": 9.0,
+    "footSlideM": 0.079
+   },
+   "reference": "clipStartOntoViewerNeutral",
+   "frameStart": 8844
+  },
+  {
+   "id": "MOT_767",
+   "label": "右手を胸の左側に当て、ゆっくりとした動作で「心を込めて・愛している」を示す",
+   "source": "mocap",
+   "sourcePath": "BVH/0010/01/005/001/067.bvh",
+   "sourceSha256": "7f921ed70e57de10a32619d8d10c27e26a4bd4b8d19afa0b85be6998406c431b",
+   "duration": 5.333,
+   "stroke": 0.867,
+   "groups": {
+    "right_arm": {
+     "rangeDeg": 125.5,
+     "active": true
+    },
+    "left_arm": {
+     "rangeDeg": 11.6,
+     "active": false
+    },
+    "head": {
+     "rangeDeg": 4.0,
+     "active": false
+    },
+    "spine": {
+     "rangeDeg": 3.0,
+     "active": false
+    },
+    "hips": {
+     "rangeDeg": 16.6,
+     "active": true
+    }
+   },
+   "repairedFrames": 0,
+   "quality": {
+    "hipDropM": 0.003,
+    "rootTravelM": 0.076,
+    "maxAngularSpeed": 5.2,
+    "footSlideM": 0.093
+   },
+   "reference": "clipStartOntoViewerNeutral",
+   "frameStart": 9004
+  },
+  {
+   "id": "MOT_768",
+   "label": "両手の親指と人差し指でハート型を作って前方に向けて提示する",
+   "source": "mocap",
+   "sourcePath": "BVH/0010/01/005/001/068.bvh",
+   "sourceSha256": "f56d68370cce4743b5ced5acbd5e77f605c808b1c50091cf5750c136ca4a7cc2",
+   "duration": 7.0,
+   "stroke": 0.833,
+   "groups": {
+    "right_arm": {
+     "rangeDeg": 78.4,
+     "active": true
+    },
+    "left_arm": {
+     "rangeDeg": 84.0,
+     "active": true
+    },
+    "head": {
+     "rangeDeg": 5.1,
+     "active": false
+    },
+    "spine": {
+     "rangeDeg": 2.4,
+     "active": false
+    },
+    "hips": {
+     "rangeDeg": 9.4,
+     "active": true
+    }
+   },
+   "repairedFrames": 1,
+   "quality": {
+    "hipDropM": 0.015,
+    "rootTravelM": 0.105,
+    "maxAngularSpeed": 9.1,
+    "footSlideM": 0.078
+   },
+   "reference": "clipStartOntoViewerNeutral",
+   "frameStart": 9165
+  },
+  {
+   "id": "MOT_769",
+   "label": "右手を口の近くに持ってきてキスを吹き送る動作をする",
+   "source": "mocap",
+   "sourcePath": "BVH/0010/01/005/001/069.bvh",
+   "sourceSha256": "0bdafff120c882c56b9f7d22fcf24277c2f4bd5b6d48c0422301b6e3175fb7ce",
+   "duration": 4.367,
+   "stroke": 0.433,
+   "groups": {
+    "right_arm": {
+     "rangeDeg": 93.9,
+     "active": true
+    },
+    "left_arm": {
+     "rangeDeg": 13.8,
+     "active": true
+    },
+    "head": {
+     "rangeDeg": 7.7,
+     "active": true
+    },
+    "spine": {
+     "rangeDeg": 1.7,
+     "active": false
+    },
+    "hips": {
+     "rangeDeg": 23.4,
+     "active": true
+    }
+   },
+   "repairedFrames": 0,
+   "quality": {
+    "hipDropM": 0.0,
+    "rootTravelM": 0.129,
+    "maxAngularSpeed": 8.6,
+    "footSlideM": 0.078
+   },
+   "reference": "clipStartOntoViewerNeutral",
+   "frameStart": 9376
+  },
+  {
+   "id": "MOT_783",
+   "label": "右手を上げる",
+   "source": "t2m",
+   "t2mSeed": 6,
+   "t2mSampling": {
+    "cfg_scale": 7.0,
+    "top_k": 50,
+    "temperature": 0.8
+   },
+   "t2mMirrored": true,
+   "duration": 2.733,
+   "stroke": 0.233,
+   "groups": {
+    "right_arm": {
+     "rangeDeg": 100.3,
+     "active": true
+    },
+    "left_arm": {
+     "rangeDeg": 14.5,
+     "active": true
+    },
+    "head": {
+     "rangeDeg": 5.7,
+     "active": false
+    },
+    "spine": {
+     "rangeDeg": 1.3,
+     "active": false
+    },
+    "hips": {
+     "rangeDeg": 7.6,
+     "active": false
+    }
+   },
+   "repairedFrames": 0,
+   "quality": {
+    "hipDropM": 0.006,
+    "rootTravelM": 0.019,
+    "maxAngularSpeed": 13.6,
+    "footSlideM": 0.099
+   },
+   "candidates": 10,
+   "reference": "clipStartOntoViewerNeutral",
+   "frameStart": 9508
+  },
+  {
+   "id": "MOT_774",
+   "label": "右手の人差し指を立てて「ちょっと待って」と示すジェスチャーをする",
+   "source": "t2m",
+   "t2mSeed": 1,
+   "t2mSampling": {
+    "cfg_scale": 7.0,
+    "top_k": 50,
+    "temperature": 0.8
+   },
+   "t2mMirrored": false,
+   "duration": 2.733,
+   "stroke": 0.6,
+   "groups": {
+    "right_arm": {
+     "rangeDeg": 62.8,
+     "active": true
+    },
+    "left_arm": {
+     "rangeDeg": 17.6,
+     "active": true
+    },
+    "head": {
+     "rangeDeg": 6.3,
+     "active": true
+    },
+    "spine": {
+     "rangeDeg": 3.2,
+     "active": false
+    },
+    "hips": {
+     "rangeDeg": 12.2,
+     "active": true
+    }
+   },
+   "repairedFrames": 0,
+   "quality": {
+    "hipDropM": 0.0,
+    "rootTravelM": 0.034,
+    "maxAngularSpeed": 7.4,
+    "footSlideM": 0.215
+   },
+   "candidates": 10,
+   "reference": "clipStartOntoViewerNeutral",
+   "frameStart": 9591
+  }
+ ],
+ "builtAt": "2026-10-15 20:02:27",
+ "note": "MOT_7xx は Custom-T2M-Lab 0010/01 のモーキャプ。t2m は崩れ検出で選んだ生成。"
+}

@@ -1,4 +1,6 @@
 import asyncio
+import base64
+import os
 
 # import base64
 # import io
@@ -16,7 +18,27 @@ from app.agent.general_conversation.domains import (
     LocationAgent,
     ResearchAgent,
 )
-from app.agent.general_conversation.tools.motion_tool import motion_data_queue_var
+from app.agent.general_conversation.tools.conversation_motion.pipeline import (
+    LayeredTurn,
+    PlannedTag,
+    layered_available,
+    parse_mode,
+    resolve_layered_request,
+)
+from app.agent.general_conversation.tools.motion_catalog import extract_explicit_motion_request
+from app.agent.general_conversation.tools.motion_output import clean_motion_tool_artifacts
+from app.agent.general_conversation.tools.motion_tags import (
+    extract_action_tags,
+    has_incomplete_tag,
+    plan_auto_gestures,
+)
+from app.agent.general_conversation.tools.motion_tool import (
+    enqueue_motion_job,
+    motion_backend_requires_audio,
+    MOTION_JOB_WAIT_TIMEOUT,
+    MotionJobChannel,
+    motion_data_queue_var,
+)
 from app.models import llm, tts
 from app.services.history_service import HistoryService
 
@@ -29,6 +51,9 @@ from fastapi.responses import StreamingResponse
 
 
 router = APIRouter(prefix="/api/text-chat", tags=["Text Chat"])
+
+# 履歴の既定セッション。検証用バックエンドが本番の会話履歴に混ざらないよう環境変数で分けられる。
+DEFAULT_SESSION_ID = os.getenv("CHAT_DEFAULT_SESSION_ID", "default")
 
 
 @router.get("/stream")
@@ -440,8 +465,11 @@ async def char_stream_orchestrator(request: Request):
     t0 = time.perf_counter()  # === 計測開始 ===
     user_input = request.query_params.get("text", "こんにちは！")
     user_id = request.query_params.get("user_id", "default")
-    session_id = request.query_params.get("session_id", "default")
+    session_id = request.query_params.get("session_id", DEFAULT_SESSION_ID)
     mode = request.query_params.get("mode", "general")
+    # 動作生成モード(画面で切り替え)。current は従来どおり、layered* は層構成方式。
+    motion_mode = parse_mode(request.query_params.get("motion_mode"))
+    avatar_posture = request.query_params.get("posture", "standing")
 
     # --- 対話履歴の取得 ---
     history = []
@@ -480,37 +508,171 @@ async def char_stream_orchestrator(request: Request):
     PUNCTUATIONS = {"。", "！", "？", "!", "?"}
 
     async def event_stream():
-        # --- モーションキューの初期化 ---
-        motion_queue = []
-        motion_data_queue_var.set(motion_queue)
+        # バックグラウンドのT2Mジョブから結果を受け取るリクエスト専用チャネル。
+        explicit_motion = extract_explicit_motion_request(user_input)
+        motion_channel = MotionJobChannel(
+            explicit_prompt=explicit_motion.prompt if explicit_motion else None,
+        )
+        motion_data_queue_var.set(motion_channel)
+
+        def serialize_motion_result(motion_data: dict) -> str:
+            layered_info = motion_data.get("layered")
+            if motion_data.get("status") == "error":
+                payload = {
+                    "type": "motion_error",
+                    "prompt": motion_data.get("prompt", ""),
+                    "message": motion_data.get("message", "モーション生成に失敗しました"),
+                    "segment_id": motion_data.get("segment_index", 0),
+                }
+            else:
+                payload = {
+                    "type": "motion_chunk",
+                    "bvh": motion_data.get("bvh", ""),
+                    "prompt": motion_data.get("prompt", ""),
+                    "latency_ms": round(
+                        motion_data.get("latency_seconds", 0) * 1000
+                    ),
+                    # このモーションを合わせる発話。フロントエンドは生成完了時刻ではなく
+                    # この発話の再生開始時刻を基準にモーションを開始する。
+                    "segment_id": motion_data.get("segment_index", 0),
+                    # 文中のどのあたりで動くか(0.0=文頭, 1.0=文末)。
+                    # 実際の秒数は発話長を知っているフロントエンドが掛け算で出す。
+                    "start_offset_ratio": motion_data.get("start_offset_ratio", 0.0),
+                    "start_offset_ms": 0,
+                }
+                if layered_info:
+                    payload["layered"] = layered_info
+            return "data: " + json.dumps(payload) + "\n\n"
 
         sentence_buffer = ""
         full_response = ""  # アシスタント応答全文を蓄積
+        # 自動補完した動作の通し番号。同じ動作の反復に見えないよう順に回す。
+        auto_gesture_count = 0
+        # 読み上げる本文が残らなかった文から回収した行動タグ。
+        # (例: 文が [act:wave] だけだった場合) 次の発話へ持ち越す。
+        carried_tags: list = []
+
+        # 音声駆動バックエンド(SentiAvatar)は発話音声が要るため、
+        # 「モーションを TTS より先に投げる」流れが使えない。
+        # その場合は TTS 完了後に、発話 1 本につき 1 モーションを生成する。
+        needs_audio = motion_backend_requires_audio()
+
+        # 層構成方式: 意味の層(事前作成クリップ)+ リズムの層(SentiAvatar)+ 待機の層。
+        # 座位中は上半身だけの合成に未対応なので、そのターンは現行方式で動かす。
+        layered_turn = None
+        layered_reason = None
+        if motion_mode != "current":
+            if avatar_posture != "standing":
+                layered_reason = "座っている間は現行方式で動かします"
+            elif not layered_available():
+                layered_reason = "動作クリップが配置されていません"
+            else:
+                try:
+                    layered_turn = LayeredTurn(
+                        motion_channel, f"{user_id}:{session_id}", rhythm=motion_mode == "layered",
+                    )
+                except Exception as error:  # noqa: BLE001
+                    layered_reason = f"層構成の準備に失敗しました: {error}"
+                    print(f"[layered] init failed: {error}")
+        motion_channel.layered = layered_turn is not None
+        yield (
+            "data: "
+            + json.dumps({
+                "type": "motion_mode",
+                "requested": motion_mode,
+                "effective": layered_turn.mode if layered_turn else "current",
+                "reason": layered_reason,
+            })
+            + "\n\n"
+        )
+        if layered_turn is not None:
+            acknowledgement = await asyncio.to_thread(layered_turn.acknowledge)
+            if acknowledgement:
+                yield serialize_motion_result(acknowledgement)
+
+        # 直接の動作指示が事前作成クリップで表せるなら、最初の発話に重ねる
+        explicit_layered = None
+        if explicit_motion is not None and layered_turn is not None:
+            resolved = resolve_layered_request(explicit_motion.prompt)
+            if resolved is not None:
+                explicit_layered = PlannedTag(
+                    "explicit", resolved[0], 0.0, explicit=True, mirrored=resolved[1],
+                )
+
+        def layered_tags_for(planned_tags: list) -> list:
+            nonlocal explicit_layered
+            tags = [
+                PlannedTag(t.name, t.catalog_id, t.position, auto=t.name.startswith("auto:"))
+                for t in planned_tags
+            ]
+            for prompt, catalog_id in motion_channel.drain_actions():
+                resolved = resolve_layered_request(prompt) or ((catalog_id, False) if catalog_id else None)
+                if resolved is not None:
+                    tags.append(PlannedTag("tool", resolved[0], 0.15, mirrored=resolved[1]))
+            if explicit_layered is not None:
+                tags.append(explicit_layered)
+                explicit_layered = None
+            return tags
+
+        if explicit_motion is not None and explicit_layered is not None:
+            print(f"[motion_request] explicit action (layered clip): {explicit_motion.prompt!r}")
+        elif explicit_motion is not None:
+            if needs_audio:
+                motion_channel.request_action(explicit_motion.prompt, explicit_motion.catalog_id)
+            else:
+                enqueue_motion_job(
+                    motion_channel, explicit_motion.prompt, 1,
+                    catalog_id=explicit_motion.catalog_id, position=0.0,
+                )
+            print(f"[motion_request] explicit action: {explicit_motion.prompt!r}")
         first_text_logged = False
         first_audio_logged = False
 
-        async for chunk in conversation_orchestrator.stream_response(
-            user_id=user_id,
-            text=user_input,
-            history=history,
-            mode=mode,
-        ):
-            # --- 溜まったモーションデータの送信 ---
-            while motion_queue:
-                motion_data = motion_queue.pop(0)
-                yield (
-                    "data: "
-                    + json.dumps(
-                        {
-                            "type": "motion_chunk",
-                            "bvh": motion_data.get("bvh", ""),
-                            "prompt": motion_data.get("prompt", ""),
-                            "latency_ms": round(motion_data.get("latency_seconds", 0) * 1000),
-                        }
-                    )
-                    + "\n\n"
-                )
+        # エージェントがツール実行中でもSSEを無通信にしない。
+        # 10秒ごとのコメントはEventSourceには表示されず、Nginxの504を防ぐ。
+        response_queue: asyncio.Queue[tuple[str, object]] = asyncio.Queue()
 
+        async def produce_response():
+            try:
+                async for response_chunk in conversation_orchestrator.stream_response(
+                    user_id=user_id,
+                    text=user_input,
+                    history=history,
+                    mode=mode,
+                ):
+                    await response_queue.put(("chunk", response_chunk))
+            except Exception as exc:
+                await response_queue.put(("error", exc))
+            finally:
+                await response_queue.put(("done", None))
+
+        producer_task = asyncio.create_task(produce_response())
+        last_keepalive = time.monotonic()
+
+        while True:
+            for motion_data in motion_channel.drain():
+                yield serialize_motion_result(motion_data)
+
+            try:
+                response_type, payload = await asyncio.wait_for(
+                    response_queue.get(),
+                    timeout=0.5,
+                )
+            except asyncio.TimeoutError:
+                if await request.is_disconnected():
+                    producer_task.cancel()
+                    break
+                if time.monotonic() - last_keepalive >= 10:
+                    yield ": keep-alive\n\n"
+                    last_keepalive = time.monotonic()
+                continue
+
+            if response_type == "done":
+                break
+            if response_type == "error":
+                raise payload
+
+            chunk = payload
             raw_piece = str(chunk)
             sentence_buffer += raw_piece
 
@@ -519,6 +681,20 @@ async def char_stream_orchestrator(request: Request):
                 ttft = (time.perf_counter() - t0) * 1000
                 print(f"[TIMING] TTFT (Time To First Text): {ttft:.0f}ms")
                 first_text_logged = True
+
+            # 受理済み動作の内部ツール記法が本文に出た場合は読み上げない。
+            # JSON内の句点で文を切らず、ブロックが閉じるまで元バッファを保持する。
+            if explicit_motion:
+                clean_buffer, incomplete_motion_tool = clean_motion_tool_artifacts(sentence_buffer)
+                if incomplete_motion_tool:
+                    continue
+                sentence_buffer = clean_buffer
+
+            # 行動タグがチャンク境界で割れている間は文を確定しない。
+            # `…です。[act:` の状態で確定すると、タグが本文として画面・TTS へ漏れ、
+            # モーションも検出できなくなる。
+            if has_incomplete_tag(sentence_buffer):
+                continue
 
             # 文の終端を検出したら、完成した文をサニタイズして出力
             if any(p in raw_piece for p in PUNCTUATIONS):
@@ -546,11 +722,48 @@ async def char_stream_orchestrator(request: Request):
                             + "\n\n"
                         )
 
+                # 応答本文に埋め込まれた行動タグを取り出し、本文からは取り除く。
+                # タグは画面にも TTS にも出さない。
+                raw_sentence_for_metadata, action_tags = extract_action_tags(
+                    raw_sentence_for_metadata
+                )
+
                 # 文全体に対してサニタイズ（URL・出典を確実に除去）
                 current_sentence = _sanitize_for_speech(raw_sentence_for_metadata)
-                if not current_sentence:
+                # 空白だけの文をそのまま TTS に渡すと ValueError で
+                # ストリーム全体が落ちるため、strip して判定する。
+                if not current_sentence.strip():
+                    # 本文が消えても行動タグは捨てず、次の発話へ持ち越す
+                    carried_tags.extend(action_tags)
                     sentence_buffer = ""
                     continue
+
+                # 長い発話でタグが足りない分は機械的に補う。
+                # モデルの遵守に依存すると、11秒や13秒の文が丸ごと無動作になる。
+                rhythm_layer = layered_turn is not None and layered_turn.rhythm
+                auto_tags = [] if explicit_motion or rhythm_layer else plan_auto_gestures(
+                    current_sentence, action_tags, auto_gesture_count
+                )
+                auto_gesture_count += len(auto_tags)
+
+                # この文に紐づくモーションを、TTS を待たずに走らせる。
+                # T2M は 1 秒前後かかるので、少しでも早く投げておきたい。
+                planned = [] if explicit_motion else carried_tags + action_tags + auto_tags
+                carried_tags = []
+                next_segment = motion_channel.segment_index + 1
+                if planned and not needs_audio and layered_turn is None:
+                    for tag in planned:
+                        enqueue_motion_job(
+                            motion_channel,
+                            tag.prompt,
+                            next_segment,
+                            catalog_id=tag.catalog_id,
+                            position=tag.position,
+                        )
+                    print(
+                        f"[motion_tags] segment={next_segment} "
+                        f"tags={[t.name for t in planned]}"
+                    )
 
                 full_response += current_sentence
 
@@ -562,10 +775,46 @@ async def char_stream_orchestrator(request: Request):
                 )
 
                 # 並列で音声生成
-                audio_b64 = await asyncio.to_thread(
-                    _tts.synthesize_to_base64,
+                audio_b64, duration_ms = await asyncio.to_thread(
+                    _tts.synthesize_with_duration,
                     current_sentence,
                 )
+
+                # この発話に採番する。モーションはこのIDを指して再生位置を決める。
+                segment_id = motion_channel.advance_segment()
+
+                # 層構成: 発話の長さが決まったので 1 本に合成し、音声より先に送る
+                if layered_turn is not None:
+                    layered_payload = await asyncio.to_thread(
+                        layered_turn.on_sentence,
+                        segment_id,
+                        duration_ms,
+                        layered_tags_for(planned),
+                        base64.b64decode(audio_b64) if layered_turn.rhythm else None,
+                    )
+                    yield serialize_motion_result(layered_payload)
+
+                # 音声駆動バックエンドはここで初めて呼べる。
+                # 生成されるモーションは発話全体を覆うので、この発話につき 1 本だけ。
+                if needs_audio and layered_turn is None:
+                    # タグ/自動補完に加え、ツールから預かった要求も候補に入れる
+                    requested = motion_channel.drain_actions()
+                    candidates = [(t.prompt, t.catalog_id, t.name) for t in planned]
+                    candidates += [(p, c, "tool") for p, c in requested]
+                    if candidates:
+                        prompt, catalog_id, source = candidates[0]
+                        enqueue_motion_job(
+                            motion_channel,
+                            prompt,
+                            segment_id,
+                            catalog_id=catalog_id,
+                            position=0.0,
+                            audio_wav=base64.b64decode(audio_b64),
+                        )
+                        print(
+                            f"[motion_tags] segment={segment_id} audio-driven "
+                            f"lead={source} (候補 {[c[2] for c in candidates]})"
+                        )
 
                 yield (
                     "data: "
@@ -574,6 +823,8 @@ async def char_stream_orchestrator(request: Request):
                             "type": "audio_chunk",
                             "sentence": current_sentence,
                             "audio": audio_b64,
+                            "segment_id": segment_id,
+                            "duration_ms": round(duration_ms),
                         }
                     )
                     + "\n\n"
@@ -587,7 +838,18 @@ async def char_stream_orchestrator(request: Request):
 
                 sentence_buffer = ""
 
+        if not producer_task.done():
+            producer_task.cancel()
+
         # 最後に残った文を処理
+        if explicit_motion:
+            sentence_buffer, _ = clean_motion_tool_artifacts(sentence_buffer, final=True)
+            # 音声時計がないと動作キューを開始できないため、内部記法しか
+            # 残らなかった返答にも短い受理の一言を配信する。
+            readable_buffer, _ = extract_action_tags(sentence_buffer)
+            if not full_response.strip() and not _sanitize_for_speech(readable_buffer).strip():
+                sentence_buffer = "承知しました。"
+
         if sentence_buffer.strip():
             raw_sentence_for_metadata = sentence_buffer.strip()
 
@@ -611,18 +873,62 @@ async def char_stream_orchestrator(request: Request):
                         + "\n\n"
                     )
 
+            raw_sentence_for_metadata, action_tags = extract_action_tags(
+                raw_sentence_for_metadata
+            )
             current_sentence = _sanitize_for_speech(raw_sentence_for_metadata)
-            if current_sentence:
+            if current_sentence.strip():
+                rhythm_layer = layered_turn is not None and layered_turn.rhythm
+                auto_tags = [] if explicit_motion or rhythm_layer else plan_auto_gestures(
+                    current_sentence, action_tags, auto_gesture_count
+                )
+                auto_gesture_count += len(auto_tags)
+                planned = [] if explicit_motion else carried_tags + action_tags + auto_tags
+                carried_tags = []
+                if planned and not needs_audio and layered_turn is None:
+                    next_segment = motion_channel.segment_index + 1
+                    for tag in planned:
+                        enqueue_motion_job(
+                            motion_channel,
+                            tag.prompt,
+                            next_segment,
+                            catalog_id=tag.catalog_id,
+                            position=tag.position,
+                        )
                 full_response += current_sentence
                 yield (
                     "data: "
                     + json.dumps({"type": "text_chunk", "content": current_sentence})
                     + "\n\n"
                 )
-                audio_b64 = await asyncio.to_thread(
-                    _tts.synthesize_to_base64,
+                audio_b64, duration_ms = await asyncio.to_thread(
+                    _tts.synthesize_with_duration,
                     current_sentence,
                 )
+                segment_id = motion_channel.advance_segment()
+                if layered_turn is not None:
+                    layered_payload = await asyncio.to_thread(
+                        layered_turn.on_sentence,
+                        segment_id,
+                        duration_ms,
+                        layered_tags_for(planned),
+                        base64.b64decode(audio_b64) if layered_turn.rhythm else None,
+                    )
+                    yield serialize_motion_result(layered_payload)
+                if needs_audio and layered_turn is None:
+                    requested = motion_channel.drain_actions()
+                    candidates = [(t.prompt, t.catalog_id) for t in planned]
+                    candidates += list(requested)
+                    if candidates:
+                        prompt, catalog_id = candidates[0]
+                        enqueue_motion_job(
+                            motion_channel,
+                            prompt,
+                            segment_id,
+                            catalog_id=catalog_id,
+                            position=0.0,
+                            audio_wav=base64.b64decode(audio_b64),
+                        )
                 yield (
                     "data: "
                     + json.dumps(
@@ -630,6 +936,8 @@ async def char_stream_orchestrator(request: Request):
                             "type": "audio_chunk",
                             "sentence": current_sentence,
                             "audio": audio_b64,
+                            "segment_id": segment_id,
+                            "duration_ms": round(duration_ms),
                         }
                     )
                     + "\n\n"
@@ -661,29 +969,47 @@ async def char_stream_orchestrator(request: Request):
             + "\n\n"
         )
 
-        # --- 最後に残ったモーションデータの送信 ---
-        while motion_queue:
-            motion_data = motion_queue.pop(0)
-            yield (
-                "data: "
-                + json.dumps(
-                    {
-                        "type": "motion_chunk",
-                        "bvh": motion_data.get("bvh", ""),
-                        "prompt": motion_data.get("prompt", ""),
-                        "latency_ms": round(motion_data.get("latency_seconds", 0) * 1000),
-                    }
-                )
-                + "\n\n"
+        # 会話と音声は先に配信済み。T2Mジョブだけが残っている場合は、
+        # SSEを維持しながら完成結果を非同期に回収する。
+        motion_deadline = time.monotonic() + MOTION_JOB_WAIT_TIMEOUT
+        while not motion_channel.is_idle and time.monotonic() < motion_deadline:
+            if await request.is_disconnected():
+                break
+
+            motion_data = await asyncio.to_thread(motion_channel.get, 1.0)
+            if motion_data is not None:
+                yield serialize_motion_result(motion_data)
+                continue
+
+            if time.monotonic() - last_keepalive >= 10:
+                yield ": keep-alive\n\n"
+                last_keepalive = time.monotonic()
+
+        for motion_data in motion_channel.drain():
+            yield serialize_motion_result(motion_data)
+
+        if not motion_channel.is_idle:
+            yield serialize_motion_result(
+                {
+                    "status": "error",
+                    "prompt": "",
+                    "message": "モーション生成の待機時間を超過しました",
+                }
             )
 
         yield ("data: " + json.dumps({"type": "done", "message": "応答完了"}) + "\n\n")
 
-    return StreamingResponse(event_stream(), media_type="text/event-stream")
+    # 途中のプロキシに圧縮・蓄積させない。後から届く動作(リズムの層の差し替え)が
+    # 圧縮バッファに溜まり、数秒遅れて届くのを防ぐ。
+    return StreamingResponse(
+        event_stream(),
+        media_type="text/event-stream",
+        headers={"Cache-Control": "no-cache, no-transform", "X-Accel-Buffering": "no"},
+    )
 
 
 @router.post("/reset")
-async def reset_history(user_id: str = "default", session_id: str = "default"):
+async def reset_history(user_id: str = "default", session_id: str = DEFAULT_SESSION_ID):
     """
     指定されたユーザーおよびセッションの対話履歴をリセット（削除）する。
     """

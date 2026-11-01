@@ -19,3 +19,5 @@ services:
       - DB_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@localhost:5432/${POSTGRES_DB}
       - PORT=8078
       - TZ=Asia/Tokyo
+      # host ネットワークモードのため t2m 名は解決不可。127.0.0.1 で T2M サーバーへ到達する。
+      - T2M_SERVER_URL=http://127.0.0.1:8099

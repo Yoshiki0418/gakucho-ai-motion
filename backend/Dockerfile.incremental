@@ -1,0 +1,12 @@
+FROM gakucho-ai-motion-backend:prod
+
+USER root
+WORKDIR /workspace
+
+# 依存パッケージとモデルを既存本番イメージから再利用し、
+# アプリケーションコードだけを更新する高速デプロイ用Dockerfile。
+COPY . .
+
+USER appuser
+
+CMD ["python3", "-m", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8076"]

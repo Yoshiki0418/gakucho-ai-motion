@@ -7,3 +7,19 @@ nginx/certs/
 *.pem
 
 nginx_*.txt
+# 同期評価の収録データ(動画は大きいのでコミットしない)
+docs/sync-baseline/recordings/**/*.webm
+docs/sync-baseline/recordings/**/_video/
+
+docs/sync-baseline/recordings/.record.lock
+docs/sync-baseline/recordings/**/_audio/
+docs/sync-baseline/__pycache__/
+
+# Local runtime, logs, and temporary installer output
+/.runtime/
+*.log
+/backend/=12.8
+/backend/=470,driver
+
+# Presentations exceeding GitHub file size limits
+/*.pptx

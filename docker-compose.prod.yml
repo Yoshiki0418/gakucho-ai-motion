@@ -4,10 +4,10 @@ version: "3.8"
 services:
   nginx:
     image: nginx:latest
-    container_name: gakucho_prod_nginx
+    container_name: gakucho_motion_prod_nginx
     restart: always
     ports:
-      - "30929:30929"
+      - "30930:30930"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/certs:/etc/nginx/certs:ro
@@ -19,7 +19,7 @@ services:
       context: db
       dockerfile: Dockerfile
     ports:
-      - "127.0.0.1:5432:5432"
+      - "127.0.0.1:5433:5432"
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -38,12 +38,10 @@ services:
     build:
       context: backend
       dockerfile: Dockerfile
-      args:
-        HF_USERNAME: ${HF_USERNAME}
-        HF_TOKEN: ${HF_TOKEN}
+    command: ["python3", "-m", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8077"]
     ports:
-      - "127.0.0.1:8076:8076"
-    image: gakucho-ai-backend:prod
+      - "127.0.0.1:8087:8077"
+    image: gakucho-ai-motion-backend:prod
     env_file:
       - ./backend/.env
     deploy:
@@ -63,31 +61,48 @@ services:
       - PYTHONPATH=/workspace
       - LLM_SYSTEM_PROMPT_PATH=/workspace/app/prompts/system_prompt.txt
       - TTS_MODEL_DIR=/workspace/app/weights/tts/gakucho_ai_v2
+      - T2M_SERVER_URL=http://t2m:8099
+      - T2M_GENERATE_TIMEOUT=45
+      - T2M_DOWNLOAD_TIMEOUT=15
       - TZ=Asia/Tokyo
     depends_on:
       db:
         condition: service_healthy
+      t2m:
+        condition: service_started
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8076/health').read()"]
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8077/health').read()"]
       interval: 10s
       timeout: 3s
       retries: 10
+
+  t2m:
+    image: gakucho-ai_devcontainer-backend
+    container_name: gakucho_motion_t2m
+    command: ["python3", "-m", "web_viewer.app"]
+    working_dir: /workspace
+    volumes:
+      - /gpu-server/yamamoto/Custom-T2M-Lab:/workspace
+    ports:
+      - "127.0.0.1:8100:8099"
+    gpus: all
+    restart: unless-stopped
 
   frontend:
     build:
       context: frontend
       dockerfile: Dockerfile.prod
       args:
-        NEXT_PUBLIC_API_BASE_URL: https://192.168.29.19:30929
+        NEXT_PUBLIC_API_BASE_URL: https://192.168.29.19:30930
     ports:
-      - "127.0.0.1:30212:30212"
-    image: gakucho-ai-frontend:prod
+      - "127.0.0.1:30213:30212"
+    image: gakucho-ai-motion-frontend:prod
     environment:
       - NODE_ENV=production
       - PORT=30212 
       - HOSTNAME=0.0.0.0
-      - NEXT_PUBLIC_API_BASE_URL=https://192.168.29.19:30929
+      - NEXT_PUBLIC_API_BASE_URL=https://192.168.29.19:30930
     depends_on:
       - backend
     restart: unless-stopped

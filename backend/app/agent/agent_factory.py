@@ -90,6 +90,7 @@ def build_conversation_orchestrator():
         classifier_llm=classifier,
         filler_llm=filler_llm,
         filler_timeout=0.5,
+        use_external_filler=False,  # ★実験中★ 外部フィラーを止め、親エージェント自身の自己判断フィラーに切り替え
     )
 
     return orchestrator

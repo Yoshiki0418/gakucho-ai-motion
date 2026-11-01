@@ -1,0 +1,50 @@
+{
+  "label": "phase1",
+  "url": "http://localhost:4000",
+  "avatar": "gakucho_v3_suit.glb",
+  "recorded_at": "20260825-233732",
+  "results": [
+    {
+      "id": "01-greeting",
+      "logs": 59,
+      "sync": 5,
+      "video": true,
+      "audio_chunks": 2
+    },
+    {
+      "id": "02-long-explanation",
+      "logs": 58,
+      "sync": 8,
+      "video": true,
+      "audio_chunks": 8
+    },
+    {
+      "id": "03-multiple-actions",
+      "logs": 80,
+      "sync": 9,
+      "video": true,
+      "audio_chunks": 3
+    },
+    {
+      "id": "04-no-gesture",
+      "logs": 61,
+      "sync": 6,
+      "video": true,
+      "audio_chunks": 3
+    },
+    {
+      "id": "05-consecutive-turns",
+      "logs": 91,
+      "sync": 9,
+      "video": true,
+      "audio_chunks": 3
+    },
+    {
+      "id": "06-offline-motion",
+      "logs": 41,
+      "sync": 0,
+      "video": true,
+      "audio_chunks": 0
+    }
+  ]
+}

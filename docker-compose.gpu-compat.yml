@@ -1,0 +1,33 @@
+# Isolated workaround for a host NVIDIA kernel/userspace version mismatch.
+# tools/start-system.sh verifies that the library bundle matches the loaded kernel.
+services:
+  backend:
+    deploy:
+      resources:
+        reservations:
+          devices: !reset []
+    devices:
+      - /dev/nvidia0:/dev/nvidia0
+      - /dev/nvidia1:/dev/nvidia1
+      - /dev/nvidiactl:/dev/nvidiactl
+      - /dev/nvidia-uvm:/dev/nvidia-uvm
+    environment:
+      NVIDIA_VISIBLE_DEVICES: void
+      CUDA_VISIBLE_DEVICES: "1"
+      LD_LIBRARY_PATH: /opt/driver-compat:/usr/local/nvidia/lib:/usr/local/nvidia/lib64
+    volumes:
+      - ${GAKUCHO_NVIDIA_DRIVER_DIR:-./.runtime/nvidia-595.91.07}:/opt/driver-compat:ro
+  t2m:
+    gpus: !reset []
+    devices:
+      - /dev/nvidia0:/dev/nvidia0
+      - /dev/nvidia1:/dev/nvidia1
+      - /dev/nvidiactl:/dev/nvidiactl
+      - /dev/nvidia-uvm:/dev/nvidia-uvm
+    environment:
+      NVIDIA_VISIBLE_DEVICES: void
+      CUDA_VISIBLE_DEVICES: "1"
+      LD_LIBRARY_PATH: /opt/driver-compat:/usr/local/nvidia/lib:/usr/local/nvidia/lib64
+      PYTHONUNBUFFERED: "1"
+    volumes:
+      - ${GAKUCHO_NVIDIA_DRIVER_DIR:-./.runtime/nvidia-595.91.07}:/opt/driver-compat:ro

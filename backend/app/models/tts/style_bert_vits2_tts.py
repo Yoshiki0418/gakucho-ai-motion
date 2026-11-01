@@ -124,9 +124,18 @@ class StyleBertVITS2_TTS(BaseTTS):
 
     # ========== 出力：Base64エンコード ==========
     def synthesize_to_base64(self, text: str) -> str:
+        b64_str, _ = self.synthesize_with_duration(text)
+        return b64_str
+
+    def synthesize_with_duration(self, text: str) -> tuple[str, float]:
+        """Base64 音声と再生時間(ミリ秒)を返す。
+
+        波形をその場で持っているので、WAV を読み直さずサンプル数から直接求める。
+        """
         sr, audio = self._synthesize(text)
         buffer = io.BytesIO()
         sf.write(buffer, audio, sr, format="WAV")
         buffer.seek(0)
         b64_str = base64.b64encode(buffer.read()).decode("utf-8")
-        return b64_str
+        duration_ms = (len(audio) / sr) * 1000 if sr else 0.0
+        return b64_str, duration_ms

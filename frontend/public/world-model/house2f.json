@@ -1,0 +1,4600 @@
+{
+ "version": 1,
+ "stage": 3,
+ "seed": 0,
+ "name": "2階建ての家（本番のLDKを1階に持つ約53坪）",
+ "geoms": [
+  {
+   "id": "home-floor",
+   "type": "box",
+   "position": [
+    0,
+    0,
+    -0.04
+   ],
+   "size": [
+    10.12,
+    10.12,
+    0.08
+   ],
+   "yaw": 0.0,
+   "semantic": "floor"
+  },
+  {
+   "id": "home-wall-left",
+   "type": "box",
+   "position": [
+    -5.0,
+    -0.0,
+    1.4
+   ],
+   "size": [
+    0.1,
+    10.12,
+    2.8
+   ],
+   "yaw": 0,
+   "semantic": "wall",
+   "entityId": "home-wall-left"
+  },
+  {
+   "id": "home-wall-right",
+   "type": "box",
+   "position": [
+    5.0,
+    -0.0,
+    1.4
+   ],
+   "size": [
+    0.1,
+    10.12,
+    2.8
+   ],
+   "yaw": 0,
+   "semantic": "wall",
+   "entityId": "home-wall-right"
+  },
+  {
+   "id": "home-wall-back",
+   "type": "box",
+   "position": [
+    0.0,
+    5.0,
+    1.4
+   ],
+   "size": [
+    10.12,
+    0.1,
+    2.8
+   ],
+   "yaw": 0,
+   "semantic": "wall",
+   "entityId": "home-wall-back"
+  },
+  {
+   "id": "floor-1f-south",
+   "type": "box",
+   "position": [
+    -0.9549999999999998,
+    -6.455,
+    -0.04
+   ],
+   "size": [
+    8.209999999999999,
+    2.79,
+    0.08
+   ],
+   "yaw": 0.0,
+   "semantic": "floor"
+  },
+  {
+   "id": "floor-1f-entrance-hall",
+   "type": "box",
+   "position": [
+    4.1049999999999995,
+    -6.029999999999999,
+    -0.04
+   ],
+   "size": [
+    1.9099999999999997,
+    1.9400000000000004,
+    0.08
+   ],
+   "yaw": 0.0,
+   "semantic": "floor"
+  },
+  {
+   "id": "floor-doma",
+   "type": "box",
+   "position": [
+    4.1049999999999995,
+    -7.425,
+    -0.16
+   ],
+   "size": [
+    1.9099999999999997,
+    0.8499999999999996,
+    0.08000000000000002
+   ],
+   "yaw": 0.0,
+   "semantic": "floor"
+  },
+  {
+   "id": "floor-2f-west",
+   "type": "box",
+   "position": [
+    -2.8299999999999996,
+    -5.4,
+    2.92
+   ],
+   "size": [
+    4.46,
+    4.8999999999999995,
+    0.2400000000000002
+   ],
+   "yaw": 0.0,
+   "semantic": "floor"
+  },
+  {
+   "id": "floor-2f-east",
+   "type": "box",
+   "position": [
+    4.1049999999999995,
+    -5.4,
+    2.92
+   ],
+   "size": [
+    1.9099999999999997,
+    4.8999999999999995,
+    0.2400000000000002
+   ],
+   "yaw": 0.0,
+   "semantic": "floor"
+  },
+  {
+   "id": "floor-2f-middle",
+   "type": "box",
+   "position": [
+    1.275,
+    -4.875,
+    2.92
+   ],
+   "size": [
+    3.75,
+    3.8499999999999996,
+    0.2400000000000002
+   ],
+   "yaw": 0.0,
+   "semantic": "floor"
+  },
+  {
+   "id": "wall-ldk-south-0",
+   "type": "box",
+   "position": [
+    -2.475,
+    -5,
+    1.4
+   ],
+   "size": [
+    4.95,
+    0.1,
+    2.8
+   ],
+   "yaw": 0.0,
+   "semantic": "wall"
+  },
+  {
+   "id": "wall-ldk-south-lintel-0",
+   "type": "box",
+   "position": [
+    0.45,
+    -5,
+    2.4
+   ],
+   "size": [
+    0.9,
+    0.1,
+    0.7999999999999998
+   ],
+   "yaw": 0.0,
+   "semantic": "wall"
+  },
+  {
+   "id": "wall-ldk-south-1",
+   "type": "box",
+   "position": [
+    2.9250000000000003,
+    -5,
+    1.4
+   ],
+   "size": [
+    4.05,
+    0.1,
+    2.8
+   ],
+   "yaw": 0.0,
+   "semantic": "wall"
+  },
+  {
+   "id": "wall-1f-front-0",
+   "type": "box",
+   "position": [
+    -0.7299999999999998,
+    -7.8,
+    1.3399999999999999
+   ],
+   "size": [
+    8.66,
+    0.1,
+    2.92
+   ],
+   "yaw": 0.0,
+   "semantic": "wall"
+  },
+  {
+   "id": "wall-1f-front-lintel-0",
+   "type": "box",
+   "position": [
+    4.05,
+    -7.8,
+    2.4
+   ],
+   "size": [
+    0.8999999999999999,
+    0.1,
+    0.7999999999999998
+   ],
+   "yaw": 0.0,
+   "semantic": "wall"
+  },
+  {
+   "id": "wall-1f-front-1",
+   "type": "box",
+   "position": [
+    4.779999999999999,
+    -7.8,
+    1.3399999999999999
+   ],
+   "size": [
+    0.5599999999999996,
+    0.1,
+    2.92
+   ],
+   "yaw": 0.0,
+   "semantic": "wall"
+  },
+  {
+   "id": "wall-1f-west-0",
+   "type": "box",
+   "position": [
+    -5,
+    -6.43,
+    1.4
+   ],
+   "size": [
+    0.1,
+    2.74,
+    2.8
+   ],
+   "yaw": 0.0,
+   "semantic": "wall"
+  },
+  {
+   "id": "wall-1f-east-0",
+   "type": "box",
+   "position": [
+    5,
+    -6.43,
+    1.3399999999999999
+   ],
+   "size": [
+    0.1,
+    2.74,
+    2.92
+   ],
+   "yaw": 0.0,
+   "semantic": "wall"
+  },
+  {
+   "id": "wall-wet-north-0",
+   "type": "box",
+   "position": [
+    -3.875,
+    -6.1,
+    1.4
+   ],
+   "size": [
+    2.1500000000000004,
+    0.1,
+    2.8
+   ],
+   "yaw": 0.0,
+   "semantic": "wall"
+  },
+  {
+   "id": "wall-wet-north-lintel-0",
+   "type": "box",
+   "position": [
+    -2.45,
+    -6.1,
+    2.4
+   ],
+   "size": [
+    0.6999999999999997,
+    0.1,
+    0.7999999999999998
+   ],
+   "yaw": 0.0,
+   "semantic": "wall"
+  },
+  {
+   "id": "wall-wet-north-1",
+   "type": "box",
+   "position": [
+    -1.85,
+    -6.1,
+    1.4
+   ],
+   "size": [
+    0.5,
+    0.1,
+    2.8
+   ],
+   "yaw": 0.0,
+   "semantic": "wall"
+  },
+  {
+   "id": "wall-wet-split-0",
+   "type": "box",
+   "position": [
+    -3.3,
+    -7.35,
+    1.4
+   ],
+   "size": [
+    0.1,
+    0.7999999999999998,
+    2.8
+   ],
+   "yaw": 0.0,
+   "semantic": "wall"
+  },
+  {
+   "id": "wall-wet-split-lintel-0",
+   "type": "box",
+   "position": [
+    -3.3,
+    -6.6,
+    2.4
+   ],
+   "size": [
+    0.1,
+    0.7000000000000002,
+    0.7999999999999998
+   ],
+   "yaw": 0.0,
+   "semantic": "wall"
+  },
+  {
+   "id": "wall-wet-split-1",
+   "type": "box",
+   "position": [
+    -3.3,
+    -6.1,
+    1.4
+   ],
+   "size": [
+    0.1,
+    0.2999999999999998,
+    2.8
+   ],
+   "yaw": 0.0,
+   "semantic": "wall"
+  },
+  {
+   "id": "wall-wet-split-lintel-1",
+   "type": "box",
+   "position": [
+    -3.3,
+    -5.575,
+    2.4
+   ],
+   "size": [
+    0.1,
+    0.75,
+    0.7999999999999998
+   ],
+   "yaw": 0.0,
+   "semantic": "wall"
+  },
+  {
+   "id": "wall-wet-split-2",
+   "type": "box",
+   "position": [
+    -3.3,
+    -5.125,
+    1.4
+   ],
+   "size": [
+    0.1,
+    0.15000000000000036,
+    2.8
+   ],
+   "yaw": 0.0,
+   "semantic": "wall"
+  },
+  {
+   "id": "wall-washroom-east-0",
+   "type": "box",
+   "position": [
+    -1.6,
+    -6.95,
+    1.4
+   ],
+   "size": [
+    0.1,
+    1.5999999999999996,
+    2.8
+   ],
+   "yaw": 0.0,
+   "semantic": "wall"
+  },
+  {
+   "id": "wall-stair-1f-0",
+   "type": "box",
+   "position": [
+    1.275,
+    -6.8,
+    1.4
+   ],
+   "size": [
+    3.75,
+    0.1,
+    2.8
+   ],
+   "yaw": 0.0,
+   "semantic": "wall"
+  },
+  {
+   "id": "stair-tread-01",
+   "type": "box",
+   "position": [
+    -0.475,
+    -7.3,
+    0.095
+   ],
+   "size": [
+    0.25,
+    0.9,
+    0.19
+   ],
+   "yaw": 0.0,
+   "semantic": "stair",
+   "entityId": "staircase"
+  },
+  {
+   "id": "stair-tread-02",
+   "type": "box",
+   "position": [
+    -0.22499999999999998,
+    -7.3,
+    0.19
+   ],
+   "size": [
+    0.25,
+    0.9,
+    0.38
+   ],
+   "yaw": 0.0,
+   "semantic": "stair",
+   "entityId": "staircase"
+  },
+  {
+   "id": "stair-tread-03",
+   "type": "box",
+   "position": [
+    0.025000000000000022,
+    -7.3,
+    0.28500000000000003
+   ],
+   "size": [
+    0.25,
+    0.9,
+    0.5700000000000001
+   ],
+   "yaw": 0.0,
+   "semantic": "stair",
+   "entityId": "staircase"
+  },
+  {
+   "id": "stair-tread-04",
+   "type": "box",
+   "position": [
+    0.275,
+    -7.3,
+    0.38
+   ],
+   "size": [
+    0.25,
+    0.9,
+    0.76
+   ],
+   "yaw": 0.0,
+   "semantic": "stair",
+   "entityId": "staircase"
+  },
+  {
+   "id": "stair-tread-05",
+   "type": "box",
+   "position": [
+    0.525,
+    -7.3,
+    0.475
+   ],
+   "size": [
+    0.25,
+    0.9,
+    0.95
+   ],
+   "yaw": 0.0,
+   "semantic": "stair",
+   "entityId": "staircase"
+  },
+  {
+   "id": "stair-tread-06",
+   "type": "box",
+   "position": [
+    0.775,
+    -7.3,
+    0.5700000000000001
+   ],
+   "size": [
+    0.25,
+    0.9,
+    1.1400000000000001
+   ],
+   "yaw": 0.0,
+   "semantic": "stair",
+   "entityId": "staircase"
+  },
+  {
+   "id": "stair-tread-07",
+   "type": "box",
+   "position": [
+    1.025,
+    -7.3,
+    0.665
+   ],
+   "size": [
+    0.25,
+    0.9,
+    1.33
+   ],
+   "yaw": 0.0,
+   "semantic": "stair",
+   "entityId": "staircase"
+  },
+  {
+   "id": "stair-tread-08",
+   "type": "box",
+   "position": [
+    1.275,
+    -7.3,
+    0.76
+   ],
+   "size": [
+    0.25,
+    0.9,
+    1.52
+   ],
+   "yaw": 0.0,
+   "semantic": "stair",
+   "entityId": "staircase"
+  },
+  {
+   "id": "stair-tread-09",
+   "type": "box",
+   "position": [
+    1.525,
+    -7.3,
+    0.855
+   ],
+   "size": [
+    0.25,
+    0.9,
+    1.71
+   ],
+   "yaw": 0.0,
+   "semantic": "stair",
+   "entityId": "staircase"
+  },
+  {
+   "id": "stair-tread-10",
+   "type": "box",
+   "position": [
+    1.775,
+    -7.3,
+    0.95
+   ],
+   "size": [
+    0.25,
+    0.9,
+    1.9
+   ],
+   "yaw": 0.0,
+   "semantic": "stair",
+   "entityId": "staircase"
+  },
+  {
+   "id": "stair-tread-11",
+   "type": "box",
+   "position": [
+    2.025,
+    -7.3,
+    1.045
+   ],
+   "size": [
+    0.25,
+    0.9,
+    2.09
+   ],
+   "yaw": 0.0,
+   "semantic": "stair",
+   "entityId": "staircase"
+  },
+  {
+   "id": "stair-tread-12",
+   "type": "box",
+   "position": [
+    2.275,
+    -7.3,
+    1.1400000000000001
+   ],
+   "size": [
+    0.25,
+    0.9,
+    2.2800000000000002
+   ],
+   "yaw": 0.0,
+   "semantic": "stair",
+   "entityId": "staircase"
+  },
+  {
+   "id": "stair-tread-13",
+   "type": "box",
+   "position": [
+    2.525,
+    -7.3,
+    1.235
+   ],
+   "size": [
+    0.25,
+    0.9,
+    2.47
+   ],
+   "yaw": 0.0,
+   "semantic": "stair",
+   "entityId": "staircase"
+  },
+  {
+   "id": "stair-tread-14",
+   "type": "box",
+   "position": [
+    2.775,
+    -7.3,
+    1.33
+   ],
+   "size": [
+    0.25,
+    0.9,
+    2.66
+   ],
+   "yaw": 0.0,
+   "semantic": "stair",
+   "entityId": "staircase"
+  },
+  {
+   "id": "stair-tread-15",
+   "type": "box",
+   "position": [
+    3.025,
+    -7.3,
+    1.425
+   ],
+   "size": [
+    0.25,
+    0.9,
+    2.85
+   ],
+   "yaw": 0.0,
+   "semantic": "stair",
+   "entityId": "staircase"
+  },
+  {
+   "id": "wall-2f-front-0",
+   "type": "box",
+   "position": [
+    0.0,
+    -7.8,
+    4.24
+   ],
+   "size": [
+    10.12,
+    0.1,
+    2.3999999999999995
+   ],
+   "yaw": 0.0,
+   "semantic": "wall"
+  },
+  {
+   "id": "wall-2f-back-0",
+   "type": "box",
+   "position": [
+    0.0,
+    -3.0,
+    4.24
+   ],
+   "size": [
+    10.12,
+    0.1,
+    2.3999999999999995
+   ],
+   "yaw": 0.0,
+   "semantic": "wall"
+  },
+  {
+   "id": "wall-2f-west-0",
+   "type": "box",
+   "position": [
+    -5,
+    -5.4,
+    4.24
+   ],
+   "size": [
+    0.1,
+    4.7,
+    2.3999999999999995
+   ],
+   "yaw": 0.0,
+   "semantic": "wall"
+  },
+  {
+   "id": "wall-2f-east-0",
+   "type": "box",
+   "position": [
+    5,
+    -5.4,
+    4.24
+   ],
+   "size": [
+    0.1,
+    4.7,
+    2.3999999999999995
+   ],
+   "yaw": 0.0,
+   "semantic": "wall"
+  },
+  {
+   "id": "wall-2f-rooms-0",
+   "type": "box",
+   "position": [
+    -4.625,
+    -5.9,
+    4.24
+   ],
+   "size": [
+    0.6500000000000004,
+    0.1,
+    2.3999999999999995
+   ],
+   "yaw": 0.0,
+   "semantic": "wall"
+  },
+  {
+   "id": "wall-2f-rooms-lintel-0",
+   "type": "box",
+   "position": [
+    -3.95,
+    -5.9,
+    5.24
+   ],
+   "size": [
+    0.6999999999999997,
+    0.1,
+    0.39999999999999947
+   ],
+   "yaw": 0.0,
+   "semantic": "wall"
+  },
+  {
+   "id": "wall-2f-rooms-1",
+   "type": "box",
+   "position": [
+    -2.95,
+    -5.9,
+    4.24
+   ],
+   "size": [
+    1.3000000000000003,
+    0.1,
+    2.3999999999999995
+   ],
+   "yaw": 0.0,
+   "semantic": "wall"
+  },
+  {
+   "id": "wall-2f-rooms-lintel-1",
+   "type": "box",
+   "position": [
+    -1.9,
+    -5.9,
+    5.24
+   ],
+   "size": [
+    0.7999999999999998,
+    0.1,
+    0.39999999999999947
+   ],
+   "yaw": 0.0,
+   "semantic": "wall"
+  },
+  {
+   "id": "wall-2f-rooms-2",
+   "type": "box",
+   "position": [
+    -0.7,
+    -5.9,
+    4.24
+   ],
+   "size": [
+    1.6,
+    0.1,
+    2.3999999999999995
+   ],
+   "yaw": 0.0,
+   "semantic": "wall"
+  },
+  {
+   "id": "wall-2f-rooms-lintel-2",
+   "type": "box",
+   "position": [
+    0.5,
+    -5.9,
+    5.24
+   ],
+   "size": [
+    0.8,
+    0.1,
+    0.39999999999999947
+   ],
+   "yaw": 0.0,
+   "semantic": "wall"
+  },
+  {
+   "id": "wall-2f-rooms-3",
+   "type": "box",
+   "position": [
+    2.0,
+    -5.9,
+    4.24
+   ],
+   "size": [
+    2.2,
+    0.1,
+    2.3999999999999995
+   ],
+   "yaw": 0.0,
+   "semantic": "wall"
+  },
+  {
+   "id": "wall-2f-rooms-lintel-3",
+   "type": "box",
+   "position": [
+    3.5,
+    -5.9,
+    5.24
+   ],
+   "size": [
+    0.7999999999999998,
+    0.1,
+    0.39999999999999947
+   ],
+   "yaw": 0.0,
+   "semantic": "wall"
+  },
+  {
+   "id": "wall-2f-rooms-4",
+   "type": "box",
+   "position": [
+    4.425,
+    -5.9,
+    4.24
+   ],
+   "size": [
+    1.0500000000000003,
+    0.1,
+    2.3999999999999995
+   ],
+   "yaw": 0.0,
+   "semantic": "wall"
+  },
+  {
+   "id": "wall-2f-master-kids-0",
+   "type": "box",
+   "position": [
+    -1,
+    -4.449999999999999,
+    4.24
+   ],
+   "size": [
+    0.1,
+    2.8,
+    2.3999999999999995
+   ],
+   "yaw": 0.0,
+   "semantic": "wall"
+  },
+  {
+   "id": "wall-2f-kids-0",
+   "type": "box",
+   "position": [
+    2,
+    -4.449999999999999,
+    4.24
+   ],
+   "size": [
+    0.1,
+    2.8,
+    2.3999999999999995
+   ],
+   "yaw": 0.0,
+   "semantic": "wall"
+  },
+  {
+   "id": "wall-2f-closet-0",
+   "type": "box",
+   "position": [
+    -2.5,
+    -6.85,
+    4.24
+   ],
+   "size": [
+    0.1,
+    1.7999999999999998,
+    2.3999999999999995
+   ],
+   "yaw": 0.0,
+   "semantic": "wall"
+  },
+  {
+   "id": "wall-2f-toilet-0",
+   "type": "box",
+   "position": [
+    4.15,
+    -7.225,
+    4.24
+   ],
+   "size": [
+    0.1,
+    1.0499999999999998,
+    2.3999999999999995
+   ],
+   "yaw": 0.0,
+   "semantic": "wall"
+  },
+  {
+   "id": "wall-2f-toilet-lintel-0",
+   "type": "box",
+   "position": [
+    4.15,
+    -6.35,
+    5.24
+   ],
+   "size": [
+    0.1,
+    0.7000000000000002,
+    0.39999999999999947
+   ],
+   "yaw": 0.0,
+   "semantic": "wall"
+  },
+  {
+   "id": "wall-2f-toilet-1",
+   "type": "box",
+   "position": [
+    4.15,
+    -5.975,
+    4.24
+   ],
+   "size": [
+    0.1,
+    0.04999999999999982,
+    2.3999999999999995
+   ],
+   "yaw": 0.0,
+   "semantic": "wall"
+  },
+  {
+   "id": "railing-well-side-0",
+   "type": "box",
+   "position": [
+    1.275,
+    -6.8,
+    3.49
+   ],
+   "size": [
+    3.75,
+    0.1,
+    0.8999999999999999
+   ],
+   "yaw": 0.0,
+   "semantic": "railing"
+  },
+  {
+   "id": "railing-well-end-0",
+   "type": "box",
+   "position": [
+    -0.6,
+    -7.3,
+    3.49
+   ],
+   "size": [
+    0.1,
+    0.9000000000000004,
+    0.8999999999999999
+   ],
+   "yaw": 0.0,
+   "semantic": "railing"
+  },
+  {
+   "id": "cupboard",
+   "type": "box",
+   "position": [
+    -4.725,
+    2.4,
+    0.425
+   ],
+   "size": [
+    2.4,
+    0.45,
+    0.85
+   ],
+   "yaw": 1.5707963267948966,
+   "semantic": "cupboard",
+   "entityId": "cupboard"
+  },
+  {
+   "id": "wall-cabinet",
+   "type": "box",
+   "position": [
+    -4.775,
+    2.4,
+    1.7999999999999998
+   ],
+   "size": [
+    2.4,
+    0.35,
+    0.7
+   ],
+   "yaw": 1.5707963267948966,
+   "semantic": "wall cabinet",
+   "entityId": "wall-cabinet"
+  },
+  {
+   "id": "refrigerator",
+   "type": "box",
+   "position": [
+    -4.58,
+    3.9925,
+    0.91
+   ],
+   "size": [
+    0.685,
+    0.7,
+    1.82
+   ],
+   "yaw": 1.5707963267948966,
+   "semantic": "refrigerator",
+   "entityId": "refrigerator"
+  },
+  {
+   "id": "trash-bins",
+   "type": "box",
+   "position": [
+    -4.72,
+    4.65,
+    0.31
+   ],
+   "size": [
+    0.6,
+    0.38,
+    0.62
+   ],
+   "yaw": 1.5707963267948966,
+   "semantic": "trash bin",
+   "entityId": "trash-bins"
+  },
+  {
+   "id": "tall-cupboard",
+   "type": "box",
+   "position": [
+    -3.35,
+    4.725,
+    0.95
+   ],
+   "size": [
+    1.2,
+    0.45,
+    1.9
+   ],
+   "yaw": 0.0,
+   "semantic": "cupboard",
+   "entityId": "tall-cupboard"
+  },
+  {
+   "id": "kitchen-counter",
+   "type": "box",
+   "position": [
+    -3.0,
+    2.475,
+    0.525
+   ],
+   "size": [
+    2.55,
+    0.9,
+    1.05
+   ],
+   "yaw": -1.5707963267948966,
+   "semantic": "kitchen counter",
+   "entityId": "kitchen-counter"
+  },
+  {
+   "id": "range-hood",
+   "type": "box",
+   "position": [
+    -3.15,
+    1.85,
+    2.1
+   ],
+   "size": [
+    0.75,
+    0.55,
+    0.3
+   ],
+   "yaw": -1.5707963267948966,
+   "semantic": "range hood",
+   "entityId": "range-hood"
+  },
+  {
+   "id": "dining-table",
+   "type": "box",
+   "position": [
+    -0.95,
+    2.45,
+    0.36
+   ],
+   "size": [
+    0.85,
+    1.6,
+    0.72
+   ],
+   "yaw": 0.0,
+   "semantic": "dining table",
+   "entityId": "dining-table"
+  },
+  {
+   "id": "dining-chair-west-south/seat",
+   "type": "box",
+   "position": [
+    -1.591504009806553,
+    2.057016075838638,
+    0.41891615699159895
+   ],
+   "size": [
+    0.41,
+    0.36,
+    0.05
+   ],
+   "yaw": 1.5707963267948966,
+   "semantic": "chair-seat",
+   "entityId": "dining-chair-west-south",
+   "provenance": "measured-home-chair-compound-proxy"
+  },
+  {
+   "id": "dining-chair-west-south/back",
+   "type": "box",
+   "position": [
+    -1.918083,
+    2.05,
+    0.6969580784957994
+   ],
+   "size": [
+    0.428832,
+    0.05,
+    0.5060838430084009
+   ],
+   "yaw": 1.5707963267948966,
+   "semantic": "chair-back",
+   "entityId": "dining-chair-west-south",
+   "provenance": "measured-home-chair-compound-proxy"
+  },
+  {
+   "id": "dining-chair-west-south/leg--1--1",
+   "type": "box",
+   "position": [
+    -1.426917,
+    1.855584,
+    0.1969580784957995
+   ],
+   "size": [
+    0.04,
+    0.04,
+    0.393916156991599
+   ],
+   "yaw": 1.5707963267948966,
+   "semantic": "chair-leg",
+   "entityId": "dining-chair-west-south",
+   "provenance": "measured-home-chair-compound-proxy"
+  },
+  {
+   "id": "dining-chair-west-south/leg--1-1",
+   "type": "box",
+   "position": [
+    -1.923083,
+    1.855584,
+    0.1969580784957995
+   ],
+   "size": [
+    0.04,
+    0.04,
+    0.393916156991599
+   ],
+   "yaw": 1.5707963267948966,
+   "semantic": "chair-leg",
+   "entityId": "dining-chair-west-south",
+   "provenance": "measured-home-chair-compound-proxy"
+  },
+  {
+   "id": "dining-chair-west-south/leg-1--1",
+   "type": "box",
+   "position": [
+    -1.426917,
+    2.2444159999999997,
+    0.1969580784957995
+   ],
+   "size": [
+    0.04,
+    0.04,
+    0.393916156991599
+   ],
+   "yaw": 1.5707963267948966,
+   "semantic": "chair-leg",
+   "entityId": "dining-chair-west-south",
+   "provenance": "measured-home-chair-compound-proxy"
+  },
+  {
+   "id": "dining-chair-west-south/leg-1-1",
+   "type": "box",
+   "position": [
+    -1.923083,
+    2.2444159999999997,
+    0.1969580784957995
+   ],
+   "size": [
+    0.04,
+    0.04,
+    0.393916156991599
+   ],
+   "yaw": 1.5707963267948966,
+   "semantic": "chair-leg",
+   "entityId": "dining-chair-west-south",
+   "provenance": "measured-home-chair-compound-proxy"
+  },
+  {
+   "id": "dining-chair-west-north/seat",
+   "type": "box",
+   "position": [
+    -1.591504009806553,
+    2.8570160758386383,
+    0.41891615699159895
+   ],
+   "size": [
+    0.41,
+    0.36,
+    0.05
+   ],
+   "yaw": 1.5707963267948966,
+   "semantic": "chair-seat",
+   "entityId": "dining-chair-west-north",
+   "provenance": "measured-home-chair-compound-proxy"
+  },
+  {
+   "id": "dining-chair-west-north/back",
+   "type": "box",
+   "position": [
+    -1.918083,
+    2.85,
+    0.6969580784957994
+   ],
+   "size": [
+    0.428832,
+    0.05,
+    0.5060838430084009
+   ],
+   "yaw": 1.5707963267948966,
+   "semantic": "chair-back",
+   "entityId": "dining-chair-west-north",
+   "provenance": "measured-home-chair-compound-proxy"
+  },
+  {
+   "id": "dining-chair-west-north/leg--1--1",
+   "type": "box",
+   "position": [
+    -1.426917,
+    2.655584,
+    0.1969580784957995
+   ],
+   "size": [
+    0.04,
+    0.04,
+    0.393916156991599
+   ],
+   "yaw": 1.5707963267948966,
+   "semantic": "chair-leg",
+   "entityId": "dining-chair-west-north",
+   "provenance": "measured-home-chair-compound-proxy"
+  },
+  {
+   "id": "dining-chair-west-north/leg--1-1",
+   "type": "box",
+   "position": [
+    -1.923083,
+    2.655584,
+    0.1969580784957995
+   ],
+   "size": [
+    0.04,
+    0.04,
+    0.393916156991599
+   ],
+   "yaw": 1.5707963267948966,
+   "semantic": "chair-leg",
+   "entityId": "dining-chair-west-north",
+   "provenance": "measured-home-chair-compound-proxy"
+  },
+  {
+   "id": "dining-chair-west-north/leg-1--1",
+   "type": "box",
+   "position": [
+    -1.426917,
+    3.044416,
+    0.1969580784957995
+   ],
+   "size": [
+    0.04,
+    0.04,
+    0.393916156991599
+   ],
+   "yaw": 1.5707963267948966,
+   "semantic": "chair-leg",
+   "entityId": "dining-chair-west-north",
+   "provenance": "measured-home-chair-compound-proxy"
+  },
+  {
+   "id": "dining-chair-west-north/leg-1-1",
+   "type": "box",
+   "position": [
+    -1.923083,
+    3.044416,
+    0.1969580784957995
+   ],
+   "size": [
+    0.04,
+    0.04,
+    0.393916156991599
+   ],
+   "yaw": 1.5707963267948966,
+   "semantic": "chair-leg",
+   "entityId": "dining-chair-west-north",
+   "provenance": "measured-home-chair-compound-proxy"
+  },
+  {
+   "id": "dining-chair-east-south/seat",
+   "type": "box",
+   "position": [
+    -0.308495990193447,
+    2.0429839241613617,
+    0.41891615699159895
+   ],
+   "size": [
+    0.41,
+    0.36,
+    0.05
+   ],
+   "yaw": -1.5707963267948966,
+   "semantic": "chair-seat",
+   "entityId": "dining-chair-east-south",
+   "provenance": "measured-home-chair-compound-proxy"
+  },
+  {
+   "id": "dining-chair-east-south/back",
+   "type": "box",
+   "position": [
+    0.018083000000000016,
+    2.05,
+    0.6969580784957994
+   ],
+   "size": [
+    0.428832,
+    0.05,
+    0.5060838430084009
+   ],
+   "yaw": -1.5707963267948966,
+   "semantic": "chair-back",
+   "entityId": "dining-chair-east-south",
+   "provenance": "measured-home-chair-compound-proxy"
+  },
+  {
+   "id": "dining-chair-east-south/leg--1--1",
+   "type": "box",
+   "position": [
+    -0.47308300000000003,
+    2.2444159999999997,
+    0.1969580784957995
+   ],
+   "size": [
+    0.04,
+    0.04,
+    0.393916156991599
+   ],
+   "yaw": -1.5707963267948966,
+   "semantic": "chair-leg",
+   "entityId": "dining-chair-east-south",
+   "provenance": "measured-home-chair-compound-proxy"
+  },
+  {
+   "id": "dining-chair-east-south/leg--1-1",
+   "type": "box",
+   "position": [
+    0.02308300000000002,
+    2.2444159999999997,
+    0.1969580784957995
+   ],
+   "size": [
+    0.04,
+    0.04,
+    0.393916156991599
+   ],
+   "yaw": -1.5707963267948966,
+   "semantic": "chair-leg",
+   "entityId": "dining-chair-east-south",
+   "provenance": "measured-home-chair-compound-proxy"
+  },
+  {
+   "id": "dining-chair-east-south/leg-1--1",
+   "type": "box",
+   "position": [
+    -0.47308300000000003,
+    1.855584,
+    0.1969580784957995
+   ],
+   "size": [
+    0.04,
+    0.04,
+    0.393916156991599
+   ],
+   "yaw": -1.5707963267948966,
+   "semantic": "chair-leg",
+   "entityId": "dining-chair-east-south",
+   "provenance": "measured-home-chair-compound-proxy"
+  },
+  {
+   "id": "dining-chair-east-south/leg-1-1",
+   "type": "box",
+   "position": [
+    0.02308300000000002,
+    1.855584,
+    0.1969580784957995
+   ],
+   "size": [
+    0.04,
+    0.04,
+    0.393916156991599
+   ],
+   "yaw": -1.5707963267948966,
+   "semantic": "chair-leg",
+   "entityId": "dining-chair-east-south",
+   "provenance": "measured-home-chair-compound-proxy"
+  },
+  {
+   "id": "dining-chair-east-north/seat",
+   "type": "box",
+   "position": [
+    -0.308495990193447,
+    2.842983924161362,
+    0.41891615699159895
+   ],
+   "size": [
+    0.41,
+    0.36,
+    0.05
+   ],
+   "yaw": -1.5707963267948966,
+   "semantic": "chair-seat",
+   "entityId": "dining-chair-east-north",
+   "provenance": "measured-home-chair-compound-proxy"
+  },
+  {
+   "id": "dining-chair-east-north/back",
+   "type": "box",
+   "position": [
+    0.018083000000000016,
+    2.85,
+    0.6969580784957994
+   ],
+   "size": [
+    0.428832,
+    0.05,
+    0.5060838430084009
+   ],
+   "yaw": -1.5707963267948966,
+   "semantic": "chair-back",
+   "entityId": "dining-chair-east-north",
+   "provenance": "measured-home-chair-compound-proxy"
+  },
+  {
+   "id": "dining-chair-east-north/leg--1--1",
+   "type": "box",
+   "position": [
+    -0.47308300000000003,
+    3.044416,
+    0.1969580784957995
+   ],
+   "size": [
+    0.04,
+    0.04,
+    0.393916156991599
+   ],
+   "yaw": -1.5707963267948966,
+   "semantic": "chair-leg",
+   "entityId": "dining-chair-east-north",
+   "provenance": "measured-home-chair-compound-proxy"
+  },
+  {
+   "id": "dining-chair-east-north/leg--1-1",
+   "type": "box",
+   "position": [
+    0.02308300000000002,
+    3.044416,
+    0.1969580784957995
+   ],
+   "size": [
+    0.04,
+    0.04,
+    0.393916156991599
+   ],
+   "yaw": -1.5707963267948966,
+   "semantic": "chair-leg",
+   "entityId": "dining-chair-east-north",
+   "provenance": "measured-home-chair-compound-proxy"
+  },
+  {
+   "id": "dining-chair-east-north/leg-1--1",
+   "type": "box",
+   "position": [
+    -0.47308300000000003,
+    2.655584,
+    0.1969580784957995
+   ],
+   "size": [
+    0.04,
+    0.04,
+    0.393916156991599
+   ],
+   "yaw": -1.5707963267948966,
+   "semantic": "chair-leg",
+   "entityId": "dining-chair-east-north",
+   "provenance": "measured-home-chair-compound-proxy"
+  },
+  {
+   "id": "dining-chair-east-north/leg-1-1",
+   "type": "box",
+   "position": [
+    0.02308300000000002,
+    2.655584,
+    0.1969580784957995
+   ],
+   "size": [
+    0.04,
+    0.04,
+    0.393916156991599
+   ],
+   "yaw": -1.5707963267948966,
+   "semantic": "chair-leg",
+   "entityId": "dining-chair-east-north",
+   "provenance": "measured-home-chair-compound-proxy"
+  },
+  {
+   "id": "tv-board",
+   "type": "box",
+   "position": [
+    4.74,
+    0.3,
+    0.21
+   ],
+   "size": [
+    1.8,
+    0.42,
+    0.42
+   ],
+   "yaw": -1.5707963267948966,
+   "semantic": "tv board",
+   "entityId": "tv-board"
+  },
+  {
+   "id": "sofa",
+   "type": "box",
+   "position": [
+    1.75,
+    0.3,
+    0.41
+   ],
+   "size": [
+    2.1,
+    0.9,
+    0.82
+   ],
+   "yaw": 1.5707963267948966,
+   "semantic": "sofa",
+   "entityId": "sofa"
+  },
+  {
+   "id": "coffee-table",
+   "type": "box",
+   "position": [
+    3.05,
+    0.3,
+    0.19
+   ],
+   "size": [
+    1.0,
+    0.5,
+    0.38
+   ],
+   "yaw": 1.5707963267948966,
+   "semantic": "coffee table",
+   "entityId": "coffee-table"
+  },
+  {
+   "id": "armchair",
+   "type": "box",
+   "position": [
+    3.0,
+    2.1,
+    0.4
+   ],
+   "size": [
+    0.78,
+    0.78,
+    0.8
+   ],
+   "yaw": 0.0,
+   "semantic": "armchair",
+   "entityId": "armchair"
+  },
+  {
+   "id": "side-table",
+   "type": "box",
+   "position": [
+    1.75,
+    1.65,
+    0.275
+   ],
+   "size": [
+    0.45,
+    0.45,
+    0.55
+   ],
+   "yaw": 0.0,
+   "semantic": "side table",
+   "entityId": "side-table"
+  },
+  {
+   "id": "floor-lamp",
+   "type": "box",
+   "position": [
+    4.4,
+    3.55,
+    0.8
+   ],
+   "size": [
+    0.4,
+    0.4,
+    1.6
+   ],
+   "yaw": 0.0,
+   "semantic": "floor lamp",
+   "entityId": "floor-lamp"
+  },
+  {
+   "id": "living-bookshelf",
+   "type": "box",
+   "position": [
+    4.8,
+    2.7,
+    0.6
+   ],
+   "size": [
+    0.8,
+    0.3,
+    1.2
+   ],
+   "yaw": -1.5707963267948966,
+   "semantic": "bookshelf",
+   "entityId": "living-bookshelf"
+  },
+  {
+   "id": "sideboard",
+   "type": "box",
+   "position": [
+    3.6,
+    -4.75,
+    0.4
+   ],
+   "size": [
+    1.8,
+    0.4,
+    0.8
+   ],
+   "yaw": 3.141592653589793,
+   "semantic": "sideboard",
+   "entityId": "sideboard"
+  },
+  {
+   "id": "living-plant",
+   "type": "box",
+   "position": [
+    4.45,
+    4.4,
+    0.7
+   ],
+   "size": [
+    0.6,
+    0.6,
+    1.4
+   ],
+   "yaw": 0.0,
+   "semantic": "potted plant",
+   "entityId": "living-plant"
+  },
+  {
+   "id": "window-plant",
+   "type": "box",
+   "position": [
+    -1.35,
+    4.5,
+    0.5
+   ],
+   "size": [
+    0.45,
+    0.45,
+    1.0
+   ],
+   "yaw": 0.0,
+   "semantic": "potted plant",
+   "entityId": "window-plant"
+  },
+  {
+   "id": "low-table",
+   "type": "box",
+   "position": [
+    -3.6,
+    -3.6,
+    0.165
+   ],
+   "size": [
+    0.9,
+    0.75,
+    0.33
+   ],
+   "yaw": 0.0,
+   "semantic": "low table",
+   "entityId": "low-table"
+  },
+  {
+   "id": "tatami-chest",
+   "type": "box",
+   "position": [
+    -4.72,
+    -2.85,
+    0.375
+   ],
+   "size": [
+    0.9,
+    0.45,
+    0.75
+   ],
+   "yaw": 1.5707963267948966,
+   "semantic": "dresser",
+   "entityId": "tatami-chest"
+  },
+  {
+   "id": "shoe-cabinet",
+   "type": "box",
+   "position": [
+    4.79,
+    -6.05,
+    0.45
+   ],
+   "size": [
+    1.5,
+    0.32,
+    0.9
+   ],
+   "yaw": -1.5707963267948966,
+   "semantic": "shoe cabinet",
+   "entityId": "shoe-cabinet"
+  },
+  {
+   "id": "umbrella-stand",
+   "type": "box",
+   "position": [
+    4.75,
+    -7.55,
+    0.13
+   ],
+   "size": [
+    0.25,
+    0.25,
+    0.5
+   ],
+   "yaw": 0.0,
+   "semantic": "umbrella stand",
+   "entityId": "umbrella-stand"
+  },
+  {
+   "id": "toilet-1f-bowl",
+   "type": "box",
+   "position": [
+    -4.6,
+    -5.55,
+    0.4
+   ],
+   "size": [
+    0.42,
+    0.7,
+    0.8
+   ],
+   "yaw": 1.5707963267948966,
+   "semantic": "toilet",
+   "entityId": "toilet-1f-bowl"
+  },
+  {
+   "id": "washroom-vanity",
+   "type": "box",
+   "position": [
+    -2.05,
+    -7.48,
+    0.425
+   ],
+   "size": [
+    0.75,
+    0.55,
+    0.85
+   ],
+   "yaw": 3.141592653589793,
+   "semantic": "sink",
+   "entityId": "washroom-vanity"
+  },
+  {
+   "id": "washing-machine",
+   "type": "box",
+   "position": [
+    -2.95,
+    -7.45,
+    0.5
+   ],
+   "size": [
+    0.6,
+    0.6,
+    1.0
+   ],
+   "yaw": 3.141592653589793,
+   "semantic": "washing machine",
+   "entityId": "washing-machine"
+  },
+  {
+   "id": "bathtub",
+   "type": "box",
+   "position": [
+    -4.15,
+    -7.37,
+    0.275
+   ],
+   "size": [
+    1.6,
+    0.75,
+    0.55
+   ],
+   "yaw": 3.141592653589793,
+   "semantic": "bathtub",
+   "entityId": "bathtub"
+  },
+  {
+   "id": "bath-stool",
+   "type": "box",
+   "position": [
+    -4.7,
+    -6.45,
+    0.125
+   ],
+   "size": [
+    0.3,
+    0.25,
+    0.25
+   ],
+   "yaw": 0.0,
+   "semantic": "stool",
+   "entityId": "bath-stool"
+  },
+  {
+   "id": "master-bed",
+   "type": "box",
+   "position": [
+    -3.0,
+    -4.0,
+    3.315
+   ],
+   "size": [
+    1.4,
+    2.0,
+    0.55
+   ],
+   "yaw": 0.0,
+   "semantic": "bed",
+   "entityId": "master-bed"
+  },
+  {
+   "id": "nightstand-0",
+   "type": "box",
+   "position": [
+    -4.0,
+    -3.27,
+    3.315
+   ],
+   "size": [
+    0.45,
+    0.4,
+    0.55
+   ],
+   "yaw": 0.0,
+   "semantic": "nightstand",
+   "entityId": "nightstand-0"
+  },
+  {
+   "id": "nightstand-1",
+   "type": "box",
+   "position": [
+    -2.0,
+    -3.27,
+    3.315
+   ],
+   "size": [
+    0.45,
+    0.4,
+    0.55
+   ],
+   "yaw": 0.0,
+   "semantic": "nightstand",
+   "entityId": "nightstand-1"
+  },
+  {
+   "id": "dresser",
+   "type": "box",
+   "position": [
+    -4.7,
+    -4.95,
+    3.465
+   ],
+   "size": [
+    0.9,
+    0.5,
+    0.85
+   ],
+   "yaw": 1.5707963267948966,
+   "semantic": "dresser",
+   "entityId": "dresser"
+  },
+  {
+   "id": "master-plant",
+   "type": "box",
+   "position": [
+    -1.3,
+    -3.3,
+    3.49
+   ],
+   "size": [
+    0.4,
+    0.4,
+    0.9
+   ],
+   "yaw": 0.0,
+   "semantic": "potted plant",
+   "entityId": "master-plant"
+  },
+  {
+   "id": "clothes-rack",
+   "type": "box",
+   "position": [
+    -4.7,
+    -6.85,
+    3.94
+   ],
+   "size": [
+    1.75,
+    0.5,
+    1.8
+   ],
+   "yaw": 1.5707963267948966,
+   "semantic": "clothes rack",
+   "entityId": "clothes-rack"
+  },
+  {
+   "id": "closet-shelf",
+   "type": "box",
+   "position": [
+    -3.75,
+    -7.55,
+    3.94
+   ],
+   "size": [
+    1.4,
+    0.4,
+    1.8
+   ],
+   "yaw": 3.141592653589793,
+   "semantic": "shelf",
+   "entityId": "closet-shelf"
+  },
+  {
+   "id": "kids-bed-1",
+   "type": "box",
+   "position": [
+    -0.47,
+    -3.98,
+    3.29
+   ],
+   "size": [
+    0.97,
+    1.95,
+    0.5
+   ],
+   "yaw": 0.0,
+   "semantic": "bed",
+   "entityId": "kids-bed-1"
+  },
+  {
+   "id": "kids-desk-1",
+   "type": "box",
+   "position": [
+    1.65,
+    -3.7,
+    3.4
+   ],
+   "size": [
+    1.0,
+    0.6,
+    0.72
+   ],
+   "yaw": -1.5707963267948966,
+   "semantic": "desk",
+   "entityId": "kids-desk-1"
+  },
+  {
+   "id": "kids-chair-1",
+   "type": "box",
+   "position": [
+    1.17,
+    -3.7,
+    3.465
+   ],
+   "size": [
+    0.45,
+    0.45,
+    0.85
+   ],
+   "yaw": 1.5707963267948966,
+   "semantic": "chair",
+   "entityId": "kids-chair-1"
+  },
+  {
+   "id": "kids-shelf-1",
+   "type": "box",
+   "position": [
+    1.65,
+    -5.6,
+    3.64
+   ],
+   "size": [
+    0.6,
+    0.3,
+    1.2
+   ],
+   "yaw": 3.141592653589793,
+   "semantic": "bookshelf",
+   "entityId": "kids-shelf-1"
+  },
+  {
+   "id": "kids-bed-2",
+   "type": "box",
+   "position": [
+    4.47,
+    -3.98,
+    3.29
+   ],
+   "size": [
+    0.97,
+    1.95,
+    0.5
+   ],
+   "yaw": 0.0,
+   "semantic": "bed",
+   "entityId": "kids-bed-2"
+  },
+  {
+   "id": "kids-desk-2",
+   "type": "box",
+   "position": [
+    2.35,
+    -3.7,
+    3.4
+   ],
+   "size": [
+    1.0,
+    0.6,
+    0.72
+   ],
+   "yaw": 1.5707963267948966,
+   "semantic": "desk",
+   "entityId": "kids-desk-2"
+  },
+  {
+   "id": "kids-chair-2",
+   "type": "box",
+   "position": [
+    2.83,
+    -3.7,
+    3.465
+   ],
+   "size": [
+    0.45,
+    0.45,
+    0.85
+   ],
+   "yaw": -1.5707963267948966,
+   "semantic": "chair",
+   "entityId": "kids-chair-2"
+  },
+  {
+   "id": "kids-shelf-2",
+   "type": "box",
+   "position": [
+    2.35,
+    -5.6,
+    3.64
+   ],
+   "size": [
+    0.6,
+    0.3,
+    1.2
+   ],
+   "yaw": 3.141592653589793,
+   "semantic": "bookshelf",
+   "entityId": "kids-shelf-2"
+  },
+  {
+   "id": "kids-backpack",
+   "type": "box",
+   "position": [
+    1.75,
+    -4.45,
+    3.215
+   ],
+   "size": [
+    0.3,
+    0.2,
+    0.35
+   ],
+   "yaw": 0.0,
+   "semantic": "backpack",
+   "entityId": "kids-backpack"
+  },
+  {
+   "id": "sports-ball",
+   "type": "box",
+   "position": [
+    3.3,
+    -3.4,
+    3.15
+   ],
+   "size": [
+    0.22,
+    0.22,
+    0.22
+   ],
+   "yaw": 0.0,
+   "semantic": "sports ball",
+   "entityId": "sports-ball"
+  },
+  {
+   "id": "study-desk",
+   "type": "box",
+   "position": [
+    -1.55,
+    -7.48,
+    3.4
+   ],
+   "size": [
+    1.5,
+    0.55,
+    0.72
+   ],
+   "yaw": 3.141592653589793,
+   "semantic": "desk",
+   "entityId": "study-desk"
+  },
+  {
+   "id": "study-chair",
+   "type": "box",
+   "position": [
+    -1.55,
+    -7.0,
+    3.465
+   ],
+   "size": [
+    0.45,
+    0.45,
+    0.85
+   ],
+   "yaw": 0.0,
+   "semantic": "chair",
+   "entityId": "study-chair"
+  },
+  {
+   "id": "toilet-2f-bowl",
+   "type": "box",
+   "position": [
+    4.575,
+    -7.4,
+    3.44
+   ],
+   "size": [
+    0.42,
+    0.7,
+    0.8
+   ],
+   "yaw": 3.141592653589793,
+   "semantic": "toilet",
+   "entityId": "toilet-2f-bowl"
+  }
+ ],
+ "spawn": [
+  1.2,
+  -5.55,
+  0.0
+ ],
+ "goals": [
+  {
+   "id": "living",
+   "position": [
+    2.9,
+    -1.2,
+    0.0
+   ],
+   "kind": "walk",
+   "room": "ldk"
+  },
+  {
+   "id": "kitchen",
+   "position": [
+    -3.975,
+    2.4,
+    0.0
+   ],
+   "kind": "walk",
+   "room": "ldk"
+  },
+  {
+   "id": "dining",
+   "position": [
+    -0.95,
+    1.05,
+    0.0
+   ],
+   "kind": "walk",
+   "room": "ldk"
+  },
+  {
+   "id": "tatami",
+   "position": [
+    -2.7,
+    -3.6,
+    0.0
+   ],
+   "kind": "walk",
+   "room": "ldk"
+  },
+  {
+   "id": "entrance",
+   "position": [
+    4.1,
+    -6.55,
+    0.0
+   ],
+   "kind": "walk",
+   "room": "hall-1f"
+  },
+  {
+   "id": "hall-1f",
+   "position": [
+    1.2,
+    -5.55,
+    0.0
+   ],
+   "kind": "walk",
+   "room": "hall-1f"
+  },
+  {
+   "id": "toilet-1f",
+   "position": [
+    -3.8,
+    -5.55,
+    0.0
+   ],
+   "kind": "walk",
+   "room": "toilet-1f"
+  },
+  {
+   "id": "washroom",
+   "position": [
+    -2.45,
+    -6.6,
+    0.0
+   ],
+   "kind": "walk",
+   "room": "washroom"
+  },
+  {
+   "id": "bathroom",
+   "position": [
+    -3.95,
+    -6.6,
+    0.0
+   ],
+   "kind": "walk",
+   "room": "bathroom"
+  },
+  {
+   "id": "hall-2f",
+   "position": [
+    1.0,
+    -6.35,
+    3.04
+   ],
+   "kind": "walk",
+   "room": "hall-2f"
+  },
+  {
+   "id": "study-corner",
+   "position": [
+    -1.55,
+    -6.36,
+    3.04
+   ],
+   "kind": "walk",
+   "room": "study-corner"
+  },
+  {
+   "id": "master-bedroom",
+   "position": [
+    -1.7,
+    -4.0,
+    3.04
+   ],
+   "kind": "walk",
+   "room": "master-bedroom"
+  },
+  {
+   "id": "walk-in-closet",
+   "position": [
+    -3.5,
+    -6.85,
+    3.04
+   ],
+   "kind": "walk",
+   "room": "walk-in-closet"
+  },
+  {
+   "id": "kids-room-1",
+   "position": [
+    0.75,
+    -4.9,
+    3.04
+   ],
+   "kind": "walk",
+   "room": "kids-room-1"
+  },
+  {
+   "id": "kids-room-2",
+   "position": [
+    3.3,
+    -4.9,
+    3.04
+   ],
+   "kind": "walk",
+   "room": "kids-room-2"
+  },
+  {
+   "id": "toilet-2f",
+   "position": [
+    4.575,
+    -6.3,
+    3.04
+   ],
+   "kind": "walk",
+   "room": "toilet-2f"
+  },
+  {
+   "id": "seat:dining-chair-west-south",
+   "position": [
+    -1.591504009806553,
+    2.057016075838638,
+    0.443916156991599
+   ],
+   "kind": "sit",
+   "entityId": "dining-chair-west-south",
+   "heading": 1.5707963267948966,
+   "label": "dining-chair-west-south"
+  },
+  {
+   "id": "seat:dining-chair-west-north",
+   "position": [
+    -1.591504009806553,
+    2.8570160758386383,
+    0.443916156991599
+   ],
+   "kind": "sit",
+   "entityId": "dining-chair-west-north",
+   "heading": 1.5707963267948966,
+   "label": "dining-chair-west-north"
+  },
+  {
+   "id": "seat:dining-chair-east-south",
+   "position": [
+    -0.308495990193447,
+    2.0429839241613617,
+    0.443916156991599
+   ],
+   "kind": "sit",
+   "entityId": "dining-chair-east-south",
+   "heading": -1.5707963267948966,
+   "label": "dining-chair-east-south"
+  },
+  {
+   "id": "seat:dining-chair-east-north",
+   "position": [
+    -0.308495990193447,
+    2.842983924161362,
+    0.443916156991599
+   ],
+   "kind": "sit",
+   "entityId": "dining-chair-east-north",
+   "heading": -1.5707963267948966,
+   "label": "dining-chair-east-north"
+  }
+ ],
+ "metadata": {
+  "units": "m",
+  "upAxis": "Z",
+  "forwardAxis": "-Y",
+  "spawnReference": "supporting_floor",
+  "geometryOnly": false,
+  "infinitePlane": false,
+  "storeys": 2,
+  "floorHeights": [
+   0.0,
+   3.04
+  ],
+  "ceilingHeights": [
+   2.8,
+   5.4399999999999995
+  ],
+  "stair": {
+   "firstRiserX": -0.6,
+   "topX": 3.15,
+   "y": [
+    -7.8,
+    -6.8
+   ],
+   "rise": 0.19,
+   "risers": 16,
+   "tread": 0.25,
+   "direction": "+X up"
+  },
+  "entranceStep": 0.12,
+  "floorArea": {
+   "1F": 128.0,
+   "2F": 48.0,
+   "total": 176.0,
+   "tsubo": 53.2
+  },
+  "ldkSource": "room, floor and outer walls of home_scene.create_home_scene; furniture laid out here",
+  "ldkZones": {
+   "kitchen": [
+    -5,
+    0.8,
+    -2.3,
+    5
+   ],
+   "dining": [
+    -2.3,
+    0.8,
+    0.6,
+    5
+   ],
+   "living": [
+    0.6,
+    -2.0,
+    5,
+    5
+   ],
+   "tatami": [
+    -4.95,
+    -4.95,
+    -2.25,
+    -2.25
+   ]
+  },
+  "doors": "openings without leaves"
+ },
+ "rooms": [
+  {
+   "id": "ldk",
+   "label": "LDK（リビング・ダイニング・キッチン）",
+   "floor": 1,
+   "rects": [
+    [
+     -5,
+     -5,
+     5,
+     5
+    ]
+   ],
+   "area": 100
+  },
+  {
+   "id": "entrance",
+   "label": "玄関",
+   "floor": 1,
+   "rects": [
+    [
+     3.15,
+     -7.8,
+     5,
+     -7.0
+    ]
+   ],
+   "area": 1.48
+  },
+  {
+   "id": "hall-1f",
+   "label": "1階ホール・廊下",
+   "floor": 1,
+   "rects": [
+    [
+     -3.3,
+     -6.1,
+     5,
+     -5
+    ],
+    [
+     -0.6,
+     -6.8,
+     3.15,
+     -6.1
+    ],
+    [
+     -1.6,
+     -7.8,
+     -0.6,
+     -6.1
+    ],
+    [
+     3.15,
+     -7.0,
+     5,
+     -6.1
+    ]
+   ],
+   "area": 15.12
+  },
+  {
+   "id": "stairs",
+   "label": "階段",
+   "floor": 1,
+   "rects": [
+    [
+     -0.6,
+     -7.8,
+     3.15,
+     -6.8
+    ]
+   ],
+   "area": 3.75
+  },
+  {
+   "id": "toilet-1f",
+   "label": "1階トイレ",
+   "floor": 1,
+   "rects": [
+    [
+     -5,
+     -6.1,
+     -3.3,
+     -5
+    ]
+   ],
+   "area": 1.87
+  },
+  {
+   "id": "washroom",
+   "label": "洗面脱衣所",
+   "floor": 1,
+   "rects": [
+    [
+     -3.3,
+     -7.8,
+     -1.6,
+     -6.1
+    ]
+   ],
+   "area": 2.89
+  },
+  {
+   "id": "bathroom",
+   "label": "浴室",
+   "floor": 1,
+   "rects": [
+    [
+     -5,
+     -7.8,
+     -3.3,
+     -6.1
+    ]
+   ],
+   "area": 2.89
+  },
+  {
+   "id": "hall-2f",
+   "label": "2階ホール",
+   "floor": 2,
+   "rects": [
+    [
+     -2.5,
+     -6.8,
+     4.15,
+     -5.9
+    ],
+    [
+     3.15,
+     -7.8,
+     4.15,
+     -6.8
+    ]
+   ],
+   "area": 6.98
+  },
+  {
+   "id": "study-corner",
+   "label": "スタディコーナー",
+   "floor": 2,
+   "rects": [
+    [
+     -2.5,
+     -7.8,
+     -0.6,
+     -6.8
+    ]
+   ],
+   "area": 1.9
+  },
+  {
+   "id": "stair-well",
+   "label": "階段（吹き抜け）",
+   "floor": 2,
+   "rects": [
+    [
+     -0.6,
+     -7.8,
+     3.15,
+     -6.8
+    ]
+   ],
+   "area": 3.75
+  },
+  {
+   "id": "master-bedroom",
+   "label": "主寝室",
+   "floor": 2,
+   "rects": [
+    [
+     -5,
+     -5.9,
+     -1,
+     -3.0
+    ]
+   ],
+   "area": 11.6
+  },
+  {
+   "id": "walk-in-closet",
+   "label": "ウォークインクローゼット",
+   "floor": 2,
+   "rects": [
+    [
+     -5,
+     -7.8,
+     -2.5,
+     -5.9
+    ]
+   ],
+   "area": 4.75
+  },
+  {
+   "id": "kids-room-1",
+   "label": "子ども部屋1",
+   "floor": 2,
+   "rects": [
+    [
+     -1,
+     -5.9,
+     2,
+     -3.0
+    ]
+   ],
+   "area": 8.7
+  },
+  {
+   "id": "kids-room-2",
+   "label": "子ども部屋2",
+   "floor": 2,
+   "rects": [
+    [
+     2,
+     -5.9,
+     5,
+     -3.0
+    ]
+   ],
+   "area": 8.7
+  },
+  {
+   "id": "toilet-2f",
+   "label": "2階トイレ",
+   "floor": 2,
+   "rects": [
+    [
+     4.15,
+     -7.8,
+     5,
+     -5.9
+    ]
+   ],
+   "area": 1.61
+  }
+ ],
+ "objects": [
+  {
+   "id": "cupboard",
+   "class": "cupboard",
+   "label": "カップボード（家電収納）",
+   "room": "ldk",
+   "floor": 1,
+   "position": [
+    -4.725,
+    2.4,
+    0.425
+   ],
+   "size": [
+    2.4,
+    0.45,
+    0.85
+   ],
+   "yaw": 1.5707963267948966,
+   "coco": null,
+   "collision": true
+  },
+  {
+   "id": "wall-cabinet",
+   "class": "wall cabinet",
+   "label": "吊り戸棚",
+   "room": "ldk",
+   "floor": 1,
+   "position": [
+    -4.775,
+    2.4,
+    1.7999999999999998
+   ],
+   "size": [
+    2.4,
+    0.35,
+    0.7
+   ],
+   "yaw": 1.5707963267948966,
+   "coco": null,
+   "collision": true
+  },
+  {
+   "id": "microwave",
+   "class": "microwave",
+   "label": "電子レンジ",
+   "room": "ldk",
+   "floor": 1,
+   "position": [
+    -4.76,
+    3.1,
+    1.0
+   ],
+   "size": [
+    0.5,
+    0.38,
+    0.3
+   ],
+   "yaw": 1.5707963267948966,
+   "coco": "microwave",
+   "collision": false
+  },
+  {
+   "id": "rice-cooker",
+   "class": "rice cooker",
+   "label": "炊飯器",
+   "room": "ldk",
+   "floor": 1,
+   "position": [
+    -4.76,
+    2.45,
+    0.96
+   ],
+   "size": [
+    0.27,
+    0.32,
+    0.22
+   ],
+   "yaw": 1.5707963267948966,
+   "coco": null,
+   "collision": false
+  },
+  {
+   "id": "toaster",
+   "class": "toaster",
+   "label": "トースター",
+   "room": "ldk",
+   "floor": 1,
+   "position": [
+    -4.78,
+    1.95,
+    0.95
+   ],
+   "size": [
+    0.3,
+    0.2,
+    0.2
+   ],
+   "yaw": 1.5707963267948966,
+   "coco": "toaster",
+   "collision": false
+  },
+  {
+   "id": "kettle",
+   "class": "kettle",
+   "label": "電気ケトル",
+   "room": "ldk",
+   "floor": 1,
+   "position": [
+    -4.78,
+    1.5,
+    0.96
+   ],
+   "size": [
+    0.2,
+    0.18,
+    0.22
+   ],
+   "yaw": 1.5707963267948966,
+   "coco": null,
+   "collision": false
+  },
+  {
+   "id": "refrigerator",
+   "class": "refrigerator",
+   "label": "冷蔵庫",
+   "room": "ldk",
+   "floor": 1,
+   "position": [
+    -4.58,
+    3.9925,
+    0.91
+   ],
+   "size": [
+    0.685,
+    0.7,
+    1.82
+   ],
+   "yaw": 1.5707963267948966,
+   "coco": "refrigerator",
+   "collision": true
+  },
+  {
+   "id": "trash-bins",
+   "class": "trash bin",
+   "label": "ゴミ箱",
+   "room": "ldk",
+   "floor": 1,
+   "position": [
+    -4.72,
+    4.65,
+    0.31
+   ],
+   "size": [
+    0.6,
+    0.38,
+    0.62
+   ],
+   "yaw": 1.5707963267948966,
+   "coco": null,
+   "collision": true
+  },
+  {
+   "id": "tall-cupboard",
+   "class": "cupboard",
+   "label": "食器棚（ガラス扉）",
+   "room": "ldk",
+   "floor": 1,
+   "position": [
+    -3.35,
+    4.725,
+    0.95
+   ],
+   "size": [
+    1.2,
+    0.45,
+    1.9
+   ],
+   "yaw": 0.0,
+   "coco": null,
+   "collision": true,
+   "variant": "glass"
+  },
+  {
+   "id": "kitchen-counter",
+   "class": "kitchen counter",
+   "label": "対面キッチンのカウンター",
+   "room": "ldk",
+   "floor": 1,
+   "position": [
+    -3.0,
+    2.475,
+    0.525
+   ],
+   "size": [
+    2.55,
+    0.9,
+    1.05
+   ],
+   "yaw": -1.5707963267948966,
+   "coco": null,
+   "collision": true
+  },
+  {
+   "id": "kitchen-sink",
+   "class": "sink",
+   "label": "キッチンのシンク",
+   "room": "ldk",
+   "floor": 1,
+   "position": [
+    -3.15,
+    3.05,
+    0.75
+   ],
+   "size": [
+    0.75,
+    0.45,
+    0.2
+   ],
+   "yaw": -1.5707963267948966,
+   "coco": "sink",
+   "collision": false,
+   "variant": "kitchen"
+  },
+  {
+   "id": "cooktop",
+   "class": "stove",
+   "label": "IHコンロ",
+   "room": "ldk",
+   "floor": 1,
+   "position": [
+    -3.15,
+    1.85,
+    0.86
+   ],
+   "size": [
+    0.6,
+    0.5,
+    0.02
+   ],
+   "yaw": -1.5707963267948966,
+   "coco": "oven",
+   "collision": false
+  },
+  {
+   "id": "pot",
+   "class": "pot",
+   "label": "鍋",
+   "room": "ldk",
+   "floor": 1,
+   "position": [
+    -3.2,
+    1.72,
+    0.94
+   ],
+   "size": [
+    0.24,
+    0.24,
+    0.14
+   ],
+   "yaw": 0.0,
+   "coco": null,
+   "collision": false
+  },
+  {
+   "id": "range-hood",
+   "class": "range hood",
+   "label": "レンジフード",
+   "room": "ldk",
+   "floor": 1,
+   "position": [
+    -3.15,
+    1.85,
+    2.1
+   ],
+   "size": [
+    0.75,
+    0.55,
+    0.3
+   ],
+   "yaw": -1.5707963267948966,
+   "coco": null,
+   "collision": true
+  },
+  {
+   "id": "dish-rack",
+   "class": "dish rack",
+   "label": "水切りかご",
+   "room": "ldk",
+   "floor": 1,
+   "position": [
+    -3.15,
+    3.58,
+    0.9249999999999999
+   ],
+   "size": [
+    0.33,
+    0.3,
+    0.15
+   ],
+   "yaw": -1.5707963267948966,
+   "coco": null,
+   "collision": false
+  },
+  {
+   "id": "pendant-kitchen-0",
+   "class": "pendant light",
+   "label": "ペンダントライト",
+   "room": "ldk",
+   "floor": 1,
+   "position": [
+    -2.9,
+    1.85,
+    2.1
+   ],
+   "size": [
+    0.22,
+    0.22,
+    0.3
+   ],
+   "yaw": 0.0,
+   "coco": null,
+   "collision": false
+  },
+  {
+   "id": "pendant-kitchen-1",
+   "class": "pendant light",
+   "label": "ペンダントライト",
+   "room": "ldk",
+   "floor": 1,
+   "position": [
+    -2.9,
+    3.05,
+    2.1
+   ],
+   "size": [
+    0.22,
+    0.22,
+    0.3
+   ],
+   "yaw": 0.0,
+   "coco": null,
+   "collision": false
+  },
+  {
+   "id": "dining-table",
+   "class": "dining table",
+   "label": "ダイニングテーブル（4人掛け）",
+   "room": "ldk",
+   "floor": 1,
+   "position": [
+    -0.95,
+    2.45,
+    0.36
+   ],
+   "size": [
+    0.85,
+    1.6,
+    0.72
+   ],
+   "yaw": 0.0,
+   "coco": "dining table",
+   "collision": true
+  },
+  {
+   "id": "dining-chair-west-south",
+   "class": "chair",
+   "label": "ダイニングチェア",
+   "room": "ldk",
+   "floor": 1,
+   "position": [
+    -1.675,
+    2.05,
+    0.475
+   ],
+   "size": [
+    0.43,
+    0.54,
+    0.95
+   ],
+   "yaw": 1.5707963267948966,
+   "coco": "chair",
+   "collision": false
+  },
+  {
+   "id": "dining-chair-west-north",
+   "class": "chair",
+   "label": "ダイニングチェア",
+   "room": "ldk",
+   "floor": 1,
+   "position": [
+    -1.675,
+    2.85,
+    0.475
+   ],
+   "size": [
+    0.43,
+    0.54,
+    0.95
+   ],
+   "yaw": 1.5707963267948966,
+   "coco": "chair",
+   "collision": false
+  },
+  {
+   "id": "dining-chair-east-south",
+   "class": "chair",
+   "label": "ダイニングチェア",
+   "room": "ldk",
+   "floor": 1,
+   "position": [
+    -0.225,
+    2.05,
+    0.475
+   ],
+   "size": [
+    0.43,
+    0.54,
+    0.95
+   ],
+   "yaw": -1.5707963267948966,
+   "coco": "chair",
+   "collision": false
+  },
+  {
+   "id": "dining-chair-east-north",
+   "class": "chair",
+   "label": "ダイニングチェア",
+   "room": "ldk",
+   "floor": 1,
+   "position": [
+    -0.225,
+    2.85,
+    0.475
+   ],
+   "size": [
+    0.43,
+    0.54,
+    0.95
+   ],
+   "yaw": -1.5707963267948966,
+   "coco": "chair",
+   "collision": false
+  },
+  {
+   "id": "dining-vase",
+   "class": "vase",
+   "label": "花瓶",
+   "room": "ldk",
+   "floor": 1,
+   "position": [
+    -0.95,
+    2.3,
+    0.87
+   ],
+   "size": [
+    0.12,
+    0.12,
+    0.3
+   ],
+   "yaw": 0.0,
+   "coco": "vase",
+   "collision": false
+  },
+  {
+   "id": "fruit-bowl",
+   "class": "bowl",
+   "label": "果物の器",
+   "room": "ldk",
+   "floor": 1,
+   "position": [
+    -0.95,
+    2.85,
+    0.77
+   ],
+   "size": [
+    0.3,
+    0.3,
+    0.1
+   ],
+   "yaw": 0.0,
+   "coco": "bowl",
+   "collision": false
+  },
+  {
+   "id": "pendant-dining-0",
+   "class": "pendant light",
+   "label": "ペンダントライト",
+   "room": "ldk",
+   "floor": 1,
+   "position": [
+    -0.95,
+    2.1,
+    1.925
+   ],
+   "size": [
+    0.3,
+    0.3,
+    0.35
+   ],
+   "yaw": 0.0,
+   "coco": null,
+   "collision": false
+  },
+  {
+   "id": "pendant-dining-1",
+   "class": "pendant light",
+   "label": "ペンダントライト",
+   "room": "ldk",
+   "floor": 1,
+   "position": [
+    -0.95,
+    2.8,
+    1.925
+   ],
+   "size": [
+    0.3,
+    0.3,
+    0.35
+   ],
+   "yaw": 0.0,
+   "coco": null,
+   "collision": false
+  },
+  {
+   "id": "tv-board",
+   "class": "tv board",
+   "label": "テレビボード",
+   "room": "ldk",
+   "floor": 1,
+   "position": [
+    4.74,
+    0.3,
+    0.21
+   ],
+   "size": [
+    1.8,
+    0.42,
+    0.42
+   ],
+   "yaw": -1.5707963267948966,
+   "coco": null,
+   "collision": true
+  },
+  {
+   "id": "tv",
+   "class": "tv",
+   "label": "テレビ",
+   "room": "ldk",
+   "floor": 1,
+   "position": [
+    4.76,
+    0.3,
+    0.8049999999999999
+   ],
+   "size": [
+    1.23,
+    0.25,
+    0.77
+   ],
+   "yaw": -1.5707963267948966,
+   "coco": "tv",
+   "collision": false
+  },
+  {
+   "id": "sofa",
+   "class": "sofa",
+   "label": "ソファ（3人掛け）",
+   "room": "ldk",
+   "floor": 1,
+   "position": [
+    1.75,
+    0.3,
+    0.41
+   ],
+   "size": [
+    2.1,
+    0.9,
+    0.82
+   ],
+   "yaw": 1.5707963267948966,
+   "coco": "couch",
+   "collision": true
+  },
+  {
+   "id": "coffee-table",
+   "class": "coffee table",
+   "label": "ローテーブル",
+   "room": "ldk",
+   "floor": 1,
+   "position": [
+    3.05,
+    0.3,
+    0.19
+   ],
+   "size": [
+    1.0,
+    0.5,
+    0.38
+   ],
+   "yaw": 1.5707963267948966,
+   "coco": null,
+   "collision": true
+  },
+  {
+   "id": "rug",
+   "class": "rug",
+   "label": "ラグ",
+   "room": "ldk",
+   "floor": 1,
+   "position": [
+    2.9,
+    0.3,
+    0.006
+   ],
+   "size": [
+    2.4,
+    1.9,
+    0.012
+   ],
+   "yaw": 1.5707963267948966,
+   "coco": null,
+   "collision": false
+  },
+  {
+   "id": "armchair",
+   "class": "armchair",
+   "label": "1人掛けソファ",
+   "room": "ldk",
+   "floor": 1,
+   "position": [
+    3.0,
+    2.1,
+    0.4
+   ],
+   "size": [
+    0.78,
+    0.78,
+    0.8
+   ],
+   "yaw": 0.0,
+   "coco": "chair",
+   "collision": true
+  },
+  {
+   "id": "side-table",
+   "class": "side table",
+   "label": "サイドテーブル",
+   "room": "ldk",
+   "floor": 1,
+   "position": [
+    1.75,
+    1.65,
+    0.275
+   ],
+   "size": [
+    0.45,
+    0.45,
+    0.55
+   ],
+   "yaw": 0.0,
+   "coco": null,
+   "collision": true
+  },
+  {
+   "id": "living-lamp",
+   "class": "table lamp",
+   "label": "スタンドライト",
+   "room": "ldk",
+   "floor": 1,
+   "position": [
+    1.75,
+    1.65,
+    0.75
+   ],
+   "size": [
+    0.25,
+    0.25,
+    0.4
+   ],
+   "yaw": 0.0,
+   "coco": null,
+   "collision": false
+  },
+  {
+   "id": "floor-lamp",
+   "class": "floor lamp",
+   "label": "フロアランプ",
+   "room": "ldk",
+   "floor": 1,
+   "position": [
+    4.4,
+    3.55,
+    0.8
+   ],
+   "size": [
+    0.4,
+    0.4,
+    1.6
+   ],
+   "yaw": 0.0,
+   "coco": null,
+   "collision": true
+  },
+  {
+   "id": "living-bookshelf",
+   "class": "bookshelf",
+   "label": "本棚（リビング）",
+   "room": "ldk",
+   "floor": 1,
+   "position": [
+    4.8,
+    2.7,
+    0.6
+   ],
+   "size": [
+    0.8,
+    0.3,
+    1.2
+   ],
+   "yaw": -1.5707963267948966,
+   "coco": null,
+   "collision": true
+  },
+  {
+   "id": "living-books",
+   "class": "book",
+   "label": "本",
+   "room": "ldk",
+   "floor": 1,
+   "position": [
+    4.8,
+    2.7,
+    0.525
+   ],
+   "size": [
+    0.7,
+    0.22,
+    0.25
+   ],
+   "yaw": -1.5707963267948966,
+   "coco": "book",
+   "collision": false
+  },
+  {
+   "id": "sideboard",
+   "class": "sideboard",
+   "label": "サイドボード",
+   "room": "ldk",
+   "floor": 1,
+   "position": [
+    3.6,
+    -4.75,
+    0.4
+   ],
+   "size": [
+    1.8,
+    0.4,
+    0.8
+   ],
+   "yaw": 3.141592653589793,
+   "coco": null,
+   "collision": true
+  },
+  {
+   "id": "sideboard-books",
+   "class": "book",
+   "label": "本",
+   "room": "ldk",
+   "floor": 1,
+   "position": [
+    3.0,
+    -4.75,
+    0.925
+   ],
+   "size": [
+    0.4,
+    0.2,
+    0.25
+   ],
+   "yaw": 3.141592653589793,
+   "coco": "book",
+   "collision": false
+  },
+  {
+   "id": "sideboard-vase",
+   "class": "vase",
+   "label": "花瓶",
+   "room": "ldk",
+   "floor": 1,
+   "position": [
+    4.1,
+    -4.78,
+    0.9600000000000001
+   ],
+   "size": [
+    0.14,
+    0.14,
+    0.32
+   ],
+   "yaw": 0.0,
+   "coco": "vase",
+   "collision": false
+  },
+  {
+   "id": "air-conditioner",
+   "class": "air conditioner",
+   "label": "エアコン",
+   "room": "ldk",
+   "floor": 1,
+   "position": [
+    3.6,
+    -4.83,
+    2.35
+   ],
+   "size": [
+    0.8,
+    0.24,
+    0.3
+   ],
+   "yaw": 3.141592653589793,
+   "coco": null,
+   "collision": false
+  },
+  {
+   "id": "ldk-clock",
+   "class": "clock",
+   "label": "掛け時計",
+   "room": "ldk",
+   "floor": 1,
+   "position": [
+    1.9,
+    -4.93,
+    1.95
+   ],
+   "size": [
+    0.3,
+    0.04,
+    0.3
+   ],
+   "yaw": 3.141592653589793,
+   "coco": "clock",
+   "collision": false
+  },
+  {
+   "id": "living-plant",
+   "class": "potted plant",
+   "label": "観葉植物（リビング）",
+   "room": "ldk",
+   "floor": 1,
+   "position": [
+    4.45,
+    4.4,
+    0.7
+   ],
+   "size": [
+    0.6,
+    0.6,
+    1.4
+   ],
+   "yaw": 0.0,
+   "coco": "potted plant",
+   "collision": true
+  },
+  {
+   "id": "window-plant",
+   "class": "potted plant",
+   "label": "観葉植物（窓辺）",
+   "room": "ldk",
+   "floor": 1,
+   "position": [
+    -1.35,
+    4.5,
+    0.5
+   ],
+   "size": [
+    0.45,
+    0.45,
+    1.0
+   ],
+   "yaw": 0.0,
+   "coco": "potted plant",
+   "collision": true
+  },
+  {
+   "id": "tatami",
+   "class": "tatami",
+   "label": "畳コーナー",
+   "room": "ldk",
+   "floor": 1,
+   "position": [
+    -3.6,
+    -3.6,
+    0.01
+   ],
+   "size": [
+    2.7,
+    2.7,
+    0.02
+   ],
+   "yaw": 0.0,
+   "coco": null,
+   "collision": false
+  },
+  {
+   "id": "low-table",
+   "class": "low table",
+   "label": "座卓",
+   "room": "ldk",
+   "floor": 1,
+   "position": [
+    -3.6,
+    -3.6,
+    0.165
+   ],
+   "size": [
+    0.9,
+    0.75,
+    0.33
+   ],
+   "yaw": 0.0,
+   "coco": null,
+   "collision": true
+  },
+  {
+   "id": "zabuton-0",
+   "class": "cushion",
+   "label": "座布団",
+   "room": "ldk",
+   "floor": 1,
+   "position": [
+    -3.6,
+    -4.3,
+    0.04
+   ],
+   "size": [
+    0.55,
+    0.6,
+    0.08
+   ],
+   "yaw": 0.0,
+   "coco": null,
+   "collision": false
+  },
+  {
+   "id": "zabuton-1",
+   "class": "cushion",
+   "label": "座布団",
+   "room": "ldk",
+   "floor": 1,
+   "position": [
+    -3.6,
+    -2.9,
+    0.04
+   ],
+   "size": [
+    0.55,
+    0.6,
+    0.08
+   ],
+   "yaw": 3.141592653589793,
+   "coco": null,
+   "collision": false
+  },
+  {
+   "id": "tatami-chest",
+   "class": "dresser",
+   "label": "チェスト（畳コーナー）",
+   "room": "ldk",
+   "floor": 1,
+   "position": [
+    -4.72,
+    -2.85,
+    0.375
+   ],
+   "size": [
+    0.9,
+    0.45,
+    0.75
+   ],
+   "yaw": 1.5707963267948966,
+   "coco": null,
+   "collision": true
+  },
+  {
+   "id": "shoe-cabinet",
+   "class": "shoe cabinet",
+   "label": "下駄箱",
+   "room": "hall-1f",
+   "floor": 1,
+   "position": [
+    4.79,
+    -6.05,
+    0.45
+   ],
+   "size": [
+    1.5,
+    0.32,
+    0.9
+   ],
+   "yaw": -1.5707963267948966,
+   "coco": null,
+   "collision": true
+  },
+  {
+   "id": "umbrella-stand",
+   "class": "umbrella stand",
+   "label": "傘立て",
+   "room": "entrance",
+   "floor": 1,
+   "position": [
+    4.75,
+    -7.55,
+    0.13
+   ],
+   "size": [
+    0.25,
+    0.25,
+    0.5
+   ],
+   "yaw": 0.0,
+   "coco": null,
+   "collision": true
+  },
+  {
+   "id": "umbrella",
+   "class": "umbrella",
+   "label": "傘",
+   "room": "entrance",
+   "floor": 1,
+   "position": [
+    4.75,
+    -7.55,
+    0.305
+   ],
+   "size": [
+    0.12,
+    0.12,
+    0.85
+   ],
+   "yaw": 0.0,
+   "coco": "umbrella",
+   "collision": false
+  },
+  {
+   "id": "entrance-shoes",
+   "class": "shoes",
+   "label": "靴",
+   "room": "entrance",
+   "floor": 1,
+   "position": [
+    3.9,
+    -7.2,
+    -0.06
+   ],
+   "size": [
+    0.3,
+    0.28,
+    0.12
+   ],
+   "yaw": 0.0,
+   "coco": null,
+   "collision": false
+  },
+  {
+   "id": "toilet-1f-bowl",
+   "class": "toilet",
+   "label": "トイレ（便器）",
+   "room": "toilet-1f",
+   "floor": 1,
+   "position": [
+    -4.6,
+    -5.55,
+    0.4
+   ],
+   "size": [
+    0.42,
+    0.7,
+    0.8
+   ],
+   "yaw": 1.5707963267948966,
+   "coco": "toilet",
+   "collision": true
+  },
+  {
+   "id": "washroom-vanity",
+   "class": "sink",
+   "label": "洗面台",
+   "room": "washroom",
+   "floor": 1,
+   "position": [
+    -2.05,
+    -7.48,
+    0.425
+   ],
+   "size": [
+    0.75,
+    0.55,
+    0.85
+   ],
+   "yaw": 3.141592653589793,
+   "coco": "sink",
+   "collision": true
+  },
+  {
+   "id": "washroom-mirror",
+   "class": "mirror",
+   "label": "洗面台の鏡",
+   "room": "washroom",
+   "floor": 1,
+   "position": [
+    -2.05,
+    -7.73,
+    1.425
+   ],
+   "size": [
+    0.7,
+    0.03,
+    0.75
+   ],
+   "yaw": 3.141592653589793,
+   "coco": null,
+   "collision": false
+  },
+  {
+   "id": "washing-machine",
+   "class": "washing machine",
+   "label": "洗濯機",
+   "room": "washroom",
+   "floor": 1,
+   "position": [
+    -2.95,
+    -7.45,
+    0.5
+   ],
+   "size": [
+    0.6,
+    0.6,
+    1.0
+   ],
+   "yaw": 3.141592653589793,
+   "coco": null,
+   "collision": true
+  },
+  {
+   "id": "hair-drier",
+   "class": "hair drier",
+   "label": "ドライヤー",
+   "room": "washroom",
+   "floor": 1,
+   "position": [
+    -1.85,
+    -7.42,
+    0.89
+   ],
+   "size": [
+    0.2,
+    0.08,
+    0.08
+   ],
+   "yaw": 0.0,
+   "coco": "hair drier",
+   "collision": false
+  },
+  {
+   "id": "toothbrush-cup",
+   "class": "toothbrush",
+   "label": "歯ブラシ",
+   "room": "washroom",
+   "floor": 1,
+   "position": [
+    -2.3,
+    -7.6,
+    0.95
+   ],
+   "size": [
+    0.07,
+    0.07,
+    0.2
+   ],
+   "yaw": 0.0,
+   "coco": "toothbrush",
+   "collision": false
+  },
+  {
+   "id": "bathtub",
+   "class": "bathtub",
+   "label": "浴槽",
+   "room": "bathroom",
+   "floor": 1,
+   "position": [
+    -4.15,
+    -7.37,
+    0.275
+   ],
+   "size": [
+    1.6,
+    0.75,
+    0.55
+   ],
+   "yaw": 3.141592653589793,
+   "coco": null,
+   "collision": true
+  },
+  {
+   "id": "shower",
+   "class": "shower",
+   "label": "シャワー",
+   "room": "bathroom",
+   "floor": 1,
+   "position": [
+    -3.45,
+    -6.2,
+    1.75
+   ],
+   "size": [
+    0.1,
+    0.1,
+    0.3
+   ],
+   "yaw": 0.0,
+   "coco": null,
+   "collision": false
+  },
+  {
+   "id": "bath-stool",
+   "class": "stool",
+   "label": "風呂いす",
+   "room": "bathroom",
+   "floor": 1,
+   "position": [
+    -4.7,
+    -6.45,
+    0.125
+   ],
+   "size": [
+    0.3,
+    0.25,
+    0.25
+   ],
+   "yaw": 0.0,
+   "coco": null,
+   "collision": true
+  },
+  {
+   "id": "master-bed",
+   "class": "bed",
+   "label": "ダブルベッド",
+   "room": "master-bedroom",
+   "floor": 2,
+   "position": [
+    -3.0,
+    -4.0,
+    3.315
+   ],
+   "size": [
+    1.4,
+    2.0,
+    0.55
+   ],
+   "yaw": 0.0,
+   "coco": "bed",
+   "collision": true
+  },
+  {
+   "id": "nightstand-0",
+   "class": "nightstand",
+   "label": "ナイトテーブル",
+   "room": "master-bedroom",
+   "floor": 2,
+   "position": [
+    -4.0,
+    -3.27,
+    3.315
+   ],
+   "size": [
+    0.45,
+    0.4,
+    0.55
+   ],
+   "yaw": 0.0,
+   "coco": null,
+   "collision": true
+  },
+  {
+   "id": "bedside-lamp-0",
+   "class": "table lamp",
+   "label": "スタンドライト",
+   "room": "master-bedroom",
+   "floor": 2,
+   "position": [
+    -4.0,
+    -3.27,
+    3.79
+   ],
+   "size": [
+    0.25,
+    0.25,
+    0.4
+   ],
+   "yaw": 0.0,
+   "coco": null,
+   "collision": false
+  },
+  {
+   "id": "nightstand-1",
+   "class": "nightstand",
+   "label": "ナイトテーブル",
+   "room": "master-bedroom",
+   "floor": 2,
+   "position": [
+    -2.0,
+    -3.27,
+    3.315
+   ],
+   "size": [
+    0.45,
+    0.4,
+    0.55
+   ],
+   "yaw": 0.0,
+   "coco": null,
+   "collision": true
+  },
+  {
+   "id": "bedside-lamp-1",
+   "class": "table lamp",
+   "label": "スタンドライト",
+   "room": "master-bedroom",
+   "floor": 2,
+   "position": [
+    -2.0,
+    -3.27,
+    3.79
+   ],
+   "size": [
+    0.25,
+    0.25,
+    0.4
+   ],
+   "yaw": 0.0,
+   "coco": null,
+   "collision": false
+  },
+  {
+   "id": "dresser",
+   "class": "dresser",
+   "label": "チェスト",
+   "room": "master-bedroom",
+   "floor": 2,
+   "position": [
+    -4.7,
+    -4.95,
+    3.465
+   ],
+   "size": [
+    0.9,
+    0.5,
+    0.85
+   ],
+   "yaw": 1.5707963267948966,
+   "coco": null,
+   "collision": true
+  },
+  {
+   "id": "master-clock",
+   "class": "clock",
+   "label": "掛け時計",
+   "room": "master-bedroom",
+   "floor": 2,
+   "position": [
+    -4.3,
+    -3.07,
+    5.09
+   ],
+   "size": [
+    0.3,
+    0.04,
+    0.3
+   ],
+   "yaw": 0.0,
+   "coco": "clock",
+   "collision": false
+  },
+  {
+   "id": "master-plant",
+   "class": "potted plant",
+   "label": "観葉植物（寝室）",
+   "room": "master-bedroom",
+   "floor": 2,
+   "position": [
+    -1.3,
+    -3.3,
+    3.49
+   ],
+   "size": [
+    0.4,
+    0.4,
+    0.9
+   ],
+   "yaw": 0.0,
+   "coco": "potted plant",
+   "collision": true
+  },
+  {
+   "id": "clothes-rack",
+   "class": "clothes rack",
+   "label": "ハンガーラック",
+   "room": "walk-in-closet",
+   "floor": 2,
+   "position": [
+    -4.7,
+    -6.85,
+    3.94
+   ],
+   "size": [
+    1.75,
+    0.5,
+    1.8
+   ],
+   "yaw": 1.5707963267948966,
+   "coco": null,
+   "collision": true
+  },
+  {
+   "id": "closet-shelf",
+   "class": "shelf",
+   "label": "収納棚",
+   "room": "walk-in-closet",
+   "floor": 2,
+   "position": [
+    -3.75,
+    -7.55,
+    3.94
+   ],
+   "size": [
+    1.4,
+    0.4,
+    1.8
+   ],
+   "yaw": 3.141592653589793,
+   "coco": null,
+   "collision": true
+  },
+  {
+   "id": "kids-bed-1",
+   "class": "bed",
+   "label": "シングルベッド（子ども部屋1）",
+   "room": "kids-room-1",
+   "floor": 2,
+   "position": [
+    -0.47,
+    -3.98,
+    3.29
+   ],
+   "size": [
+    0.97,
+    1.95,
+    0.5
+   ],
+   "yaw": 0.0,
+   "coco": "bed",
+   "collision": true
+  },
+  {
+   "id": "kids-desk-1",
+   "class": "desk",
+   "label": "学習机（子ども部屋1）",
+   "room": "kids-room-1",
+   "floor": 2,
+   "position": [
+    1.65,
+    -3.7,
+    3.4
+   ],
+   "size": [
+    1.0,
+    0.6,
+    0.72
+   ],
+   "yaw": -1.5707963267948966,
+   "coco": null,
+   "collision": true
+  },
+  {
+   "id": "kids-chair-1",
+   "class": "chair",
+   "label": "いす（子ども部屋1）",
+   "room": "kids-room-1",
+   "floor": 2,
+   "position": [
+    1.17,
+    -3.7,
+    3.465
+   ],
+   "size": [
+    0.45,
+    0.45,
+    0.85
+   ],
+   "yaw": 1.5707963267948966,
+   "coco": "chair",
+   "collision": true
+  },
+  {
+   "id": "kids-shelf-1",
+   "class": "bookshelf",
+   "label": "本棚（子ども部屋1）",
+   "room": "kids-room-1",
+   "floor": 2,
+   "position": [
+    1.65,
+    -5.6,
+    3.64
+   ],
+   "size": [
+    0.6,
+    0.3,
+    1.2
+   ],
+   "yaw": 3.141592653589793,
+   "coco": null,
+   "collision": true
+  },
+  {
+   "id": "kids-books-1",
+   "class": "book",
+   "label": "本",
+   "room": "kids-room-1",
+   "floor": 2,
+   "position": [
+    1.65,
+    -5.6,
+    3.765
+   ],
+   "size": [
+    0.5,
+    0.22,
+    0.25
+   ],
+   "yaw": 3.141592653589793,
+   "coco": "book",
+   "collision": false
+  },
+  {
+   "id": "kids-bed-2",
+   "class": "bed",
+   "label": "シングルベッド（子ども部屋2）",
+   "room": "kids-room-2",
+   "floor": 2,
+   "position": [
+    4.47,
+    -3.98,
+    3.29
+   ],
+   "size": [
+    0.97,
+    1.95,
+    0.5
+   ],
+   "yaw": 0.0,
+   "coco": "bed",
+   "collision": true
+  },
+  {
+   "id": "kids-desk-2",
+   "class": "desk",
+   "label": "学習机（子ども部屋2）",
+   "room": "kids-room-2",
+   "floor": 2,
+   "position": [
+    2.35,
+    -3.7,
+    3.4
+   ],
+   "size": [
+    1.0,
+    0.6,
+    0.72
+   ],
+   "yaw": 1.5707963267948966,
+   "coco": null,
+   "collision": true
+  },
+  {
+   "id": "kids-chair-2",
+   "class": "chair",
+   "label": "いす（子ども部屋2）",
+   "room": "kids-room-2",
+   "floor": 2,
+   "position": [
+    2.83,
+    -3.7,
+    3.465
+   ],
+   "size": [
+    0.45,
+    0.45,
+    0.85
+   ],
+   "yaw": -1.5707963267948966,
+   "coco": "chair",
+   "collision": true
+  },
+  {
+   "id": "kids-shelf-2",
+   "class": "bookshelf",
+   "label": "本棚（子ども部屋2）",
+   "room": "kids-room-2",
+   "floor": 2,
+   "position": [
+    2.35,
+    -5.6,
+    3.64
+   ],
+   "size": [
+    0.6,
+    0.3,
+    1.2
+   ],
+   "yaw": 3.141592653589793,
+   "coco": null,
+   "collision": true
+  },
+  {
+   "id": "kids-books-2",
+   "class": "book",
+   "label": "本",
+   "room": "kids-room-2",
+   "floor": 2,
+   "position": [
+    2.35,
+    -5.6,
+    3.765
+   ],
+   "size": [
+    0.5,
+    0.22,
+    0.25
+   ],
+   "yaw": 3.141592653589793,
+   "coco": "book",
+   "collision": false
+  },
+  {
+   "id": "kids-laptop",
+   "class": "laptop",
+   "label": "ノートパソコン",
+   "room": "kids-room-1",
+   "floor": 2,
+   "position": [
+    1.65,
+    -3.5,
+    3.7699999999999996
+   ],
+   "size": [
+    0.33,
+    0.23,
+    0.02
+   ],
+   "yaw": -1.5707963267948966,
+   "coco": "laptop",
+   "collision": false
+  },
+  {
+   "id": "kids-backpack",
+   "class": "backpack",
+   "label": "ランドセル",
+   "room": "kids-room-1",
+   "floor": 2,
+   "position": [
+    1.75,
+    -4.45,
+    3.215
+   ],
+   "size": [
+    0.3,
+    0.2,
+    0.35
+   ],
+   "yaw": 0.0,
+   "coco": "backpack",
+   "collision": true
+  },
+  {
+   "id": "teddy-bear",
+   "class": "teddy bear",
+   "label": "くまのぬいぐるみ",
+   "room": "kids-room-1",
+   "floor": 2,
+   "position": [
+    -0.47,
+    -3.2,
+    3.69
+   ],
+   "size": [
+    0.3,
+    0.2,
+    0.3
+   ],
+   "yaw": 0.0,
+   "coco": "teddy bear",
+   "collision": false
+  },
+  {
+   "id": "sports-ball",
+   "class": "sports ball",
+   "label": "サッカーボール",
+   "room": "kids-room-2",
+   "floor": 2,
+   "position": [
+    3.3,
+    -3.4,
+    3.15
+   ],
+   "size": [
+    0.22,
+    0.22,
+    0.22
+   ],
+   "yaw": 0.0,
+   "coco": "sports ball",
+   "collision": true
+  },
+  {
+   "id": "study-desk",
+   "class": "desk",
+   "label": "スタディコーナーの机",
+   "room": "study-corner",
+   "floor": 2,
+   "position": [
+    -1.55,
+    -7.48,
+    3.4
+   ],
+   "size": [
+    1.5,
+    0.55,
+    0.72
+   ],
+   "yaw": 3.141592653589793,
+   "coco": null,
+   "collision": true
+  },
+  {
+   "id": "study-chair",
+   "class": "chair",
+   "label": "スタディコーナーのいす",
+   "room": "study-corner",
+   "floor": 2,
+   "position": [
+    -1.55,
+    -7.0,
+    3.465
+   ],
+   "size": [
+    0.45,
+    0.45,
+    0.85
+   ],
+   "yaw": 0.0,
+   "coco": "chair",
+   "collision": true
+  },
+  {
+   "id": "study-monitor",
+   "class": "monitor",
+   "label": "モニター",
+   "room": "study-corner",
+   "floor": 2,
+   "position": [
+    -1.55,
+    -7.62,
+    3.96
+   ],
+   "size": [
+    0.6,
+    0.15,
+    0.4
+   ],
+   "yaw": 3.141592653589793,
+   "coco": "tv",
+   "collision": false
+  },
+  {
+   "id": "toilet-2f-bowl",
+   "class": "toilet",
+   "label": "トイレ（便器）",
+   "room": "toilet-2f",
+   "floor": 2,
+   "position": [
+    4.575,
+    -7.4,
+    3.44
+   ],
+   "size": [
+    0.42,
+    0.7,
+    0.8
+   ],
+   "yaw": 3.141592653589793,
+   "coco": "toilet",
+   "collision": true
+  }
+ ]
+}

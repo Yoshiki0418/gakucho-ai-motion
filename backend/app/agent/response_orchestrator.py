@@ -16,12 +16,14 @@ class ResponseOrchestrator:
         filler_llm: BaseLLM,  # フィラー用 LLM クライアント
         classifier_llm: LLMDecisionClassifier,  # 2値分類用 LLM
         filler_timeout: float = 1.0,  # 本応答の「最初のトークン待ち時間」
+        use_external_filler: bool = True,  # False の場合、外部フィラーを使わず親エージェント自身の自己判断フィラーに任せる ★実験用★
     ) -> None:
         self.rag_engine = rag_engine
         self.daily_agent = daily_agent
         self.filler_llm = filler_llm
         self.classifier_llm = classifier_llm
         self.filler_timeout = filler_timeout
+        self.use_external_filler = use_external_filler
 
     # --- RAG ルート処理 ---
     async def handle_rag(
@@ -306,14 +308,38 @@ class ResponseOrchestrator:
         sentence_end_chars = "。.!?！？"
 
         # =============================
-        # 3つ同時起動
+        # 高確度な入力はローカル判定し、曖昧な場合だけLLM分類を並列起動
         # =============================
-        classifier_task = asyncio.create_task(
-            self.classifier_llm.classify_rag_vs_dialogue(text)
+        fast_route = (
+            "dialogue"
+            if mode == "ceremony"
+            else self.classifier_llm.classify_rag_vs_dialogue_fast(text)
         )
+        classifier_task: Optional[asyncio.Task[str]] = None
+        if fast_route is None:
+            classifier_task = asyncio.create_task(
+                self.classifier_llm.classify_rag_vs_dialogue(text)
+            )
+        else:
+            print(
+                f"[ResponseOrchestrator] fast route='{fast_route}' "
+                f"in {(time.perf_counter() - start) * 1000:.1f}ms"
+            )
+
+        async def resolve_route() -> str:
+            if fast_route is not None:
+                return fast_route
+            assert classifier_task is not None
+            return await classifier_task
 
         # フィラーをキュー経由でストリーミング（バックグラウンド開始）
-        enable_filler = (mode != "ceremony") and not self._is_pure_greeting(text)
+        # use_external_filler=False のときは外部フィラーを完全に止め、
+        # 親エージェント自身がツール/handoff 前に出す自己判断フィラーに任せる ★実験用★
+        enable_filler = (
+            self.use_external_filler
+            and (mode != "ceremony")
+            and not self._is_pure_greeting(text)
+        )
         filler_queue = (
             await self._start_filler_producer(text, history=history)
             if enable_filler
@@ -346,7 +372,7 @@ class ResponseOrchestrator:
                 )
 
                 # Classifier 結果を確認
-                route = await classifier_task
+                route = await resolve_route()
                 print(
                     f"[ResponseOrchestrator] route='{route}' in {(time.perf_counter() - start) * 1000:.0f}ms"
                 )
@@ -414,7 +440,7 @@ class ResponseOrchestrator:
             # =============================
             # ③ フィラー出力後に Classifier を確認
             # =============================
-            route = await classifier_task
+            route = await resolve_route()
             elapsed = (time.perf_counter() - start) * 1000
             print(f"[ResponseOrchestrator] route='{route}' in {elapsed:.0f}ms")
 
@@ -439,7 +465,7 @@ class ResponseOrchestrator:
 
         finally:
             # --- cleanup ---
-            if not classifier_task.done():
+            if classifier_task is not None and not classifier_task.done():
                 classifier_task.cancel()
             if not main_first_task.done():
                 main_first_task.cancel()

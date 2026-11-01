@@ -1,0 +1,28 @@
+# Start the motion project using tools/start-system.sh.
+# Keep its DB separate from ai-tutoring-system's host port 5433.
+services:
+  db:
+    ports: !override
+      - "127.0.0.1:5434:5432"
+  backend:
+    environment:
+      T2M_CFG_SCALE: "7.0"
+      T2M_TOP_K: "50"
+      T2M_TEMPERATURE: "0.8"
+    # The production base image predates speech/motion segment synchronization.
+    # Use the current app code and weights with its existing Python dependencies.
+    volumes:
+      - ./backend/app:/workspace/app:ro
+    depends_on:
+      t2m:
+        condition: service_healthy
+  t2m:
+    volumes:
+      # Apply the tested CFG correction only to this dedicated T2M container.
+      - ./.runtime/t2m-cfg/inference.py:/workspace/t2m_gpt/inference.py:ro
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8099/api/realtime/status', timeout=3).read()"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 15s

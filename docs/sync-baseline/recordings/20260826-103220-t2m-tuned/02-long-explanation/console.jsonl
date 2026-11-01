@@ -1,0 +1,196 @@
+{"t": 0.5124, "type": "info", "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"}
+{"t": 0.8686, "type": "log", "text": "[BvhViewer] viewMode changed → 'robot'"}
+{"t": 0.9159, "type": "log", "text": "[characterRig] source rig captured: bones=68, flavor=mixamo-like, mapped=55, groundedRootY=0.932"}
+{"t": 0.9274, "type": "log", "text": "[BvhViewer] Robot rig built: parts=96, avgLen=0.18, limbR=0.03, head=Head, chest=Spine4, hips=Hips, shoulders=[LeftShoulder,RightShoulder], hands=[LeftHand,RightHand], feet=[LeftFoot,RightFoot]"}
+{"t": 0.93, "type": "log", "text": "[BvhViewer] auto-fit dimensions: {maxDim: 1.7919378006648448, fitDist: 4.479844501662112, bCenter: Vector3, bSize: Vector3}"}
+{"t": 1.0032, "type": "warning", "text": "[.WebGL-0x23f4018ffa00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels"}
+{"t": 1.0787, "type": "warning", "text": "[.WebGL-0x23f4018ffa00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels"}
+{"t": 1.1133, "type": "warning", "text": "[.WebGL-0x23f4018ffa00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels"}
+{"t": 1.1446, "type": "warning", "text": "[.WebGL-0x23f4018ffa00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"}
+{"t": 1.1826, "type": "log", "text": "[characterRig] loaded \"/avatars/character.glb\": flavor=mixamo, bones=67, mapped=52, skinnedMeshes=2, secondaryRigs=0, mergedBones=0, graftedBones=0, headAttached=0, naturalHeight=1.809"}
+{"t": 1.1849, "type": "log", "text": "[characterRig] bound 52 bones (mixamo ← mixamo-like), rest aligned to source T-pose: 14 bones (max 39.2 deg), groundOffset=-0.0032, autoYaw=0.0deg"}
+{"t": 1.1851, "type": "log", "text": "[BvhViewer] character fitted: bvhHeight=1.8, naturalHeight=1.81, scale=0.992, groundY=0.003, yaw=0.0deg"}
+{"t": 1.1854, "type": "log", "text": "[BvhViewer] avatar applied: /avatars/character.glb"}
+{"t": 4.3243, "type": "error", "text": "%s a style property during rerender (%s) when a conflicting property is set (%s) can lead to styling bugs. To avoid this, don't mix shorthand and non-shorthand properties for the same value; instead, replace the shorthand with separate values. Removing borderColor borderBottom"}
+{"t": 4.3254, "type": "error", "text": "%s a style property during rerender (%s) when a conflicting property is set (%s) can lead to styling bugs. To avoid this, don't mix shorthand and non-shorthand properties for the same value; instead, replace the shorthand with separate values. Removing borderColor borderLeft"}
+{"t": 4.3264, "type": "error", "text": "%s a style property during rerender (%s) when a conflicting property is set (%s) can lead to styling bugs. To avoid this, don't mix shorthand and non-shorthand properties for the same value; instead, replace the shorthand with separate values. Removing borderColor borderRight"}
+{"t": 4.3275, "type": "error", "text": "%s a style property during rerender (%s) when a conflicting property is set (%s) can lead to styling bugs. To avoid this, don't mix shorthand and non-shorthand properties for the same value; instead, replace the shorthand with separate values. Removing borderColor borderTop"}
+{"t": 4.3286, "type": "error", "text": "%s a style property during rerender (%s) when a conflicting property is set (%s) can lead to styling bugs. To avoid this, don't mix shorthand and non-shorthand properties for the same value; instead, replace the shorthand with separate values. Updating borderColor borderBottom"}
+{"t": 4.3296, "type": "error", "text": "%s a style property during rerender (%s) when a conflicting property is set (%s) can lead to styling bugs. To avoid this, don't mix shorthand and non-shorthand properties for the same value; instead, replace the shorthand with separate values. Updating borderColor borderLeft"}
+{"t": 4.333, "type": "error", "text": "%s a style property during rerender (%s) when a conflicting property is set (%s) can lead to styling bugs. To avoid this, don't mix shorthand and non-shorthand properties for the same value; instead, replace the shorthand with separate values. Updating borderColor borderRight"}
+{"t": 4.3335, "type": "error", "text": "%s a style property during rerender (%s) when a conflicting property is set (%s) can lead to styling bugs. To avoid this, don't mix shorthand and non-shorthand properties for the same value; instead, replace the shorthand with separate values. Updating borderColor borderTop"}
+{"t": 4.3338, "type": "log", "text": "[BvhViewer] character fitted: bvhHeight=1.8, naturalHeight=1.81, scale=0.991, groundY=0.003, yaw=0.0deg"}
+{"t": 4.3341, "type": "log", "text": "[BvhViewer] viewMode changed → 'character'"}
+{"t": 7.5334, "type": "log", "text": "[characterRig] loaded \"/avatars/gakucho_v3_suit.glb\": flavor=unreal, bones=1185, mapped=55, skinnedMeshes=14, secondaryRigs=0, mergedBones=0, graftedBones=0, headAttached=1, naturalHeight=1.680"}
+{"t": 7.5398, "type": "log", "text": "[characterRig] bound 55 bones (unreal ← mixamo-like), rest aligned to source T-pose: 38 bones (max 44.9 deg), groundOffset=-0.0198, autoYaw=0.0deg"}
+{"t": 7.54, "type": "log", "text": "[BvhViewer] character fitted: bvhHeight=1.8, naturalHeight=1.68, scale=1.069, groundY=0.021, yaw=0.0deg"}
+{"t": 7.5401, "type": "log", "text": "[BvhViewer] avatar applied: /avatars/gakucho_v3_suit.glb"}
+{"t": 21.6201, "type": "log", "text": "[useTextChat] SSE connect to: /api/text-chat/char-stream-orchestrator?text=%E5%A4%A7%E5%AD%A6%E3%81%AE%E3%82%AD%E3%83%A3%E3%83%B3%E3%83%91%E3%82%B9%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6%E8%A9%B3%E3%81%97%E3%81%8F%E6%95%99%E3%81%88%E3%81%A6%E3%81%8F%E3%81%A0%E3%81%95%E3%81%84%E3%80%82&mode=general"}
+{"t": 23.6799, "type": "log", "text": "🔹 [SSE EVENT RECEIVED] {type: text_chunk, content: 金沢工業大学のキャンパスには、学びや活動をサポートする多様な施設が整っています。}"}
+{"t": 24.1077, "type": "log", "text": "🔹 [SSE EVENT RECEIVED] {type: audio_chunk, sentence: 金沢工業大学のキャンパスには、学びや活動をサポートする多様な施設が整っています。, audio: UklGRiSYCQBXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZG…/BgAMAN7/yP/j/+L/yP+4/5f/lf+z/7j/xf/T/6L/n/+T/w==, segment_id: 1, duration_ms: 7129}"}
+{"t": 24.1131, "type": "log", "text": "🔹 [SSE EVENT RECEIVED] {type: text_chunk, content: まず、自習スペースとして、7号館の1階にある自習室があります。}"}
+{"t": 24.197, "type": "log", "text": "[SYNC] audio_scheduled perf=24178.3 startAt=0.122 duration=7.129 ctxNow=0.102"}
+{"t": 24.2994, "type": "log", "text": "🔹 [SSE EVENT RECEIVED] {type: audio_chunk, sentence: まず、自習スペースとして、7号館の1階にある自習室があります。, audio: UklGRiQ8BwBXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZG…/5f8FABoADwAfAEQAUwBTAEoAMgAuADgAQABJAEYALQAyACIA, segment_id: 2, duration_ms: 5375}"}
+{"t": 24.2996, "type": "log", "text": "🔹 [SSE EVENT RECEIVED] {type: text_chunk, content: こちらは、365日、24時間利用可能で、個人学習やグループ討議に最適です。また}"}
+{"t": 24.3841, "type": "error", "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"}
+{"t": 24.3844, "type": "log", "text": "[LipSync] start"}
+{"t": 24.395, "type": "log", "text": "[SYNC] audio_scheduled perf=24376.6 startAt=7.250 duration=5.375 ctxNow=0.302"}
+{"t": 24.5698, "type": "log", "text": "🔹 [SSE EVENT RECEIVED] {type: audio_chunk, sentence: こちらは、365日、24時間利用可能で、個人学習やグループ討議に最適です。また, audio: UklGRiScCgBXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZG…ATABgAGoASgBBAGAAXwBLAEYAIAD8/wMAIgAnADQAIQAZAPv/, segment_id: 3, duration_ms: 7883}"}
+{"t": 24.57, "type": "log", "text": "🔹 [SSE EVENT RECEIVED] {type: text_chunk, content: 、各建物にはラウンジも設置されており、利用時間は建物ごとに異なります。}"}
+{"t": 24.6572, "type": "log", "text": "[SYNC] audio_scheduled perf=24638.4 startAt=12.626 duration=7.883 ctxNow=0.560"}
+{"t": 24.8254, "type": "log", "text": "🔹 [SSE EVENT RECEIVED] {type: audio_chunk, sentence: 、各建物にはラウンジも設置されており、利用時間は建物ごとに異なります。, audio: UklGRiSgCABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZG…oAD4AQwArADEAUwBVAEkAPgAfABMAIAAjACIAHwADAAoA9P8=, segment_id: 4, duration_ms: 6409}"}
+{"t": 24.8258, "type": "log", "text": "🔹 [SSE EVENT RECEIVED] {type: text_chunk, content: さらに、南校地にはアントレプレナーズラボがあり、学生がイノベーションに向けた学びを実践する場として活用されています。}"}
+{"t": 24.9029, "type": "log", "text": "[SYNC] audio_scheduled perf=24884.1 startAt=20.509 duration=6.409 ctxNow=0.813"}
+{"t": 25.3508, "type": "log", "text": "🔹 [SSE EVENT RECEIVED] {type: audio_chunk, sentence: さらに、南校地にはアントレプレナーズラボがあり、学生がイノベーションに向けた学びを実践する場として活用されています。, audio: UklGRiSoDABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZG…6AFEAVwA2ADUAWQBaAEkAQAAeABAAHwArADIAMAAKAAQA6P8=, segment_id: 5, duration_ms: 9404}"}
+{"t": 25.351, "type": "log", "text": "🔹 [SSE EVENT RECEIVED] {type: text_chunk, content: こちらにはプロジェクトブースやイノベーションホール、デザインスタジオがあり、地域社会の課題解決に取り組むプロジェクトが行われています。}"}
+{"t": 25.4333, "type": "log", "text": "[SYNC] audio_scheduled perf=25414.7 startAt=26.917 duration=9.404 ctxNow=1.341"}
+{"t": 25.5453, "type": "log", "text": "🔹 [SSE EVENT RECEIVED] {type: audio_chunk, sentence: こちらにはプロジェクトブースやイノベーションホール、デザインスタジオがあり、地域社会の課題解決に取り組むプロジェクトが行われています。, audio: UklGRiQoDQBXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZG…AIwAsAAsADwAvACkAGwAUAAAAEQAsABkAHgAtAAAA7//s/w==, segment_id: 6, duration_ms: 9776}"}
+{"t": 25.5457, "type": "log", "text": "🔹 [SSE EVENT RECEIVED] {type: text_chunk, content: 加えて、自然学苑（}"}
+{"t": 25.6229, "type": "log", "text": "[SYNC] audio_scheduled perf=25604.0 startAt=36.321 duration=9.776 ctxNow=1.533"}
+{"t": 29.8111, "type": "log", "text": "🔹 [SSE EVENT RECEIVED] {type: audio_chunk, sentence: 加えて、自然学苑（, audio: UklGRiTIAgBXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZG…ASgBUAFkARQBHAGgAZABXAFoAPAAdACIAOgA+AFIASwBIACsA, segment_id: 7, duration_ms: 2067}"}
+{"t": 29.8113, "type": "log", "text": "🔹 [SSE EVENT RECEIVED] {type: timing, total_ms: 3706}"}
+{"t": 29.8237, "type": "log", "text": "🔹 [SSE EVENT RECEIVED] {type: motion_chunk, bvh: HIERARCHY\nROOT Hips\n{\n    OFFSET 0.000000 0.000000…13.232706 -9.553386 -0.000002 0.117123 -0.000001\n, prompt: 右腕を前方に伸ばし、人差し指で正面を指差す, latency_ms: 799, segment_id: 2}"}
+{"t": 29.8239, "type": "log", "text": "[useTextChat] motion_chunk received: prompt=\"右腕を前方に伸ばし、人差し指で正面を指差す\", bvh_len=422267, latency_ms=799"}
+{"t": 29.824, "type": "log", "text": "[SYNC] motion_received perf=29802.2 ctxNow=5.732 segment=2 ratio=0.50 prompt=\"右腕を前方に伸ばし、人差し指で正面を指差す\" latency_ms=799"}
+{"t": 29.8241, "type": "log", "text": "[SYNC] motion_scheduled prompt=\"右腕を前方に伸ばし、人差し指で正面を指差す\" startAt=9.938 segmentDuration=2.688 ctxNow=5.732"}
+{"t": 29.8328, "type": "log", "text": "🔹 [SSE EVENT RECEIVED] {type: motion_chunk, bvh: HIERARCHY\nROOT Hips\n{\n    OFFSET 0.000000 0.000000…4.179123 -4.372454 -0.000001 -0.099597 -0.000001\n, prompt: 頭部をゆっくり上下に動かして同意のうなずきをする, latency_ms: 840, segment_id: 1}"}
+{"t": 29.833, "type": "log", "text": "[useTextChat] motion_chunk received: prompt=\"頭部をゆっくり上下に動かして同意のうなずきをする\", bvh_len=419612, latency_ms=840"}
+{"t": 29.8332, "type": "log", "text": "[SYNC] motion_received perf=29812.0 ctxNow=5.741 segment=1 ratio=0.50 prompt=\"頭部をゆっくり上下に動かして同意のうなずきをする\" latency_ms=840"}
+{"t": 29.8333, "type": "log", "text": "[SYNC] motion_scheduled prompt=\"頭部をゆっくり上下に動かして同意のうなずきをする\" startAt=3.686 segmentDuration=3.564 ctxNow=5.741"}
+{"t": 29.8986, "type": "log", "text": "[SYNC] audio_scheduled perf=29879.8 startAt=46.097 duration=2.067 ctxNow=5.802"}
+{"t": 29.9223, "type": "log", "text": "🔹 [SSE EVENT RECEIVED] {type: motion_chunk, bvh: HIERARCHY\nROOT Hips\n{\n    OFFSET 0.000000 0.000000…5.153255 -4.251091 -0.000002 -0.207186 -0.000001\n, prompt: 右手のひらを上に向けて前方に差し出して「どうぞ・お先に」と示す, latency_ms: 752, segment_id: 6}"}
+{"t": 29.9224, "type": "log", "text": "[useTextChat] motion_chunk received: prompt=\"右手のひらを上に向けて前方に差し出して「どうぞ・お先に」と示す\", bvh_len=420422, latency_ms=752"}
+{"t": 29.9226, "type": "log", "text": "[SYNC] motion_received perf=29900.2 ctxNow=5.822 segment=6 ratio=0.32 prompt=\"右手のひらを上に向けて前方に差し出して「どうぞ・お先に」と示す\" latency_ms=752"}
+{"t": 29.9227, "type": "log", "text": "[SYNC] motion_scheduled prompt=\"右手のひらを上に向けて前方に差し出して「どうぞ・お先に」と示す\" startAt=39.499 segmentDuration=6.599 ctxNow=5.822"}
+{"t": 29.9301, "type": "log", "text": "🔹 [SSE EVENT RECEIVED] {type: motion_chunk, bvh: HIERARCHY\nROOT Hips\n{\n    OFFSET 0.000000 0.000000…5.153255 -4.251091 -0.000002 -0.207186 -0.000001\n, prompt: 右手のひらを上に向けて前方に差し出して「どうぞ・お先に」と示す, latency_ms: 754, segment_id: 3}"}
+{"t": 29.9303, "type": "log", "text": "[useTextChat] motion_chunk received: prompt=\"右手のひらを上に向けて前方に差し出して「どうぞ・お先に」と示す\", bvh_len=420398, latency_ms=754"}
+{"t": 29.9304, "type": "log", "text": "[SYNC] motion_received perf=29909.6 ctxNow=5.831 segment=3 ratio=0.50 prompt=\"右手のひらを上に向けて前方に差し出して「どうぞ・お先に」と示す\" latency_ms=754"}
+{"t": 29.9305, "type": "log", "text": "[SYNC] motion_scheduled prompt=\"右手のひらを上に向けて前方に差し出して「どうぞ・お先に」と示す\" startAt=16.567 segmentDuration=3.942 ctxNow=5.831"}
+{"t": 29.9949, "type": "log", "text": "[BvhViewer] motion queue updated: 2 件待機"}
+{"t": 30.0188, "type": "log", "text": "🔹 [SSE EVENT RECEIVED] {type: motion_chunk, bvh: HIERARCHY\nROOT Hips\n{\n    OFFSET 0.000000 0.000000…13.232706 -9.553386 -0.000002 0.117123 -0.000001\n, prompt: 右腕を前方に伸ばし、人差し指で正面を指差す, latency_ms: 873, segment_id: 5}"}
+{"t": 30.019, "type": "log", "text": "[useTextChat] motion_chunk received: prompt=\"右腕を前方に伸ばし、人差し指で正面を指差す\", bvh_len=422236, latency_ms=873"}
+{"t": 30.0191, "type": "log", "text": "[SYNC] motion_received perf=29996.8 ctxNow=5.921 segment=5 ratio=0.62 prompt=\"右腕を前方に伸ばし、人差し指で正面を指差す\" latency_ms=873"}
+{"t": 30.0193, "type": "log", "text": "[SYNC] motion_scheduled prompt=\"右腕を前方に伸ばし、人差し指で正面を指差す\" startAt=32.717 segmentDuration=3.605 ctxNow=5.921"}
+{"t": 30.0273, "type": "log", "text": "🔹 [SSE EVENT RECEIVED] {type: motion_chunk, bvh: HIERARCHY\nROOT Hips\n{\n    OFFSET 0.000000 0.000000…5.153255 -4.251091 -0.000002 -0.207186 -0.000001\n, prompt: 右手の人差し指を唇に当てて「考え中・迷っている」を示す, latency_ms: 753, segment_id: 4}"}
+{"t": 30.0276, "type": "log", "text": "[useTextChat] motion_chunk received: prompt=\"右手の人差し指を唇に当てて「考え中・迷っている」を示す\", bvh_len=420394, latency_ms=753"}
+{"t": 30.0279, "type": "log", "text": "[SYNC] motion_received perf=30006.7 ctxNow=5.933 segment=4 ratio=0.50 prompt=\"右手の人差し指を唇に当てて「考え中・迷っている」を示す\" latency_ms=753"}
+{"t": 30.0281, "type": "log", "text": "[SYNC] motion_scheduled prompt=\"右手の人差し指を唇に当てて「考え中・迷っている」を示す\" startAt=23.713 segmentDuration=3.204 ctxNow=5.933"}
+{"t": 30.0375, "type": "log", "text": "🔹 [SSE EVENT RECEIVED] {type: motion_chunk, bvh: HIERARCHY\nROOT Hips\n{\n    OFFSET 0.000000 0.000000…4.179123 -4.372454 -0.000001 -0.099597 -0.000001\n, prompt: 頭部をゆっくり上下に動かして同意のうなずきをする, latency_ms: 750, segment_id: 5}"}
+{"t": 30.0378, "type": "log", "text": "[useTextChat] motion_chunk received: prompt=\"頭部をゆっくり上下に動かして同意のうなずきをする\", bvh_len=419612, latency_ms=750"}
+{"t": 30.038, "type": "log", "text": "[SYNC] motion_received perf=30016.2 ctxNow=5.941 segment=5 ratio=0.38 prompt=\"頭部をゆっくり上下に動かして同意のうなずきをする\" latency_ms=750"}
+{"t": 30.0382, "type": "log", "text": "[SYNC] motion_scheduled prompt=\"頭部をゆっくり上下に動かして同意のうなずきをする\" startAt=30.522 segmentDuration=5.799 ctxNow=5.941"}
+{"t": 30.0383, "type": "log", "text": "[SYNC] motion_applied perf=30017.0 ctxNow=5.941 startAt=3.686 lag=2256ms prompt=\"頭部をゆっくり上下に動かして同意のうなずきをする\""}
+{"t": 30.0385, "type": "log", "text": "[BvhViewer] loadBvh called: name=\"🤖 AI Generated Motion\", text_len=419612, prompt=\"頭部をゆっくり上下に動かして同意のうなずきをする\", postureIntent=other/standing, endBehavior=return-to-standing-idle, persistent=standing, refs={scene:true, camera:true, controls:true}"}
+{"t": 30.0386, "type": "log", "text": "[BvhViewer] Parsing BVH text (length=419612, head=\"HIERARCHY\\nROOT Hips\\n{\\n    OFFSET 0.000000 0.000000 0.000000\\n    CHANNELS 6 Xposition Yposition Zposition Zrotation Xrota\")"}
+{"t": 30.0538, "type": "log", "text": "[characterRig] source rig captured: bones=68, flavor=mixamo-like, mapped=55, groundedRootY=0.840"}
+{"t": 30.0609, "type": "log", "text": "[characterRig] bound 55 bones (unreal ← mixamo-like), rest aligned to source T-pose: 38 bones (max 44.9 deg), groundOffset=-0.0198, autoYaw=0.0deg"}
+{"t": 30.0611, "type": "log", "text": "[BvhViewer] BVH parsed: bones=68, clip.duration=2.559999942779541s, clip.tracks=110, firstTrackName=\"Hips.position\", firstTrackValuesLen=771"}
+{"t": 30.0682, "type": "log", "text": "[BvhViewer] Robot rig built: parts=96, avgLen=0.18, limbR=0.03, head=Head, chest=Spine4, hips=Hips, shoulders=[LeftShoulder,RightShoulder], hands=[LeftHand,RightHand], feet=[LeftFoot,RightFoot]"}
+{"t": 30.0693, "type": "log", "text": "[BvhViewer] character fitted: bvhHeight=1.8, naturalHeight=1.68, scale=1.043, groundY=0.021, yaw=0.0deg"}
+{"t": 30.071, "type": "log", "text": "[BvhViewer] fit motion to speech: clip=2.56s speech=3.56s timeScale=0.72 (raw 0.72)"}
+{"t": 30.0715, "type": "log", "text": "[SYNC] motion_playing clip=2.56 timeScale=0.72 played=3.56"}
+{"t": 30.0719, "type": "log", "text": "[BvhViewer] Mixer started: isRunning=true, enabled=true, weight=1, clipDuration=2.559999942779541s, mixer.timeScale=0.7182410262913385"}
+{"t": 30.151, "type": "log", "text": "[BvhViewer] motion queue updated: 3 件待機"}
+{"t": 30.1721, "type": "log", "text": "🔹 [SSE EVENT RECEIVED] {type: motion_chunk, bvh: HIERARCHY\nROOT Hips\n{\n    OFFSET 0.000000 0.000000…5.152741 -4.250102 -0.000002 -0.207204 -0.000001\n, prompt: 右手の人差し指を唇に当てて「考え中・迷っている」を示す, latency_ms: 716, segment_id: 6}"}
+{"t": 30.1722, "type": "log", "text": "[useTextChat] motion_chunk received: prompt=\"右手の人差し指を唇に当てて「考え中・迷っている」を示す\", bvh_len=417262, latency_ms=716"}
+{"t": 30.1724, "type": "log", "text": "[SYNC] motion_received perf=30151.4 ctxNow=6.081 segment=6 ratio=0.67 prompt=\"右手の人差し指を唇に当てて「考え中・迷っている」を示す\" latency_ms=716"}
+{"t": 30.1725, "type": "log", "text": "[SYNC] motion_scheduled prompt=\"右手の人差し指を唇に当てて「考え中・迷っている」を示す\" startAt=42.920 segmentDuration=3.177 ctxNow=6.081"}
+{"t": 30.1727, "type": "log", "text": "🔹 [SSE EVENT RECEIVED] {type: done, message: 応答完了}"}
+{"t": 30.2568, "type": "log", "text": "[BvhViewer] motion queue updated: 6 件待機"}
+{"t": 30.3324, "type": "log", "text": "[BvhViewer] motion queue updated: 7 件待機"}
+{"t": 33.5413, "type": "log", "text": "[BvhViewer] motion finished → returning to standing idle (0.80s)"}
+{"t": 34.0683, "type": "log", "text": "[SYNC] motion_applied perf=34049.4 ctxNow=9.970 startAt=9.938 lag=32ms prompt=\"右腕を前方に伸ばし、人差し指で正面を指差す\""}
+{"t": 34.0685, "type": "log", "text": "[BvhViewer] loadBvh called: name=\"🤖 AI Generated Motion\", text_len=422267, prompt=\"右腕を前方に伸ばし、人差し指で正面を指差す\", postureIntent=other/standing, endBehavior=return-to-standing-idle, persistent=standing, refs={scene:true, camera:true, controls:true}"}
+{"t": 34.0687, "type": "log", "text": "[BvhViewer] Parsing BVH text (length=422267, head=\"HIERARCHY\\nROOT Hips\\n{\\n    OFFSET 0.000000 0.000000 0.000000\\n    CHANNELS 6 Xposition Yposition Zposition Zrotation Xrota\")"}
+{"t": 34.0878, "type": "log", "text": "[characterRig] source rig captured: bones=68, flavor=mixamo-like, mapped=55, groundedRootY=0.840"}
+{"t": 34.0962, "type": "log", "text": "[characterRig] bound 55 bones (unreal ← mixamo-like), rest aligned to source T-pose: 38 bones (max 44.9 deg), groundOffset=-0.0198, autoYaw=0.0deg"}
+{"t": 34.0965, "type": "log", "text": "[BvhViewer] BVH parsed: bones=68, clip.duration=2.559999942779541s, clip.tracks=110, firstTrackName=\"Hips.position\", firstTrackValuesLen=771"}
+{"t": 34.0999, "type": "log", "text": "[BvhViewer] Robot rig built: parts=96, avgLen=0.18, limbR=0.03, head=Head, chest=Spine4, hips=Hips, shoulders=[LeftShoulder,RightShoulder], hands=[LeftHand,RightHand], feet=[LeftFoot,RightFoot]"}
+{"t": 34.101, "type": "log", "text": "[BvhViewer] character fitted: bvhHeight=1.8, naturalHeight=1.68, scale=1.043, groundY=0.021, yaw=0.0deg"}
+{"t": 34.1016, "type": "log", "text": "[BvhViewer] fit motion to speech: clip=2.56s speech=2.69s timeScale=0.95 (raw 0.95)"}
+{"t": 34.1017, "type": "log", "text": "[SYNC] motion_playing clip=2.56 timeScale=0.95 played=2.69"}
+{"t": 34.1019, "type": "log", "text": "[BvhViewer] Mixer started: isRunning=true, enabled=true, weight=1, clipDuration=2.559999942779541s, mixer.timeScale=0.9524837800062244"}
+{"t": 36.707, "type": "log", "text": "[BvhViewer] motion finished → returning to standing idle (0.90s)"}
+{"t": 37.5728, "type": "log", "text": "[BvhViewer] idle state entered"}
+{"t": 38.095, "type": "log", "text": "[BvhViewer] heartbeat: mixerTime=3.90s, timeScale=0.9524837800062244, delta=0.0697s, rootBonePos=[-0.00, 0.92, 0.00], rootBoneQuat=[-0.01, 0.00, -0.00, 1.00]"}
+{"t": 40.7233, "type": "log", "text": "[SYNC] motion_applied perf=40704.4 ctxNow=16.631 startAt=16.567 lag=64ms prompt=\"右手のひらを上に向けて前方に差し出して「どうぞ・お先に」と示す\""}
+{"t": 40.7235, "type": "log", "text": "[BvhViewer] loadBvh called: name=\"🤖 AI Generated Motion\", text_len=420398, prompt=\"右手のひらを上に向けて前方に差し出して「どうぞ・お先に」と示す\", postureIntent=other/standing, endBehavior=return-to-standing-idle, persistent=standing, refs={scene:true, camera:true, controls:true}"}
+{"t": 40.7237, "type": "log", "text": "[BvhViewer] Parsing BVH text (length=420398, head=\"HIERARCHY\\nROOT Hips\\n{\\n    OFFSET 0.000000 0.000000 0.000000\\n    CHANNELS 6 Xposition Yposition Zposition Zrotation Xrota\")"}
+{"t": 40.7332, "type": "log", "text": "[characterRig] source rig captured: bones=68, flavor=mixamo-like, mapped=55, groundedRootY=0.840"}
+{"t": 40.7409, "type": "log", "text": "[characterRig] bound 55 bones (unreal ← mixamo-like), rest aligned to source T-pose: 38 bones (max 44.9 deg), groundOffset=-0.0198, autoYaw=0.0deg"}
+{"t": 40.7411, "type": "log", "text": "[BvhViewer] BVH parsed: bones=68, clip.duration=2.559999942779541s, clip.tracks=110, firstTrackName=\"Hips.position\", firstTrackValuesLen=771"}
+{"t": 40.7434, "type": "log", "text": "[BvhViewer] Robot rig built: parts=96, avgLen=0.18, limbR=0.03, head=Head, chest=Spine4, hips=Hips, shoulders=[LeftShoulder,RightShoulder], hands=[LeftHand,RightHand], feet=[LeftFoot,RightFoot]"}
+{"t": 40.7445, "type": "log", "text": "[BvhViewer] character fitted: bvhHeight=1.8, naturalHeight=1.68, scale=1.043, groundY=0.021, yaw=0.0deg"}
+{"t": 40.7452, "type": "log", "text": "[BvhViewer] fit motion to speech: clip=2.56s speech=3.94s timeScale=0.70 (raw 0.65)"}
+{"t": 40.7454, "type": "log", "text": "[SYNC] motion_playing clip=2.56 timeScale=0.70 played=3.66"}
+{"t": 40.7456, "type": "log", "text": "[BvhViewer] Mixer started: isRunning=true, enabled=true, weight=1, clipDuration=2.559999942779541s, mixer.timeScale=0.7"}
+{"t": 44.3581, "type": "log", "text": "[BvhViewer] motion finished → returning to standing idle (0.97s)"}
+{"t": 45.2853, "type": "log", "text": "[BvhViewer] idle state entered"}
+{"t": 46.0029, "type": "log", "text": "[BvhViewer] heartbeat: mixerTime=3.74s, timeScale=0.7, delta=0.0697s, rootBonePos=[0.00, 0.92, 0.00], rootBoneQuat=[-0.01, 0.00, 0.00, 1.00]"}
+{"t": 47.8238, "type": "log", "text": "[SYNC] motion_applied perf=47805.0 ctxNow=23.731 startAt=23.713 lag=18ms prompt=\"右手の人差し指を唇に当てて「考え中・迷っている」を示す\""}
+{"t": 47.8241, "type": "log", "text": "[BvhViewer] loadBvh called: name=\"🤖 AI Generated Motion\", text_len=420394, prompt=\"右手の人差し指を唇に当てて「考え中・迷っている」を示す\", postureIntent=other/standing, endBehavior=return-to-standing-idle, persistent=standing, refs={scene:true, camera:true, controls:true}"}
+{"t": 47.8242, "type": "log", "text": "[BvhViewer] Parsing BVH text (length=420394, head=\"HIERARCHY\\nROOT Hips\\n{\\n    OFFSET 0.000000 0.000000 0.000000\\n    CHANNELS 6 Xposition Yposition Zposition Zrotation Xrota\")"}
+{"t": 47.8392, "type": "log", "text": "[characterRig] source rig captured: bones=68, flavor=mixamo-like, mapped=55, groundedRootY=0.840"}
+{"t": 47.8465, "type": "log", "text": "[characterRig] bound 55 bones (unreal ← mixamo-like), rest aligned to source T-pose: 38 bones (max 44.9 deg), groundOffset=-0.0198, autoYaw=0.0deg"}
+{"t": 47.8468, "type": "log", "text": "[BvhViewer] BVH parsed: bones=68, clip.duration=2.559999942779541s, clip.tracks=110, firstTrackName=\"Hips.position\", firstTrackValuesLen=771"}
+{"t": 47.8495, "type": "log", "text": "[BvhViewer] Robot rig built: parts=96, avgLen=0.18, limbR=0.03, head=Head, chest=Spine4, hips=Hips, shoulders=[LeftShoulder,RightShoulder], hands=[LeftHand,RightHand], feet=[LeftFoot,RightFoot]"}
+{"t": 47.8505, "type": "log", "text": "[BvhViewer] character fitted: bvhHeight=1.8, naturalHeight=1.68, scale=1.043, groundY=0.021, yaw=0.0deg"}
+{"t": 47.8512, "type": "log", "text": "[BvhViewer] fit motion to speech: clip=2.56s speech=3.20s timeScale=0.80 (raw 0.80)"}
+{"t": 47.8513, "type": "log", "text": "[SYNC] motion_playing clip=2.56 timeScale=0.80 played=3.20"}
+{"t": 47.8515, "type": "log", "text": "[BvhViewer] Mixer started: isRunning=true, enabled=true, weight=1, clipDuration=2.559999942779541s, mixer.timeScale=0.7989130256211628"}
+{"t": 50.9912, "type": "log", "text": "[BvhViewer] motion finished → returning to standing idle (0.97s)"}
+{"t": 51.9101, "type": "log", "text": "[BvhViewer] idle state entered"}
+{"t": 53.8645, "type": "log", "text": "[BvhViewer] heartbeat: mixerTime=4.88s, timeScale=0.7989130256211628, delta=0.0697s, rootBonePos=[-0.00, 0.92, 0.00], rootBoneQuat=[-0.01, 0.00, -0.00, 1.00]"}
+{"t": 54.6477, "type": "log", "text": "[SYNC] motion_applied perf=54628.8 ctxNow=30.552 startAt=30.522 lag=29ms prompt=\"頭部をゆっくり上下に動かして同意のうなずきをする\""}
+{"t": 54.648, "type": "log", "text": "[BvhViewer] loadBvh called: name=\"🤖 AI Generated Motion\", text_len=419612, prompt=\"頭部をゆっくり上下に動かして同意のうなずきをする\", postureIntent=other/standing, endBehavior=return-to-standing-idle, persistent=standing, refs={scene:true, camera:true, controls:true}"}
+{"t": 54.6481, "type": "log", "text": "[BvhViewer] Parsing BVH text (length=419612, head=\"HIERARCHY\\nROOT Hips\\n{\\n    OFFSET 0.000000 0.000000 0.000000\\n    CHANNELS 6 Xposition Yposition Zposition Zrotation Xrota\")"}
+{"t": 54.6572, "type": "log", "text": "[characterRig] source rig captured: bones=68, flavor=mixamo-like, mapped=55, groundedRootY=0.840"}
+{"t": 54.6642, "type": "log", "text": "[characterRig] bound 55 bones (unreal ← mixamo-like), rest aligned to source T-pose: 38 bones (max 44.9 deg), groundOffset=-0.0198, autoYaw=0.0deg"}
+{"t": 54.6643, "type": "log", "text": "[BvhViewer] BVH parsed: bones=68, clip.duration=2.559999942779541s, clip.tracks=110, firstTrackName=\"Hips.position\", firstTrackValuesLen=771"}
+{"t": 54.6664, "type": "log", "text": "[BvhViewer] Robot rig built: parts=96, avgLen=0.18, limbR=0.03, head=Head, chest=Spine4, hips=Hips, shoulders=[LeftShoulder,RightShoulder], hands=[LeftHand,RightHand], feet=[LeftFoot,RightFoot]"}
+{"t": 54.6673, "type": "log", "text": "[BvhViewer] character fitted: bvhHeight=1.8, naturalHeight=1.68, scale=1.043, groundY=0.021, yaw=0.0deg"}
+{"t": 54.6684, "type": "log", "text": "[BvhViewer] fit motion to speech: clip=2.56s speech=5.80s timeScale=0.70 (raw 0.44)"}
+{"t": 54.6686, "type": "log", "text": "[SYNC] motion_playing clip=2.56 timeScale=0.70 played=3.66"}
+{"t": 54.6688, "type": "log", "text": "[BvhViewer] Mixer started: isRunning=true, enabled=true, weight=1, clipDuration=2.559999942779541s, mixer.timeScale=0.7"}
+{"t": 56.8535, "type": "log", "text": "[SYNC] motion_applied perf=56834.7 ctxNow=32.760 startAt=32.717 lag=44ms prompt=\"右腕を前方に伸ばし、人差し指で正面を指差す\""}
+{"t": 56.8537, "type": "log", "text": "[BvhViewer] loadBvh called: name=\"🤖 AI Generated Motion\", text_len=422236, prompt=\"右腕を前方に伸ばし、人差し指で正面を指差す\", postureIntent=other/standing, endBehavior=return-to-standing-idle, persistent=standing, refs={scene:true, camera:true, controls:true}"}
+{"t": 56.8539, "type": "log", "text": "[BvhViewer] Parsing BVH text (length=422236, head=\"HIERARCHY\\nROOT Hips\\n{\\n    OFFSET 0.000000 0.000000 0.000000\\n    CHANNELS 6 Xposition Yposition Zposition Zrotation Xrota\")"}
+{"t": 56.8808, "type": "log", "text": "[characterRig] source rig captured: bones=68, flavor=mixamo-like, mapped=55, groundedRootY=0.840"}
+{"t": 56.8877, "type": "log", "text": "[characterRig] bound 55 bones (unreal ← mixamo-like), rest aligned to source T-pose: 38 bones (max 44.9 deg), groundOffset=-0.0198, autoYaw=0.0deg"}
+{"t": 56.8879, "type": "log", "text": "[BvhViewer] BVH parsed: bones=68, clip.duration=2.559999942779541s, clip.tracks=110, firstTrackName=\"Hips.position\", firstTrackValuesLen=771"}
+{"t": 56.8918, "type": "log", "text": "[BvhViewer] Robot rig built: parts=96, avgLen=0.18, limbR=0.03, head=Head, chest=Spine4, hips=Hips, shoulders=[LeftShoulder,RightShoulder], hands=[LeftHand,RightHand], feet=[LeftFoot,RightFoot]"}
+{"t": 56.8927, "type": "log", "text": "[BvhViewer] character fitted: bvhHeight=1.8, naturalHeight=1.68, scale=1.043, groundY=0.021, yaw=0.0deg"}
+{"t": 56.8934, "type": "log", "text": "[BvhViewer] fit motion to speech: clip=2.56s speech=3.60s timeScale=0.71 (raw 0.71)"}
+{"t": 56.8936, "type": "log", "text": "[SYNC] motion_playing clip=2.56 timeScale=0.71 played=3.60"}
+{"t": 56.8938, "type": "log", "text": "[BvhViewer] Mixer started: isRunning=true, enabled=true, weight=1, clipDuration=2.559999942779541s, mixer.timeScale=0.7101449116632556"}
+{"t": 60.3929, "type": "log", "text": "[BvhViewer] motion finished → returning to standing idle (0.90s)"}
+{"t": 61.2442, "type": "log", "text": "[BvhViewer] idle state entered"}
+{"t": 61.8233, "type": "log", "text": "[BvhViewer] heartbeat: mixerTime=3.58s, timeScale=0.7101449116632556, delta=0.0610s, rootBonePos=[-0.00, 0.92, 0.00], rootBoneQuat=[-0.01, 0.00, -0.00, 1.00]"}
+{"t": 63.5952, "type": "log", "text": "[SYNC] motion_applied perf=63576.3 ctxNow=39.500 startAt=39.499 lag=1ms prompt=\"右手のひらを上に向けて前方に差し出して「どうぞ・お先に」と示す\""}
+{"t": 63.5955, "type": "log", "text": "[BvhViewer] loadBvh called: name=\"🤖 AI Generated Motion\", text_len=420422, prompt=\"右手のひらを上に向けて前方に差し出して「どうぞ・お先に」と示す\", postureIntent=other/standing, endBehavior=return-to-standing-idle, persistent=standing, refs={scene:true, camera:true, controls:true}"}
+{"t": 63.5957, "type": "log", "text": "[BvhViewer] Parsing BVH text (length=420422, head=\"HIERARCHY\\nROOT Hips\\n{\\n    OFFSET 0.000000 0.000000 0.000000\\n    CHANNELS 6 Xposition Yposition Zposition Zrotation Xrota\")"}
+{"t": 63.6095, "type": "log", "text": "[characterRig] source rig captured: bones=68, flavor=mixamo-like, mapped=55, groundedRootY=0.840"}
+{"t": 63.6165, "type": "log", "text": "[characterRig] bound 55 bones (unreal ← mixamo-like), rest aligned to source T-pose: 38 bones (max 44.9 deg), groundOffset=-0.0198, autoYaw=0.0deg"}
+{"t": 63.6167, "type": "log", "text": "[BvhViewer] BVH parsed: bones=68, clip.duration=2.559999942779541s, clip.tracks=110, firstTrackName=\"Hips.position\", firstTrackValuesLen=771"}
+{"t": 63.6203, "type": "log", "text": "[BvhViewer] Robot rig built: parts=96, avgLen=0.18, limbR=0.03, head=Head, chest=Spine4, hips=Hips, shoulders=[LeftShoulder,RightShoulder], hands=[LeftHand,RightHand], feet=[LeftFoot,RightFoot]"}
+{"t": 63.6211, "type": "log", "text": "[BvhViewer] character fitted: bvhHeight=1.8, naturalHeight=1.68, scale=1.043, groundY=0.021, yaw=0.0deg"}
+{"t": 63.6218, "type": "log", "text": "[BvhViewer] fit motion to speech: clip=2.56s speech=6.60s timeScale=0.70 (raw 0.39)"}
+{"t": 63.622, "type": "log", "text": "[SYNC] motion_playing clip=2.56 timeScale=0.70 played=3.66"}
+{"t": 63.6221, "type": "log", "text": "[BvhViewer] Mixer started: isRunning=true, enabled=true, weight=1, clipDuration=2.559999942779541s, mixer.timeScale=0.7"}
+{"t": 67.0588, "type": "log", "text": "[SYNC] motion_applied perf=67039.8 ctxNow=42.963 startAt=42.920 lag=43ms prompt=\"右手の人差し指を唇に当てて「考え中・迷っている」を示す\""}
+{"t": 67.0589, "type": "log", "text": "[BvhViewer] loadBvh called: name=\"🤖 AI Generated Motion\", text_len=417262, prompt=\"右手の人差し指を唇に当てて「考え中・迷っている」を示す\", postureIntent=other/standing, endBehavior=return-to-standing-idle, persistent=standing, refs={scene:true, camera:true, controls:true}"}
+{"t": 67.0591, "type": "log", "text": "[BvhViewer] Parsing BVH text (length=417262, head=\"HIERARCHY\\nROOT Hips\\n{\\n    OFFSET 0.000000 0.000000 0.000000\\n    CHANNELS 6 Xposition Yposition Zposition Zrotation Xrota\")"}
+{"t": 67.076, "type": "log", "text": "[characterRig] source rig captured: bones=68, flavor=mixamo-like, mapped=55, groundedRootY=0.840"}
+{"t": 67.0868, "type": "log", "text": "[characterRig] bound 55 bones (unreal ← mixamo-like), rest aligned to source T-pose: 38 bones (max 44.9 deg), groundOffset=-0.0198, autoYaw=0.0deg"}
+{"t": 67.087, "type": "log", "text": "[BvhViewer] BVH parsed: bones=68, clip.duration=2.5399999618530273s, clip.tracks=110, firstTrackName=\"Hips.position\", firstTrackValuesLen=765"}
+{"t": 67.0898, "type": "log", "text": "[BvhViewer] Robot rig built: parts=96, avgLen=0.18, limbR=0.03, head=Head, chest=Spine4, hips=Hips, shoulders=[LeftShoulder,RightShoulder], hands=[LeftHand,RightHand], feet=[LeftFoot,RightFoot]"}
+{"t": 67.0907, "type": "log", "text": "[BvhViewer] character fitted: bvhHeight=1.8, naturalHeight=1.68, scale=1.043, groundY=0.021, yaw=0.0deg"}
+{"t": 67.0915, "type": "log", "text": "[BvhViewer] fit motion to speech: clip=2.54s speech=3.18s timeScale=0.80 (raw 0.80)"}
+{"t": 67.0916, "type": "log", "text": "[SYNC] motion_playing clip=2.54 timeScale=0.80 played=3.18"}
+{"t": 67.0918, "type": "log", "text": "[BvhViewer] Mixer started: isRunning=true, enabled=true, weight=1, clipDuration=2.5399999618530273s, mixer.timeScale=0.7994786788390057"}
+{"t": 69.7132, "type": "log", "text": "[BvhViewer] heartbeat: mixerTime=2.17s, timeScale=0.7994786788390057, delta=0.0697s, rootBonePos=[-0.02, 0.86, 0.02], rootBoneQuat=[-0.01, 0.01, -0.00, 1.00]"}
+{"t": 70.1711, "type": "log", "text": "[BvhViewer] motion finished → returning to standing idle (0.96s)"}
+{"t": 71.0851, "type": "log", "text": "[BvhViewer] idle state entered"}
+{"t": 73.1923, "type": "error", "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"}
+{"t": 73.1925, "type": "log", "text": "[LipSync] stop"}
+{"t": 77.6077, "type": "log", "text": "[BvhViewer] heartbeat: mixerTime=8.48s, timeScale=0.7994786788390057, delta=0.0580s, rootBonePos=[0.00, 0.92, 0.00], rootBoneQuat=[-0.01, -0.00, 0.00, 1.00]"}

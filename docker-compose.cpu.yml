@@ -1,0 +1,22 @@
+# Temporary CPU fallback while the host NVIDIA kernel/library versions differ.
+# Keep the motion system on its dedicated Docker network and model server.
+services:
+  backend:
+    deploy:
+      resources:
+        reservations:
+          devices: !reset []
+    environment:
+      NVIDIA_VISIBLE_DEVICES: void
+      CUDA_VISIBLE_DEVICES: ""
+      OMP_NUM_THREADS: "4"
+      MKL_NUM_THREADS: "4"
+    volumes:
+      - ./backend/app:/workspace/app:ro
+  t2m:
+    gpus: !reset []
+    environment:
+      NVIDIA_VISIBLE_DEVICES: void
+      CUDA_VISIBLE_DEVICES: ""
+      OMP_NUM_THREADS: "4"
+      MKL_NUM_THREADS: "4"
