@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useRef, useEffect, useState, useCallback } from 'react'
+import { createPortal } from 'react-dom'
 import * as THREE from 'three'
 import { BVHLoader } from 'three/examples/jsm/loaders/BVHLoader.js'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
@@ -36,6 +37,7 @@ import { ROOM_SCENE_EXAMPLES } from './roomSceneExamples'
 import { applySeatContactTargets, captureStandingFootContacts, createSeatContactTargets, groundRoomFeet, type RoomFootContactReference } from './roomPoseContacts'
 
 type ViewMode = 'skeleton' | 'robot' | 'character'
+const PRESIDENT_AVATAR = { label: '学長（スーツ）', url: '/avatars/gakucho_v3_suit.glb' }
 type EnvironmentMode = 'home' | 'laboratory'
 type EnvironmentCamera = { position: THREE.Vector3; target: THREE.Vector3; fov: number }
 const HOME_CAMERA_POSITION = new THREE.Vector3(...HOME_ENVIRONMENT_CAMERA.position)
@@ -44,6 +46,8 @@ const readRoomNavigation = (root: THREE.Object3D) => root.userData.roomSceneDefi
   ? createSceneRoomNavigation(root) : createRoomNavigation(root)
 
 interface BvhViewerProps {
+  /** 設定画面の表示先。未指定ならビューア内で操作できる。 */
+  settingsHost?: HTMLDivElement | null
   /** BVH text data injected externally (e.g. from motion generation) */
   bvhText?: string | null
   /** Text prompt that produced the BVH. Used to decide whether the final pose should persist. */
@@ -306,6 +310,7 @@ const reorientBvhAxes = (result: {
 }
 
 export const BvhViewer: React.FC<BvhViewerProps> = ({
+  settingsHost,
   bvhText,
   motionPrompt,
   scheduledMotions,
@@ -318,7 +323,6 @@ export const BvhViewer: React.FC<BvhViewerProps> = ({
   const homeEnvironmentRef = useRef<HomeEnvironment | null>(null)
   const importedRoomRef = useRef<RoomScene | null>(null)
   const importedRoomCameraRef = useRef<EnvironmentCamera | null>(null)
-  const roomFileInputRef = useRef<HTMLInputElement | null>(null)
   const roomLoadRequestRef = useRef(0)
   const [roomSceneChoice, setRoomSceneChoice] = useState('home')
   const [roomSceneName, setRoomSceneName] = useState('リビング・ダイニング・キッチン')
@@ -398,7 +402,7 @@ export const BvhViewer: React.FC<BvhViewerProps> = ({
   const showChair = chairVisibility[environmentMode]
   const [hasFile, setHasFile] = useState(true)
   const [fileName, setFileName] = useState('Neutral Idle (Default)')
-  const [viewMode, setViewMode] = useState<ViewMode>('robot')
+  const [viewMode, setViewMode] = useState<ViewMode>('character')
   // loadBvh / buildRobotRig / animate 内で常に最新の viewMode を参照するための ref
   const viewModeRef = useRef<ViewMode>(viewMode)
   // 外部キャラクターモデル(retarget 表示用)と、転写元の BVH スケルトン
@@ -406,8 +410,8 @@ export const BvhViewer: React.FC<BvhViewerProps> = ({
   const sourceRigRef = useRef<SourceRig | null>(null)
   const retargetErroredRef = useRef(false)
   // 選択中のアバター(glb)の URL。差し替え時に再ロードする。
-  const [avatarUrl, setAvatarUrl] = useState<string>(CHARACTER_MODEL_URL)
-  const [avatarOptions, setAvatarOptions] = useState<{ label: string; url: string }[]>([])
+  const [avatarUrl, setAvatarUrl] = useState(PRESIDENT_AVATAR.url)
+  const [avatarOptions, setAvatarOptions] = useState([PRESIDENT_AVATAR])
   const [avatarStatus, setAvatarStatus] = useState<string>('読込中…')
   const [avatarYaw, setAvatarYaw] = useState(0)
   const avatarYawRef = useRef(0)
@@ -1003,7 +1007,7 @@ export const BvhViewer: React.FC<BvhViewerProps> = ({
    * 既存キャラクターを破棄 → ロード → BVH 骨格へバインド → 高さフィット、の順。
    */
   const applyAvatar = useCallback(
-    async (url: string) => {
+    async (url: string, isCurrent: () => boolean) => {
       const scene = sceneRef.current
       if (!scene) return
 
@@ -1011,6 +1015,10 @@ export const BvhViewer: React.FC<BvhViewerProps> = ({
       retargetErroredRef.current = false
       try {
         const character = await loadCharacterModel(url)
+        if (!isCurrent() || sceneRef.current !== scene) {
+          disposeCharacter(character)
+          return
+        }
 
         if (characterRef.current) {
           disposeCharacter(characterRef.current)
@@ -1070,6 +1078,7 @@ export const BvhViewer: React.FC<BvhViewerProps> = ({
         )
         console.log(`[BvhViewer] avatar applied: ${url}`)
       } catch (err) {
+        if (!isCurrent()) return
         console.error('[BvhViewer] avatar load failed:', err)
         setAvatarStatus(
           `読込失敗: ${err instanceof Error ? err.message : String(err)}`,
@@ -1967,8 +1976,7 @@ export const BvhViewer: React.FC<BvhViewerProps> = ({
           const helperMat = skHelper.material as THREE.LineBasicMaterial
           helperMat.linewidth = 2
           helperMat.color = new THREE.Color(0x38bdf8)
-          // 初期 viewMode は 'robot' 固定なので骨格は非表示で開始
-          skHelper.visible = false
+          skHelper.visible = viewModeRef.current === 'skeleton'
           scene.add(skHelper)
           skeletonHelperRef.current = skHelper
 
@@ -2814,13 +2822,19 @@ export const BvhViewer: React.FC<BvhViewerProps> = ({
       .then((res) => (res.ok ? res.json() : Promise.reject(new Error(String(res.status)))))
       .then((data: { avatars?: { label: string; url: string }[] }) => {
         if (cancelled) return
-        setAvatarOptions(data.avatars ?? [])
+        const options = data.avatars ?? []
+        if (!options.length) return
+        setAvatarOptions(current => [
+          ...options.map(option => option.url === PRESIDENT_AVATAR.url ? PRESIDENT_AVATAR : option),
+          ...current.filter(option => option.url.startsWith('blob:')),
+        ])
+        if (!options.some(option => option.url === PRESIDENT_AVATAR.url)) {
+          const fallback = options.find(option => option.url === CHARACTER_MODEL_URL) ?? options[0]
+          setAvatarUrl(current => current === PRESIDENT_AVATAR.url ? fallback.url : current)
+        }
       })
       .catch((err) => {
         console.warn('[BvhViewer] avatar list unavailable:', err)
-        if (!cancelled) {
-          setAvatarOptions([{ label: 'character.glb', url: CHARACTER_MODEL_URL }])
-        }
       })
     return () => {
       cancelled = true
@@ -2830,7 +2844,9 @@ export const BvhViewer: React.FC<BvhViewerProps> = ({
   // シーン初期化完了後、および選択アバター変更時にモデルを差し替える。
   useEffect(() => {
     if (!sceneReady) return
-    applyAvatar(avatarUrl)
+    let current = true
+    void applyAvatar(avatarUrl, () => current)
+    return () => { current = false }
   }, [sceneReady, avatarUrl, applyAvatar])
 
   // 向き調整はモデルを読み直さず、ラッパーの回転だけ更新する。
@@ -2986,26 +3002,99 @@ export const BvhViewer: React.FC<BvhViewerProps> = ({
     transition: 'background 0.2s',
   }
 
-  const segBase: React.CSSProperties = {
-    padding: '6px 12px',
-    border: '1px solid rgba(148,163,184,0.3)',
-    fontSize: 12,
-    cursor: 'pointer',
-    transition: 'all 0.15s',
-  }
-  const segActive: React.CSSProperties = {
-    background: 'rgba(56,189,248,0.18)',
-    color: '#38bdf8',
-    borderColor: 'rgba(56,189,248,0.6)',
-  }
-  const segInactive: React.CSSProperties = {
-    background: 'rgba(30,41,59,0.8)',
-    color: '#94a3b8',
-  }
+  const roomSelectionDisabled = !roomTaskReady || roomSceneLoading || roomTaskRef.current?.busy
+  const settings = (
+    <>
+      <fieldset>
+        <legend>アバターの表示</legend>
+        <label>
+          表示モデル
+          <select value={viewMode} onChange={(event) => setViewMode(event.target.value as ViewMode)}>
+            <option value="robot">ロボット</option>
+            <option value="character">キャラクター</option>
+            <option value="skeleton">骨格</option>
+          </select>
+        </label>
+        {viewMode === 'character' && <>
+          <label>
+            アバターファイル
+            <select value={avatarUrl} onChange={(event) => setAvatarUrl(event.target.value)}>
+              {avatarOptions.map((option) => <option key={option.url} value={option.url}>{option.label}</option>)}
+            </select>
+          </label>
+          <label>
+            ローカルのアバターを開く
+            <input type="file" accept=".glb,.gltf,model/gltf-binary" onChange={handleAvatarFile} />
+          </label>
+          <label>
+            アバターの向き
+            <select value={avatarYaw} disabled={roomTaskRef.current?.ownsPose || !!roomFixedSeatRef.current}
+              onChange={(event) => setAvatarYaw(Number(event.target.value))}>
+              {[0, 90, 180, 270].map((deg) => <option key={deg} value={deg}>{deg}°</option>)}
+            </select>
+          </label>
+          <small role="status">{avatarStatus}</small>
+        </>}
+      </fieldset>
+      <fieldset>
+        <legend>空間</legend>
+        <label>
+          表示する空間
+          <select value={environmentMode} onChange={(event) => setEnvironmentMode(event.target.value as EnvironmentMode)}>
+            <option value="home">住宅</option>
+            <option value="laboratory">検証空間</option>
+          </select>
+        </label>
+        {environmentMode === 'home' && <>
+          <label>
+            部屋
+            <select value={roomSceneChoice} disabled={roomSelectionDisabled}
+              onChange={(event) => selectRoomScene(event.target.value)}>
+              <option value="home">元の住宅</option>
+              {ROOM_SCENE_EXAMPLES.map((example) => <option key={example.id} value={example.id}>{example.label}</option>)}
+              {roomSceneChoice === 'imported' && <option value="imported">{roomSceneName}</option>}
+            </select>
+          </label>
+          <label>
+            部屋データを開く
+            <input type="file" accept=".json,application/json" disabled={roomSelectionDisabled} onChange={handleRoomFile} />
+          </label>
+          {roomSceneLoading && <small role="status">部屋を読込中…</small>}
+          {roomSceneError && <small role="alert">{roomSceneError}</small>}
+          <button type="button" onClick={() => {
+            const definition = importedRoomRef.current?.definition ?? ROOM_SCENE_EXAMPLES[0].definition
+            const url = URL.createObjectURL(new Blob([JSON.stringify(definition, null, 2)], { type: 'application/json' }))
+            const anchor = document.createElement('a')
+            anchor.href = url
+            anchor.download = 'room.json'
+            anchor.click()
+            setTimeout(() => URL.revokeObjectURL(url), 1000)
+          }}>{roomSceneChoice === 'home' ? '部屋データの見本を保存' : '部屋データを保存'}</button>
+          <label>
+            <input type="checkbox" checked={showRoomRoute} onChange={(event) => setShowRoomRoute(event.target.checked)} />
+            経路を表示
+          </label>
+        </>}
+        <label>
+          <input type="checkbox" checked={showChair} onChange={(event) => {
+            const visible = event.target.checked
+            setChairVisibility((previous) => ({ ...previous, [environmentMode]: visible }))
+          }} />
+          椅子を表示
+        </label>
+      </fieldset>
+    </>
+  )
 
   return (
-    <div style={{ width: '100%', height: '100%', position: 'relative', containerType: 'inline-size', containerName: 'motion-viewer' }}>
-      <style>{`.bvh-environment-panel button:disabled { opacity: .45; cursor: not-allowed; } @container motion-viewer (max-width: 540px) { .bvh-avatar-controls { top: 245px !important; } .bvh-environment-panel:has(details[open]) ~ .bvh-avatar-controls { display: none !important; } }`}</style>
+    <div style={{ width: '100%', height: '100%', position: 'relative' }}>
+      {settingsHost && createPortal(settings, settingsHost)}
+      <style>{`
+        .bvh-environment-panel button:disabled { opacity: .45; cursor: not-allowed; }
+        .bvh-inline-settings fieldset { display: grid; gap: 6px; min-width: 0; margin: 8px 0; border: 1px solid #475569; }
+        .bvh-inline-settings label { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+        .bvh-inline-settings select, .bvh-inline-settings input { min-width: 0; max-width: 100%; }
+      `}</style>
       <div ref={containerRef} style={{ width: '100%', height: '100%' }} />
 
       <div className="bvh-environment-panel" role="group" aria-label="空間" style={{
@@ -3015,40 +3104,13 @@ export const BvhViewer: React.FC<BvhViewerProps> = ({
         border: '1px solid rgba(148,163,184,0.2)', maxWidth: 'calc(100% - 24px)', boxSizing: 'border-box',
         maxHeight: 'calc(100% - 210px)', overflowY: 'auto', overscrollBehavior: 'contain',
       }}>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
-          <button type="button" aria-pressed={environmentMode === 'home'}
-            onClick={() => setEnvironmentMode('home')}
-            style={{ ...btnStyle, ...(environmentMode === 'home' ? segActive : segInactive) }}>住宅</button>
-          <button type="button" aria-pressed={environmentMode === 'laboratory'}
-            onClick={() => setEnvironmentMode('laboratory')}
-            style={{ ...btnStyle, ...(environmentMode === 'laboratory' ? segActive : segInactive) }}>検証空間</button>
-        </div>
-        <span style={{ color: '#cbd5e1' }}>{environmentMode === 'home' ? roomSceneName : '広さ24mの動作確認スペース'}</span>
-        {environmentMode === 'home' && <details>
-          <summary style={{ cursor: 'pointer', padding: '3px 0' }}>部屋を変更</summary>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 7, paddingTop: 8, maxWidth: 280 }}>
-          <select aria-label="部屋" value={roomSceneChoice} disabled={!roomTaskReady || roomSceneLoading || roomTaskRef.current?.busy}
-            onChange={(event) => selectRoomScene(event.target.value)}
-            style={{ color: '#e2e8f0', background: '#1e293b', border: '1px solid #475569', borderRadius: 5, padding: 5 }}>
-            <option value="home">元の住宅</option>
-            {ROOM_SCENE_EXAMPLES.map((example) => <option key={example.id} value={example.id}>{example.label}</option>)}
-            {roomSceneChoice === 'imported' && <option value="imported">{roomSceneName}</option>}
-          </select>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
-            <button type="button" style={btnStyle} disabled={!roomTaskReady || roomSceneLoading || roomTaskRef.current?.busy}
-              onClick={() => roomFileInputRef.current?.click()}>{roomSceneLoading ? '部屋を読込中…' : '部屋データを開く'}</button>
-            <button type="button" style={btnStyle} onClick={() => {
-              const definition = importedRoomRef.current?.definition ?? ROOM_SCENE_EXAMPLES[0].definition
-              const url = URL.createObjectURL(new Blob([JSON.stringify(definition, null, 2)], { type: 'application/json' }))
-              const anchor = document.createElement('a')
-              anchor.href = url; anchor.download = 'room.json'; anchor.click()
-              setTimeout(() => URL.revokeObjectURL(url), 1000)
-            }}>{roomSceneChoice === 'home' ? '部屋データの見本を保存' : '部屋データを保存'}</button>
-          </div>
-          <input ref={roomFileInputRef} type="file" accept=".json,application/json" hidden onChange={handleRoomFile} />
-          {roomSceneError && <span role="alert" style={{ color: '#fca5a5', maxWidth: 280 }}>{roomSceneError}</span>}
-          </div>
-        </details>}
+        <span style={{ color: '#cbd5e1' }}>{environmentMode === 'home' ? roomSceneName : '検証空間（24m）'}</span>
+        {settingsHost === undefined && (
+          <details className="bvh-inline-settings">
+            <summary>アバター・空間の設定</summary>
+            {settings}
+          </details>
+        )}
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
           <button type="button" style={btnStyle} onClick={showWholeEnvironment}>全体を見る</button>
           <button type="button" style={btnStyle} onClick={focusAvatar}>学長を見る</button>
@@ -3087,7 +3149,6 @@ export const BvhViewer: React.FC<BvhViewerProps> = ({
               }}>立ち上がる</button>
               <button type="button" style={btnStyle} disabled={!roomTaskRef.current?.busy} onClick={() => { pendingRoomDestinationRef.current = null; roomTaskRef.current?.cancel() }}>タスク中止</button>
             </div>
-            <label style={{ display: 'flex', alignItems: 'center', gap: 4 }}><input type="checkbox" checked={showRoomRoute} onChange={(event) => setShowRoomRoute(event.target.checked)} />経路を表示</label>
             <span role="status" aria-label="家具タスクの状態" style={{ color: '#cbd5e1', lineHeight: 1.5 }}>
               {roomTaskError || (roomTask ? ({ walking: roomTask.kind === 'walk' ? `${roomTask.chairLabel}へ歩行中` : '家具を避けて歩行中', aligning: roomTask.kind === 'walk' ? '到着して姿勢を整えています' : '椅子の向きに合わせています', sitting: '着座中', seated: `${roomTask.chairLabel}に着座しました`, standing: '立ち上がり中', settling: '立位を整えています', idle: roomTask.kind === 'walk' ? `${roomTask.chairLabel}に到着しました` : '立ち上がりました', failed: roomTask.reason ?? '停止しました', cancelled: 'タスクを中止しました' }[roomTask.phase]) : roomTaskReady ? '移動先や椅子を選んで開始できます' : '家具と動作を準備中…')}
             </span>
@@ -3127,68 +3188,6 @@ export const BvhViewer: React.FC<BvhViewerProps> = ({
           />
         </label>
 
-        <button
-          type="button"
-          aria-pressed={showChair}
-          style={{ ...btnStyle, ...(showChair ? segActive : segInactive) }}
-          title="学長が座る椅子の表示を切り替える"
-          onClick={() => setChairVisibility((visibility) => ({
-            ...visibility, [environmentMode]: !visibility[environmentMode],
-          }))}
-        >
-          🪑 椅子
-        </button>
-
-        {/* 表示モード切替 (ロボット / 骨格) */}
-        <div
-          style={{
-            display: 'flex',
-            borderRadius: 6,
-            overflow: 'hidden',
-            border: '1px solid rgba(148,163,184,0.3)',
-          }}
-        >
-          <button
-            type="button"
-            onClick={() => setViewMode('robot')}
-            style={{
-              ...segBase,
-              ...(viewMode === 'robot' ? segActive : segInactive),
-              borderTop: 'none',
-              borderBottom: 'none',
-              borderLeft: 'none',
-              borderRight: '1px solid rgba(148,163,184,0.3)',
-            }}
-          >
-            🤖 ロボット
-          </button>
-          <button
-            type="button"
-            onClick={() => setViewMode('character')}
-            style={{
-              ...segBase,
-              ...(viewMode === 'character' ? segActive : segInactive),
-              borderTop: 'none',
-              borderBottom: 'none',
-              borderLeft: 'none',
-              borderRight: '1px solid rgba(148,163,184,0.3)',
-            }}
-          >
-            🧸 キャラ
-          </button>
-          <button
-            type="button"
-            onClick={() => setViewMode('skeleton')}
-            style={{
-              ...segBase,
-              ...(viewMode === 'skeleton' ? segActive : segInactive),
-              border: 'none',
-            }}
-          >
-            🦴 骨格
-          </button>
-        </div>
-
         {hasFile && (
           <>
             <button style={btnStyle} onClick={() => setIsPlaying(!isPlaying)}>
@@ -3221,87 +3220,6 @@ export const BvhViewer: React.FC<BvhViewerProps> = ({
           </>
         )}
       </div>
-
-      {/* アバター(glb)の選択・向き調整。キャラモードのときだけ出す。 */}
-      {viewMode === 'character' && (
-        <div
-          className="bvh-avatar-controls"
-          style={{
-            position: 'absolute',
-            top: 12,
-            right: 16,
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 6,
-            padding: '10px 12px',
-            borderRadius: 10,
-            background: 'rgba(15,23,42,0.85)',
-            backdropFilter: 'blur(8px)',
-            border: '1px solid rgba(148,163,184,0.2)',
-            color: '#e2e8f0',
-            fontSize: 12,
-            maxWidth: 260,
-          }}
-        >
-          <span style={{ color: '#94a3b8', fontSize: 11 }}>アバター(.glb)</span>
-
-          <select
-            value={avatarUrl}
-            onChange={(e) => setAvatarUrl(e.target.value)}
-            style={{
-              padding: '5px 8px',
-              borderRadius: 6,
-              border: '1px solid rgba(148,163,184,0.3)',
-              background: 'rgba(30,41,59,0.95)',
-              color: '#e2e8f0',
-              fontSize: 12,
-            }}
-          >
-            {avatarOptions.length === 0 && (
-              <option value={CHARACTER_MODEL_URL}>character.glb</option>
-            )}
-            {avatarOptions.map((option) => (
-              <option key={option.url} value={option.url}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-
-          <label style={{ ...btnStyle, textAlign: 'center' }}>
-            📁 UE 書き出しの .glb を開く
-            <input
-              type="file"
-              accept=".glb,.gltf,model/gltf-binary"
-              onChange={handleAvatarFile}
-              style={{ display: 'none' }}
-            />
-          </label>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span style={{ color: '#94a3b8', fontSize: 11 }}>向き</span>
-            {[0, 90, 180, 270].map((deg) => (
-              <button
-                key={deg}
-                type="button"
-                disabled={roomTaskRef.current?.ownsPose || !!roomFixedSeatRef.current}
-                onClick={() => setAvatarYaw(deg)}
-                style={{
-                  ...segBase,
-                  ...(avatarYaw === deg ? segActive : segInactive),
-                  padding: '3px 7px',
-                  borderRadius: 5,
-                }}
-              >
-                {deg}°
-              </button>
-            ))}
-          </div>
-
-          <span style={{ color: '#64748b', fontSize: 10, lineHeight: 1.4 }}>
-            {avatarStatus}
-          </span>
-        </div>
-      )}
 
       {/* File name badge */}
       {hasFile && (

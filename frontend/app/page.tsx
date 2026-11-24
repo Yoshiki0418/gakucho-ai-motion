@@ -7,19 +7,14 @@ import {
   type MotionActivity,
   type MotionMode,
 } from '@/features/text-chat/hooks/useTextChat'
-import { ChatModelSettings, useChatModelSettings } from '@/features/text-chat/ChatModelSettings'
+import { useChatModelSettings } from '@/features/text-chat/ChatModelSettings'
+import { ConversationSettings, MOTION_MODES } from '@/features/settings/ConversationSettings'
 import { AvatarPanel } from '@/components/organisms/AvatarPanel'
 import { BvhViewer, type PostureKind } from '@/components/organisms/BvhViewer'
 import { QRCodeDisplay } from '@/components/organisms/QRCodeDisplay'
 
 type AvatarViewMode = 'bvh' | 'ue'
 
-// 会話画面の動作生成モード。現行方式と新方式(層構成)を同じ画面で比べられるようにする。
-const MOTION_MODES: { id: MotionMode; label: string; hint: string }[] = [
-  { id: 'current', label: 'T2M生成', hint: '従来方式。行動タグごとにT2M-GPTで動作を生成します。' },
-  { id: 'layered', label: 'クリップ＋音声', hint: '新方式。タグの意味動作を、発話音声から生成したリズム動作（SentiAvatar・研究用）に重ねます。' },
-  { id: 'layered-semantic', label: 'クリップ＋待機', hint: '新方式・リズムなし。タグの意味動作を待機姿勢に重ねます。' },
-]
 const MOTION_MODE_STORAGE_KEY = 'gakucho.motionMode'
 
 const describeActivity = (activity: MotionActivity): string => {
@@ -48,7 +43,11 @@ export default function ChatDemoPage() {
   const [appMode, setAppMode] = useState<'general' | 'ceremony'>('general')
   const [avatarViewMode, setAvatarViewMode] = useState<AvatarViewMode>('bvh')
   const [motionMode, setMotionMode] = useState<MotionMode>('current')
-  const [motionPanelOpen, setMotionPanelOpen] = useState(true)
+  const [settingsOpen, setSettingsOpen] = useState(false)
+  const [viewerSettingsHost, setViewerSettingsHost] = useState<HTMLDivElement | null>(null)
+  const [inputMode, setInputMode] = useState<'text' | 'voice'>('text')
+  const [voiceMode, setVoiceMode] = useState<'ptt' | 'vad'>('ptt')
+  const closeSettings = useCallback(() => setSettingsOpen(false), [])
   const postureRef = useRef<PostureKind>('standing')
   const handlePostureChange = useCallback((posture: PostureKind) => {
     postureRef.current = posture
@@ -58,7 +57,9 @@ export default function ChatDemoPage() {
   useEffect(() => {
     const isMode = (value: string | null): value is MotionMode =>
       MOTION_MODES.some((mode) => mode.id === value)
-    const fromUrl = new URLSearchParams(window.location.search).get('motion_mode')
+    const query = new URLSearchParams(window.location.search)
+    if (query.get('settings') === '1') setSettingsOpen(true)
+    const fromUrl = query.get('motion_mode')
     let stored: string | null = null
     try {
       stored = window.localStorage.getItem(MOTION_MODE_STORAGE_KEY)
@@ -172,12 +173,14 @@ export default function ChatDemoPage() {
       }}
     >
       <style>{`
+        .gakucho-motion-status :is(summary, ul, li) { color: inherit; }
+        .gakucho-motion-status p { color: #fbbf24; }
+        .gakucho-model-retry { color: inherit; cursor: pointer; text-decoration: underline; }
         @media (max-width: 760px) {
           .gakucho-layout { flex-direction: column-reverse !important; }
           .gakucho-chat-column { width: 100% !important; flex: 1 !important; min-height: 0; }
-          .gakucho-viewer-column { flex: none !important; height: 62vh; min-height: 480px; max-height: 560px; }
+          .gakucho-viewer-column { flex: none !important; height: min(48dvh, 500px); }
           .gakucho-resize-handle { display: none !important; }
-          .gakucho-motion-mode { top: 56px !important; right: auto !important; left: 16px; }
         }
       `}</style>
       <section
@@ -191,26 +194,46 @@ export default function ChatDemoPage() {
         }}
       >
         <div className="gakucho-chat-column" style={{ width: chatWidth, flexShrink: 0, minWidth: 0 }}>
-        <ChatPanel
-          disabled={!modelSettings.server}
-          settings={<>
-            <ChatModelSettings settings={modelSettings} />
-            {chatError && <div role="alert" style={{ padding: '6px 16px', color: '#fbbf24' }}>{chatError}</div>}
-          </>}
-          messages={messages}
-          inputValue={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          onMicClick={handleMicClick}
-          onTemplateClick={handleTemplateClick}
-          onSend={handleSend}
-          isSending={isSending}
-          onResetChat={resetChat}
-          speakingMessageId={speakingMessageId}
-          onInterrupt={interruptChat}
-          appMode={appMode}
-          onToggleMode={() => setAppMode((prev) => (prev === 'general' ? 'ceremony' : 'general'))}
-          width="100%"
-        />
+          <ChatPanel
+            disabled={!modelSettings.server}
+            inputMode={inputMode}
+            voiceMode={voiceMode}
+            settingsOpen={settingsOpen}
+            onOpenSettings={() => setSettingsOpen(true)}
+            notice={<>
+              {modelSettings.failed && (
+                <div role="alert" style={{ padding: '6px 16px', color: '#fbbf24' }}>
+                  対話モデル設定を取得できません。 <button type="button" className="gakucho-model-retry" onClick={modelSettings.retry}>再試行</button>
+                </div>
+              )}
+              {modelSettings.ttsNotice && <div role="status" style={{ padding: '6px 16px', color: '#fbbf24' }}>{modelSettings.ttsNotice}</div>}
+              {chatError && <div role="alert" style={{ padding: '6px 16px', color: '#fbbf24' }}>{chatError}</div>}
+              {avatarViewMode === 'bvh' && (motionModeStatus || motionActivity.length > 0) && (
+                <details className="gakucho-motion-status" style={{ padding: '6px 16px', color: '#cbd5e1', fontSize: 12 }}>
+                  <summary style={{ cursor: 'pointer' }}>
+                    動作の実行状況{motionModeStatus && ` · ${MOTION_MODES.find(mode => mode.id === motionModeStatus.effective)?.label ?? motionModeStatus.effective}`}
+                  </summary>
+                  {motionModeStatus?.reason && <p>{motionModeStatus.reason}</p>}
+                  {motionActivity.length > 0 && (
+                    <ul style={{ maxHeight: 96, overflowY: 'auto', paddingLeft: 18 }}>
+                      {motionActivity.slice(-4).map(activity => <li key={activity.receivedAt}>{describeActivity(activity)}</li>)}
+                    </ul>
+                  )}
+                </details>
+              )}
+            </>}
+            messages={messages}
+            inputValue={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            onMicClick={handleMicClick}
+            onTemplateClick={handleTemplateClick}
+            onSend={handleSend}
+            isSending={isSending}
+            onResetChat={resetChat}
+            speakingMessageId={speakingMessageId}
+            onInterrupt={interruptChat}
+            width="100%"
+          />
         </div>
 
         {/* リサイズ用ハンドル */}
@@ -248,139 +271,39 @@ export default function ChatDemoPage() {
               scheduledMotions={scheduledMotions}
               getAudioTime={getAudioTime}
               onPostureChange={handlePostureChange}
+              settingsHost={viewerSettingsHost}
             />
           ) : (
             <AvatarPanel frameSrc={avatarFrameSrc} />
           )}
 
-          {/* アバター表示モード切替トグル */}
-          <div
-            style={{
-              position: 'absolute',
-              top: 12,
-              left: 16,
-              display: 'flex',
-              flexWrap: 'wrap',
-              maxWidth: 'calc(100% - 32px)',
-              gap: 4,
-              padding: 4,
-              borderRadius: 999,
-              background: 'rgba(15,23,42,0.85)',
-              backdropFilter: 'blur(8px)',
-              border: '1px solid rgba(148,163,184,0.3)',
-              zIndex: 10,
-            }}
+          <a
+            href="/world-model"
+            style={{ position: 'absolute', top: 12, right: avatarViewMode === 'ue' ? 100 : 16, zIndex: 3,
+              padding: '6px 12px', borderRadius: 8,
+              background: 'rgba(15,23,42,0.85)', color: '#cbd5e1', fontSize: 12, textDecoration: 'none' }}
           >
-            <button
-              onClick={() => setAvatarViewMode('bvh')}
-              style={{
-                padding: '6px 14px',
-                borderRadius: 999,
-                border: 'none',
-                fontSize: 12,
-                cursor: 'pointer',
-                background:
-                  avatarViewMode === 'bvh' ? 'rgba(59,130,246,0.85)' : 'transparent',
-                color: avatarViewMode === 'bvh' ? '#fff' : '#94a3b8',
-                transition: 'background 0.2s, color 0.2s',
-              }}
-            >
-              🦴 動作生成
-            </button>
-            <button
-              onClick={() => setAvatarViewMode('ue')}
-              style={{
-                padding: '6px 14px',
-                borderRadius: 999,
-                border: 'none',
-                fontSize: 12,
-                cursor: 'pointer',
-                background:
-                  avatarViewMode === 'ue' ? 'rgba(59,130,246,0.85)' : 'transparent',
-                color: avatarViewMode === 'ue' ? '#fff' : '#94a3b8',
-                transition: 'background 0.2s, color 0.2s',
-              }}
-            >
-              🎥 UE ストリーミング
-            </button>
-            <a
-              href="/world-model"
-              style={{ padding: '6px 10px', borderRadius: 999, fontSize: 12, color: '#cbd5e1', textDecoration: 'none', whiteSpace: 'nowrap' }}
-            >
-              物理・学習
-            </a>
-          </div>
-
-          {/* 動作生成モードの切り替えと、直近の動作の内訳(比較用) */}
-          {avatarViewMode === 'bvh' && (
-            <div
-              className="gakucho-motion-mode"
-              style={{
-                position: 'absolute',
-                top: 12,
-                right: 16,
-                maxWidth: 'min(400px, calc(100% - 32px))',
-                padding: '8px 10px',
-                borderRadius: 12,
-                background: 'rgba(15,23,42,0.85)',
-                backdropFilter: 'blur(8px)',
-                border: '1px solid rgba(148,163,184,0.3)',
-                color: '#cbd5e1',
-                fontSize: 11,
-                lineHeight: 1.5,
-                zIndex: 10,
-              }}
-            >
-              <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 4 }}>
-                <button
-                  onClick={() => setMotionPanelOpen((open) => !open)}
-                  aria-expanded={motionPanelOpen}
-                  title={motionPanelOpen ? '折りたたむ' : '開く'}
-                  style={{ marginRight: 4, padding: 0, border: 'none', background: 'none', color: '#94a3b8', fontSize: 11, cursor: 'pointer' }}
-                >
-                  {motionPanelOpen ? '▾' : '▸'} 動作生成
-                </button>
-                {(motionPanelOpen ? MOTION_MODES : MOTION_MODES.filter((mode) => mode.id === motionMode)).map((mode) => (
-                  <button
-                    key={mode.id}
-                    title={mode.hint}
-                    aria-pressed={motionMode === mode.id}
-                    onClick={() => selectMotionMode(mode.id)}
-                    style={{
-                      padding: '4px 10px',
-                      borderRadius: 999,
-                      border: 'none',
-                      fontSize: 11,
-                      cursor: 'pointer',
-                      background: motionMode === mode.id ? 'rgba(16,185,129,0.85)' : 'rgba(51,65,85,0.6)',
-                      color: motionMode === mode.id ? '#fff' : '#cbd5e1',
-                    }}
-                  >
-                    {mode.label}
-                  </button>
-                ))}
-              </div>
-              {motionPanelOpen && (
-                <div style={{ marginTop: 4, color: '#94a3b8' }}>
-                  {MOTION_MODES.find((mode) => mode.id === motionMode)?.hint}
-                </div>
-              )}
-              {motionModeStatus?.reason && (
-                <div style={{ marginTop: 2, color: '#fbbf24' }}>※ {motionModeStatus.reason}</div>
-              )}
-              {motionPanelOpen && motionActivity.length > 0 && (
-                <ul style={{ margin: '4px 0 0', paddingLeft: 14, maxHeight: 96, overflowY: 'auto' }}>
-                  {motionActivity.slice(-4).map((activity) => (
-                    <li key={activity.receivedAt}>{describeActivity(activity)}</li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          )}
-
+            物理・学習
+          </a>
           <QRCodeDisplay url={displayUrl} onClose={handleCloseQRCode} />
         </div>
       </section>
+      <ConversationSettings
+        open={settingsOpen}
+        onClose={closeSettings}
+        modelSettings={modelSettings}
+        appMode={appMode}
+        onAppModeChange={setAppMode}
+        inputMode={inputMode}
+        onInputModeChange={setInputMode}
+        voiceMode={voiceMode}
+        onVoiceModeChange={setVoiceMode}
+        avatarViewMode={avatarViewMode}
+        onAvatarViewModeChange={setAvatarViewMode}
+        motionMode={motionMode}
+        onMotionModeChange={selectMotionMode}
+        setViewerSettingsHost={setViewerSettingsHost}
+      />
     </main>
   )
 }

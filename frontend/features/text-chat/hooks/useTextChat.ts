@@ -77,6 +77,7 @@ export type MotionModeStatus = {
 export type StartChatOptions = {
   llmProvider?: ChatProvider
   llmModel?: string
+  ttsProvider?: string
   motionMode?: MotionMode
   /** アバターの現在の姿勢。座位中は層構成方式を使わない。 */
   posture?: string
@@ -491,6 +492,7 @@ export function useTextChat(endpoint: string) {
     if (options.posture) params.set('posture', options.posture)
     if (options.llmProvider) params.set('llm_provider', options.llmProvider)
     if (options.llmModel) params.set('llm_model', options.llmModel)
+    if (options.ttsProvider) params.set('tts_provider', options.ttsProvider)
     const fullUrl = `${endpoint}?${params}`
 
     console.log('[useTextChat] SSE connect to:', fullUrl)
@@ -692,7 +694,7 @@ export function useTextChat(endpoint: string) {
     }
 
     es.onerror = (err) => {
-      setChatError('会話への接続が中断されました。対話モデルの設定とバックエンドの起動状態を確認してください。')
+      setChatError('会話への接続が中断されました。対話モデル・音声合成の設定とバックエンドの起動状態を確認してください。')
       console.error('❌ SSE Error:', err)
       es.close()
       eventSourceRef.current = null

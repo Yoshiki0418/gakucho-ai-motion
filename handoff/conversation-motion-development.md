@@ -53,13 +53,29 @@ LOCAL_LLM_MODEL=qwen2.5:7b
 
 1. 開発用バックエンドの `GET /api/text-chat/model-settings` で `default_provider` が `local`、`openai_available` が `false`、`local_model` が配備したモデルIDになっていることを確認します。サーバーにOpenAI APIキーを設定した場合、自動選択は `openai` になります。
 2. フロントエンドを開発モードで動かす場合は `frontend/` で `npm ci` の後、例えば `DEV_API_PROXY_TARGET=http://127.0.0.1:8087 npm run dev` を実行し、`http://127.0.0.1:4000/` を開きます。
-3. 「対話モデル」を開き、「自動」「OpenAI API」「ローカルLLM」から選びます。明示的に接続先を選んだときはモデルIDを入力できます。ローカルのモデルIDは `/v1/models` が返すID（Ollamaならタグを含む）に合わせてください。変更は次の送信から適用されます。選択はブラウザに保存されるので、キーの有無に再び追従したいときは「自動」に戻します。
+3. 会話ヘッダーの「設定」→「対話モデル」を開き、「自動」「OpenAI API」「ローカルLLM」から選びます。明示的に接続先を選んだときはモデルIDを入力できます。ローカルのモデルIDは `/v1/models` が返すID（Ollamaならタグを含む）に合わせてください。変更は次の送信から適用されます。選択はブラウザに保存されるので、キーの有無に再び追従したいときは「自動」に戻します。
 
-LLMの設定だけを切り替えても、音声合成、会話DB、各方式の動作サービスは従来どおり必要です。新規クローンでは `backend/app/prompts/`（`president_persona.py`、`system_prompt.txt`、`rag/default.md` を含む）と学長TTSの重みを管理者から受け取ります。初期セットアップは [共同開発者向けの手順](https://github.com/Yoshiki0418/gakucho-ai-motion/pull/5) を参照してください。
+LLMの設定だけを切り替えても、音声合成、会話DB、各方式の動作サービスは従来どおり必要です。新規クローンでは `backend/app/prompts/`（`president_persona.py`、`system_prompt.txt`、`rag/default.md` を含む）を管理者から受け取ります。既存の学長音声（Style-Bert-VITS2）を使う場合は学習済みの重みも必要です。初期セットアップは [共同開発者向けの手順](https://github.com/Yoshiki0418/gakucho-ai-motion/pull/5) を参照してください。
+
+## 音声合成を切り替える
+
+会話ヘッダーの「設定」→「音声合成」で、サーバー既定、Style-Bert-VITS2、Irodori-TTSを選べます。変更は次のメッセージから適用され、ブラウザに保存されます。学長のスーツ姿がアバターの初期表示です。学長の既存の声はStyle-Bert-VITS2で再生できます。下記のIrodori設定では参照音声を使わずに話します。声を固定したい環境では、Irodoriサーバーに登録したボイスIDを指定してください。
+
+1. Irodoriの推論サーバーを用意します。今回の確認構成は `Aratako/Irodori-TTS-v4.1-Small-MF` です。サーバー側で `IRODORI_HF_CHECKPOINT` にこのIDを指定し、`IRODORI_DEFAULT_NUM_STEPS` はモデル既定を使用します。CUDA・CPUそれぞれのインストールと起動手順は [Irodori-TTS-Serverの公式README](https://github.com/Aratako/Irodori-TTS-Server#installation) を参照してください。
+2. FastAPIと同じDockerネットワークで推論サーバーの名前が `irodori-tts` の場合、**学長AIの `backend/.env`** には以下を設定します。両方をホスト上で直接実行する場合は接続先を `http://127.0.0.1:8088/v1` に変更します。
+
+   ```dotenv
+   IRODORI_TTS_BASE_URL=http://irodori-tts:8088/v1
+   IRODORI_TTS_MODEL=irodori-tts
+   IRODORI_TTS_VOICE=none
+   ```
+
+   学長音声の重みを持たずにIrodoriだけで開発する場合は、同じファイルに `TTS_PROVIDER=irodori-tts` を追加します。Style-Bert-VITS2も配備している場合は、既定をそのままにして画面から切り替えられます。認証を有効にしたIrodoriサーバーでは、学長AI側の `IRODORI_TTS_API_KEY` に対応するトークンを設定します。推論サーバー自身の認証設定名は `IRODORI_API_KEY` です。
+3. 上記のCompose構成で `"${compose[@]}" up -d --no-build --force-recreate backend` を実行します。デプロイ済みの会話画面を再読み込みし、「設定」→「音声合成」で利用可能なエンジンを確認します。`GET /api/text-chat/model-settings` の `tts.providers` に利用可否が返ります。明示的に選択すると、次の `char-stream-orchestrator` リクエストの `tts_provider` にエンジンIDが入ります。
 
 ## 動作方式の比較
 
-会話画面の行動アバターで「動作生成」を開きます。方式は次のターンから反映されます。比較を再現するには、URLに `?motion_mode=layered` などのIDを指定できます。
+会話ヘッダーの「設定」→「動作生成」を開きます。方式は次のターンから反映されます。比較を再現するには、URLに `?motion_mode=layered` などのIDを指定できます。
 
 | UIの方式 | ID | 発話中の動きと必要な資産 |
 | --- | --- | --- |
@@ -71,7 +87,7 @@ LLMの設定だけを切り替えても、音声合成、会話DB、各方式の
 
 | 変更したい箇所 | 実装の入口 |
 | --- | --- |
-| UIで方式を選び、送信する | [会話画面](../frontend/app/page.tsx)・[SSEの送受信](../frontend/features/text-chat/hooks/useTextChat.ts) |
+| UIで方式を選び、送信する | [設定画面](../frontend/features/settings/ConversationSettings.tsx)・[会話画面](../frontend/app/page.tsx)・[SSEの送受信](../frontend/features/text-chat/hooks/useTextChat.ts) |
 | 返答の行動タグを解釈する | [タグとカタログIDの対応](../backend/app/agent/general_conversation/tools/motion_tags.py) |
 | タグの時刻を決め、音声の動きと合成する | [クリップの配置](../backend/app/agent/general_conversation/tools/conversation_motion/session.py)・[部位別の重ね方](../backend/app/agent/general_conversation/tools/conversation_motion/composer.py) |
 | 層を段階的に配信する | [リズムの生成と再配信](../backend/app/agent/general_conversation/tools/conversation_motion/pipeline.py)・[対話ルーター](../backend/app/routers/text_chat_router.py) |

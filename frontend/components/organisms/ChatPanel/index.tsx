@@ -1,13 +1,13 @@
 'use client'
 
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useRef, useEffect } from 'react'
 import styled from 'styled-components'
 import { RefreshCcw, Settings } from 'lucide-react'
 import Flex from '@/components/styles/Flex'
 import { ChatList } from '@/components/organisms/ChatList'
 import { InitialChatView } from '@/components/organisms/InitialChatView'
 import ChatInputArea from '@/components/organisms/ChatInputArea'
-import { ModeToggle, InputMode } from '@/components/molecules/ModeToggle'
+import type { InputMode } from '@/components/molecules/ModeToggle'
 import { VoiceInputArea } from '@/components/organisms/VoiceInputArea'
 
 const ScrollableBody = styled(Flex)`
@@ -37,6 +37,34 @@ const ScrollableBody = styled(Flex)`
   scrollbar-color: rgba(148, 163, 184, 0.2) transparent;
 `
 
+const SettingsButton = styled.button`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 38px;
+  padding: 0 12px;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  color: #e2e8f0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover,
+  &[aria-expanded='true'] {
+    background: rgba(139, 92, 246, 0.2);
+    border-color: rgba(139, 92, 246, 0.5);
+    color: #ddd6fe;
+  }
+
+  &:focus-visible {
+    outline: 2px solid #c4b5fd;
+    outline-offset: 2px;
+  }
+`
+
 interface ChatMessage {
   id: string
   text: string
@@ -46,7 +74,9 @@ interface ChatMessage {
 }
 
 interface ChatPanelProps {
-  settings?: React.ReactNode
+  notice?: React.ReactNode
+  onOpenSettings: () => void
+  settingsOpen: boolean
   messages: ReadonlyArray<ChatMessage>
   inputValue: string
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
@@ -56,18 +86,18 @@ interface ChatPanelProps {
   disabled?: boolean
   speakingMessageId?: string | null
   onTemplateClick?: (text: string) => void
-  inputModeProp?: InputMode
-  onInputModeChange?: (mode: InputMode) => void
+  inputMode: InputMode
+  voiceMode: 'ptt' | 'vad'
   onResetChat?: () => void
   onInterrupt?: () => void
-  appMode?: 'general' | 'ceremony'
-  onToggleMode?: () => void
   width?: number | string
 }
 
 export default function ChatPanel({
   messages,
-  settings,
+  notice,
+  onOpenSettings,
+  settingsOpen,
   inputValue,
   onChange,
   onMicClick,
@@ -75,26 +105,13 @@ export default function ChatPanel({
   isSending = false,
   disabled = false,
   speakingMessageId = null,
-  inputModeProp,
-  onInputModeChange,
+  inputMode,
+  voiceMode,
   onResetChat,
   onInterrupt,
-  appMode = 'general',
-  onToggleMode,
   width = '35%',
 }: ChatPanelProps) {
   const hasMessages = messages.length > 0
-  const [internalMode, setInternalMode] = useState<InputMode>('text')
-  const inputMode = inputModeProp ?? internalMode
-  const [voiceMode, setVoiceMode] = useState<'ptt' | 'vad'>('ptt')
-
-  const handleModeChange = (mode: InputMode) => {
-    if (!inputModeProp) {
-      setInternalMode(mode)
-    }
-    onInputModeChange?.(mode)
-  }
-
   const scrollContainerRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
@@ -153,45 +170,17 @@ export default function ChatPanel({
 
         {/* 右側：ボタン群 */}
         <Flex $flex_direction="row" $gap="8px">
-          {onToggleMode && (
-            <button
-              onClick={() => onToggleMode()}
-              style={{
-                backdropFilter: 'blur(12px)',
-                WebkitBackdropFilter: 'blur(12px)',
-                background: appMode === 'ceremony' ? 'rgba(59,130,246,0.20)' : 'rgba(255,255,255,0.05)',
-                border: appMode === 'ceremony' ? '1px solid rgba(59,130,246,0.4)' : '1px solid rgba(148,163,184,0.15)',
-                borderRadius: '16px',
-                padding: '0 12px',
-                height: 38,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer',
-                transition: '0.25s ease',
-                color: appMode === 'ceremony' ? '#60a5fa' : '#cbd5e1',
-                fontSize: '0.85rem',
-                fontWeight: 600,
-                gap: '6px',
-              }}
-              title={appMode === 'ceremony' ? '現在のモード：式典モード（フィラー・QR非表示）' : '現在のモード：一般モード'}
-              onMouseEnter={(e) => {
-                if (appMode !== 'ceremony') {
-                  e.currentTarget.style.background = 'rgba(255,255,255,0.1)'
-                  e.currentTarget.style.border = '1px solid rgba(148,163,184,0.25)'
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (appMode !== 'ceremony') {
-                  e.currentTarget.style.background = 'rgba(255,255,255,0.05)'
-                  e.currentTarget.style.border = '1px solid rgba(148,163,184,0.15)'
-                }
-              }}
-            >
-              <Settings size={14} />
-              {appMode === 'ceremony' ? 'モード：式典' : 'モード：一般'}
-            </button>
-          )}
+          <SettingsButton
+            type="button"
+            aria-label="会話の設定"
+            title="会話の設定"
+            aria-haspopup="dialog"
+            aria-expanded={settingsOpen}
+            onClick={onOpenSettings}
+          >
+            <Settings size={16} aria-hidden="true" />
+            設定
+          </SettingsButton>
 
           <button
             onClick={() => onResetChat?.()}
@@ -227,7 +216,7 @@ export default function ChatPanel({
         </Flex>
       </Flex>
 
-      {settings}
+      {notice}
 
       {/* Body: ここを ScrollableBody に変更 */}
       <ScrollableBody
@@ -268,55 +257,6 @@ export default function ChatPanel({
       >
         {/* Footerの中身... */}
         <Flex $flex_direction="column" $width="100%" $gap="10px">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <ModeToggle mode={inputMode} onChange={handleModeChange} />
-            {inputMode === 'voice' && (
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  background: 'rgba(15,23,42,0.6)',
-                  borderRadius: 8,
-                  padding: 4,
-                  gap: 4,
-                  border: '1px solid rgba(148,163,184,0.1)',
-                }}
-              >
-                <button
-                  onClick={() => setVoiceMode('ptt')}
-                  style={{
-                    padding: '4px 10px',
-                    borderRadius: 6,
-                    fontSize: '0.75rem',
-                    fontWeight: 500,
-                    cursor: 'pointer',
-                    background: voiceMode === 'ptt' ? 'rgba(59,130,246,0.2)' : 'transparent',
-                    color: voiceMode === 'ptt' ? '#60A5FA' : '#9CA3AF',
-                    border: voiceMode === 'ptt' ? '1px solid rgba(59,130,246,0.3)' : '1px solid transparent',
-                    transition: 'all 0.2s ease',
-                  }}
-                >
-                  Push-to-Talk
-                </button>
-                <button
-                  onClick={() => setVoiceMode('vad')}
-                  style={{
-                    padding: '4px 10px',
-                    borderRadius: 6,
-                    fontSize: '0.75rem',
-                    fontWeight: 500,
-                    cursor: 'pointer',
-                    background: voiceMode === 'vad' ? 'rgba(59,130,246,0.2)' : 'transparent',
-                    color: voiceMode === 'vad' ? '#60A5FA' : '#9CA3AF',
-                    border: voiceMode === 'vad' ? '1px solid rgba(59,130,246,0.3)' : '1px solid transparent',
-                    transition: 'all 0.2s ease',
-                  }}
-                >
-                  自動 (VAD)
-                </button>
-              </div>
-            )}
-          </div>
           {inputMode === 'text' ? (
             <ChatInputArea
               value={inputValue}
