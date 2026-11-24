@@ -46,6 +46,7 @@ interface ChatMessage {
 }
 
 interface ChatPanelProps {
+  settings?: React.ReactNode
   messages: ReadonlyArray<ChatMessage>
   inputValue: string
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
@@ -66,6 +67,7 @@ interface ChatPanelProps {
 
 export default function ChatPanel({
   messages,
+  settings,
   inputValue,
   onChange,
   onMicClick,
@@ -224,6 +226,8 @@ export default function ChatPanel({
           </button>
         </Flex>
       </Flex>
+
+      {settings}
 
       {/* Body: ここを ScrollableBody に変更 */}
       <ScrollableBody

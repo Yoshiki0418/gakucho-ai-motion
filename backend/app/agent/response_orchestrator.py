@@ -3,6 +3,7 @@ import time
 from typing import AsyncIterator, Optional
 
 from app.agent.general_conversation.agent import GeneralConversationAgent
+from app.agent.local_conversation import LocalConversationAgent
 from app.agent.modules.decision_module import LLMDecisionClassifier
 from app.agent.modules.rag_module import RAGModule
 from app.models.llm import BaseLLM
@@ -12,7 +13,7 @@ class ResponseOrchestrator:
     def __init__(
         self,
         rag_engine: RAGModule,  # RAG パイプライン
-        daily_agent: GeneralConversationAgent,  # OpenAI Agent SDK の GeneralConversationAgent
+        daily_agent: GeneralConversationAgent | LocalConversationAgent,
         filler_llm: BaseLLM,  # フィラー用 LLM クライアント
         classifier_llm: LLMDecisionClassifier,  # 2値分類用 LLM
         filler_timeout: float = 1.0,  # 本応答の「最初のトークン待ち時間」

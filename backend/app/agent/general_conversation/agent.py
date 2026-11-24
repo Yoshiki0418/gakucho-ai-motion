@@ -1,4 +1,3 @@
-import os
 from typing import AsyncIterator
 
 from agents import Agent, Runner
@@ -12,17 +11,6 @@ from app.agent.general_conversation.tools import generate_motion, get_current_ti
 from app.agent.general_conversation.tools.motion_tool import motion_data_queue_var
 from app.agent.general_conversation.tools.motion_tags import action_tag_instructions
 from app.prompts.president_persona import get_president_persona
-from dotenv import load_dotenv
-
-load_dotenv()
-
-api_key = os.getenv("OPENAI_API_KEY")
-if not api_key:
-    raise RuntimeError(
-        "OPENAI_API_KEY が設定されていません。 .env に書くか環境変数を渡してください。"
-    )
-
-os.environ["OPENAI_API_KEY"] = api_key
 
 
 def _agent_for_preaccepted_motion(agent: Agent, explicit_prompt: str | None) -> Agent:

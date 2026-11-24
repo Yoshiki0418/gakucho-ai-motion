@@ -7,6 +7,7 @@ import {
   type MotionActivity,
   type MotionMode,
 } from '@/features/text-chat/hooks/useTextChat'
+import { ChatModelSettings, useChatModelSettings } from '@/features/text-chat/ChatModelSettings'
 import { AvatarPanel } from '@/components/organisms/AvatarPanel'
 import { BvhViewer, type PostureKind } from '@/components/organisms/BvhViewer'
 import { QRCodeDisplay } from '@/components/organisms/QRCodeDisplay'
@@ -15,9 +16,9 @@ type AvatarViewMode = 'bvh' | 'ue'
 
 // 会話画面の動作生成モード。現行方式と新方式(層構成)を同じ画面で比べられるようにする。
 const MOTION_MODES: { id: MotionMode; label: string; hint: string }[] = [
-  { id: 'current', label: '現行', hint: '行動タグごとに T2M-GPT で生成' },
-  { id: 'layered', label: '新方式', hint: '意味の層(収録クリップ)＋リズムの層(SentiAvatar・研究評価用)' },
-  { id: 'layered-semantic', label: '新方式・リズムなし', hint: '意味の層(収録クリップ)のみ' },
+  { id: 'current', label: 'T2M生成', hint: '従来方式。行動タグごとにT2M-GPTで動作を生成します。' },
+  { id: 'layered', label: 'クリップ＋音声', hint: '新方式。タグの意味動作を、発話音声から生成したリズム動作（SentiAvatar・研究用）に重ねます。' },
+  { id: 'layered-semantic', label: 'クリップ＋待機', hint: '新方式・リズムなし。タグの意味動作を待機姿勢に重ねます。' },
 ]
 const MOTION_MODE_STORAGE_KEY = 'gakucho.motionMode'
 
@@ -40,6 +41,7 @@ const describeActivity = (activity: MotionActivity): string => {
 }
 
 export default function ChatDemoPage() {
+  const modelSettings = useChatModelSettings()
   const [inputValue, setInputValue] = useState('')
   const [isSending, setIsSending] = useState(false)
   const [closedUrls, setClosedUrls] = useState<Set<string>>(new Set())
@@ -118,6 +120,7 @@ export default function ChatDemoPage() {
     getAudioTime,
     motionModeStatus,
     motionActivity,
+    chatError,
   } =
     useTextChat('/api/text-chat/char-stream-orchestrator')
 
@@ -127,11 +130,11 @@ export default function ChatDemoPage() {
 
   const handleSend = async (value: string) => {
     const message = value.trim()
-    if (!message) return
+    if (!message || !modelSettings.server) return
 
     setIsSending(true)
     try {
-      await startChat(message, appMode, { motionMode, posture: postureRef.current })
+      await startChat(message, appMode, { motionMode, posture: postureRef.current, ...modelSettings.request })
     } finally {
       setIsSending(false)
     }
@@ -189,6 +192,11 @@ export default function ChatDemoPage() {
       >
         <div className="gakucho-chat-column" style={{ width: chatWidth, flexShrink: 0, minWidth: 0 }}>
         <ChatPanel
+          disabled={!modelSettings.server}
+          settings={<>
+            <ChatModelSettings settings={modelSettings} />
+            {chatError && <div role="alert" style={{ padding: '6px 16px', color: '#fbbf24' }}>{chatError}</div>}
+          </>}
           messages={messages}
           inputValue={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
@@ -326,6 +334,7 @@ export default function ChatDemoPage() {
               <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 4 }}>
                 <button
                   onClick={() => setMotionPanelOpen((open) => !open)}
+                  aria-expanded={motionPanelOpen}
                   title={motionPanelOpen ? '折りたたむ' : '開く'}
                   style={{ marginRight: 4, padding: 0, border: 'none', background: 'none', color: '#94a3b8', fontSize: 11, cursor: 'pointer' }}
                 >
@@ -335,6 +344,7 @@ export default function ChatDemoPage() {
                   <button
                     key={mode.id}
                     title={mode.hint}
+                    aria-pressed={motionMode === mode.id}
                     onClick={() => selectMotionMode(mode.id)}
                     style={{
                       padding: '4px 10px',
