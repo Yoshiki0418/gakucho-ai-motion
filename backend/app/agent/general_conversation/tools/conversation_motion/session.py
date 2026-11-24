@@ -26,20 +26,22 @@ MIN_STROKE_GAP = 1.1
 
 # ストロークの後、どれだけ動作を続けるか(秒)。収録は同じ動作を何度も繰り返しているため切る。
 HOLD = {
-    "MOT_702": 0.9,   # うなずき
-    "MOT_703": 1.1,   # 首を横に振る
-    "MOT_701": 1.8,   # 手を振る
-    "MOT_740": 1.8,   # さようなら
-    "MOT_711": 1.4,   # お辞儀
-    "MOT_709": 1.6,   # 拍手
+    "MOT_702": 0.9,  # うなずき
+    "MOT_703": 1.1,  # 首を横に振る
+    "MOT_701": 1.8,  # 手を振る
+    "MOT_740": 1.8,  # さようなら
+    "MOT_711": 1.4,  # お辞儀
+    "MOT_709": 1.6,  # 拍手
 }
 DEFAULT_HOLD = 1.4
 EXPLICIT_HOLD = 3.0
 
 # 直前に使った動作の代わりに使える動作
 ALTERNATIVES = {
-    "MOT_705": ("MOT_720",), "MOT_720": ("MOT_705",),
-    "MOT_748": ("MOT_733",), "MOT_733": ("MOT_748",),
+    "MOT_705": ("MOT_720",),
+    "MOT_720": ("MOT_705",),
+    "MOT_748": ("MOT_733",),
+    "MOT_733": ("MOT_748",),
     "MOT_738": ("MOT_711",),
 }
 NOD = "MOT_702"
@@ -88,9 +90,18 @@ class MotionSession:
             self.touched = time.monotonic()
 
     def _recently_used(self, catalog_id: str, at: float) -> bool:
-        return any(used == catalog_id and at - when < REPEAT_WINDOW for used, when in self.recent)
+        return any(
+            used == catalog_id and at - when < REPEAT_WINDOW
+            for used, when in self.recent
+        )
 
-    def plan(self, library: ClipLibrary, segment_id: int, duration: float, tags: list[PlannedTag]) -> SegmentPlan:
+    def plan(
+        self,
+        library: ClipLibrary,
+        segment_id: int,
+        duration: float,
+        tags: list[PlannedTag],
+    ) -> SegmentPlan:
         with self.lock:
             overlays = list(self.carry)
             skipped = []
@@ -103,38 +114,77 @@ class MotionSession:
                 anchor = tag.position * duration
                 stroke_at = anchor + STROKE_DELAY
                 amplitude = 1.0
-                if not tag.explicit and self._recently_used(catalog_id, self.clock + stroke_at):
-                    alternative = next((a for a in ALTERNATIVES.get(catalog_id, ())
-                                        if library.get(a) and not self._recently_used(a, self.clock + stroke_at)), None)
+                if not tag.explicit and self._recently_used(
+                    catalog_id, self.clock + stroke_at
+                ):
+                    alternative = next(
+                        (
+                            a
+                            for a in ALTERNATIVES.get(catalog_id, ())
+                            if library.get(a)
+                            and not self._recently_used(a, self.clock + stroke_at)
+                        ),
+                        None,
+                    )
                     if alternative:
-                        catalog_id, clip = alternative, library.get(alternative, mirrored=tag.mirrored)
+                        catalog_id, clip = alternative, library.get(
+                            alternative, mirrored=tag.mirrored
+                        )
                     elif catalog_id == NOD:
                         amplitude = 0.6  # うなずきは続いても自然。浅くする
                     else:
                         skipped.append({"tag": tag.name, "reason": "repeated"})
                         continue
-                hold = EXPLICIT_HOLD if tag.explicit else HOLD.get(catalog_id, DEFAULT_HOLD)
+                hold = (
+                    EXPLICIT_HOLD
+                    if tag.explicit
+                    else HOLD.get(catalog_id, DEFAULT_HOLD)
+                )
                 start = max(stroke_at - clip.stroke, 0.0)
                 length = min(clip.duration, clip.stroke + hold + FADE_OUT)
-                candidate = Overlay(clip, start, length, tag=tag.name, amplitude=amplitude, explicit=tag.explicit)
+                candidate = Overlay(
+                    clip,
+                    start,
+                    length,
+                    tag=tag.name,
+                    amplitude=amplitude,
+                    explicit=tag.explicit,
+                )
                 conflict = None
                 for other in overlays:
-                    if _parts(other) & _parts(candidate) and other.end > candidate.start:
+                    if (
+                        _parts(other) & _parts(candidate)
+                        and other.end > candidate.start
+                    ):
                         conflict = other
                         break
                 if conflict is not None:
-                    if conflict.explicit or candidate.stroke_time - conflict.stroke_time < MIN_STROKE_GAP:
-                        skipped.append({"tag": tag.name, "reason": "busy", "with": conflict.tag})
+                    if (
+                        conflict.explicit
+                        or candidate.stroke_time - conflict.stroke_time < MIN_STROKE_GAP
+                    ):
+                        skipped.append(
+                            {"tag": tag.name, "reason": "busy", "with": conflict.tag}
+                        )
                         continue
                     # 前の動作は新しい動作の入りに合わせて抜く
-                    conflict.length = max(candidate.start + FADE_IN - conflict.start, FADE_IN + FADE_OUT)
+                    conflict.length = max(
+                        candidate.start + FADE_IN - conflict.start, FADE_IN + FADE_OUT
+                    )
                 overlays.append(candidate)
                 self.recent.append((catalog_id, self.clock + candidate.stroke_time))
-            plan = SegmentPlan(segment_id, duration, self.clock, overlays, self.end_pose, skipped)
+            plan = SegmentPlan(
+                segment_id, duration, self.clock, overlays, self.end_pose, skipped
+            )
             self.plans[segment_id] = plan
             # 次の発話へ: はみ出した動作は時刻をずらして持ち越す
-            self.carry = [Overlay(o.clip, o.start - duration, o.length, o.tag, o.amplitude, o.explicit)
-                          for o in overlays if o.end > duration + 0.05]
+            self.carry = [
+                Overlay(
+                    o.clip, o.start - duration, o.length, o.tag, o.amplitude, o.explicit
+                )
+                for o in overlays
+                if o.end > duration + 0.05
+            ]
             self.clock += duration
             self.touched = time.monotonic()
             return plan

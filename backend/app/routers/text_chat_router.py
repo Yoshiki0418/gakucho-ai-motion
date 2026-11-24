@@ -1,10 +1,10 @@
 import asyncio
 import base64
-import os
 
 # import base64
 # import io
 import json
+import os
 import re
 import time
 
@@ -25,18 +25,22 @@ from app.agent.general_conversation.tools.conversation_motion.pipeline import (
     parse_mode,
     resolve_layered_request,
 )
-from app.agent.general_conversation.tools.motion_catalog import extract_explicit_motion_request
-from app.agent.general_conversation.tools.motion_output import clean_motion_tool_artifacts
+from app.agent.general_conversation.tools.motion_catalog import (
+    extract_explicit_motion_request,
+)
+from app.agent.general_conversation.tools.motion_output import (
+    clean_motion_tool_artifacts,
+)
 from app.agent.general_conversation.tools.motion_tags import (
     extract_action_tags,
     has_incomplete_tag,
     plan_auto_gestures,
 )
 from app.agent.general_conversation.tools.motion_tool import (
-    enqueue_motion_job,
-    motion_backend_requires_audio,
     MOTION_JOB_WAIT_TIMEOUT,
     MotionJobChannel,
+    enqueue_motion_job,
+    motion_backend_requires_audio,
     motion_data_queue_var,
 )
 from app.models import llm, tts
@@ -521,7 +525,9 @@ async def char_stream_orchestrator(request: Request):
                 payload = {
                     "type": "motion_error",
                     "prompt": motion_data.get("prompt", ""),
-                    "message": motion_data.get("message", "モーション生成に失敗しました"),
+                    "message": motion_data.get(
+                        "message", "モーション生成に失敗しました"
+                    ),
                     "segment_id": motion_data.get("segment_index", 0),
                 }
             else:
@@ -529,9 +535,7 @@ async def char_stream_orchestrator(request: Request):
                     "type": "motion_chunk",
                     "bvh": motion_data.get("bvh", ""),
                     "prompt": motion_data.get("prompt", ""),
-                    "latency_ms": round(
-                        motion_data.get("latency_seconds", 0) * 1000
-                    ),
+                    "latency_ms": round(motion_data.get("latency_seconds", 0) * 1000),
                     # このモーションを合わせる発話。フロントエンドは生成完了時刻ではなく
                     # この発話の再生開始時刻を基準にモーションを開始する。
                     "segment_id": motion_data.get("segment_index", 0),
@@ -569,7 +573,9 @@ async def char_stream_orchestrator(request: Request):
             else:
                 try:
                     layered_turn = LayeredTurn(
-                        motion_channel, f"{user_id}:{session_id}", rhythm=motion_mode == "layered",
+                        motion_channel,
+                        f"{user_id}:{session_id}",
+                        rhythm=motion_mode == "layered",
                     )
                 except Exception as error:  # noqa: BLE001
                     layered_reason = f"層構成の準備に失敗しました: {error}"
@@ -577,12 +583,14 @@ async def char_stream_orchestrator(request: Request):
         motion_channel.layered = layered_turn is not None
         yield (
             "data: "
-            + json.dumps({
-                "type": "motion_mode",
-                "requested": motion_mode,
-                "effective": layered_turn.mode if layered_turn else "current",
-                "reason": layered_reason,
-            })
+            + json.dumps(
+                {
+                    "type": "motion_mode",
+                    "requested": motion_mode,
+                    "effective": layered_turn.mode if layered_turn else "current",
+                    "reason": layered_reason,
+                }
+            )
             + "\n\n"
         )
         if layered_turn is not None:
@@ -596,33 +604,50 @@ async def char_stream_orchestrator(request: Request):
             resolved = resolve_layered_request(explicit_motion.prompt)
             if resolved is not None:
                 explicit_layered = PlannedTag(
-                    "explicit", resolved[0], 0.0, explicit=True, mirrored=resolved[1],
+                    "explicit",
+                    resolved[0],
+                    0.0,
+                    explicit=True,
+                    mirrored=resolved[1],
                 )
 
         def layered_tags_for(planned_tags: list) -> list:
             nonlocal explicit_layered
             tags = [
-                PlannedTag(t.name, t.catalog_id, t.position, auto=t.name.startswith("auto:"))
+                PlannedTag(
+                    t.name, t.catalog_id, t.position, auto=t.name.startswith("auto:")
+                )
                 for t in planned_tags
             ]
             for prompt, catalog_id in motion_channel.drain_actions():
-                resolved = resolve_layered_request(prompt) or ((catalog_id, False) if catalog_id else None)
+                resolved = resolve_layered_request(prompt) or (
+                    (catalog_id, False) if catalog_id else None
+                )
                 if resolved is not None:
-                    tags.append(PlannedTag("tool", resolved[0], 0.15, mirrored=resolved[1]))
+                    tags.append(
+                        PlannedTag("tool", resolved[0], 0.15, mirrored=resolved[1])
+                    )
             if explicit_layered is not None:
                 tags.append(explicit_layered)
                 explicit_layered = None
             return tags
 
         if explicit_motion is not None and explicit_layered is not None:
-            print(f"[motion_request] explicit action (layered clip): {explicit_motion.prompt!r}")
+            print(
+                f"[motion_request] explicit action (layered clip): {explicit_motion.prompt!r}"
+            )
         elif explicit_motion is not None:
             if needs_audio:
-                motion_channel.request_action(explicit_motion.prompt, explicit_motion.catalog_id)
+                motion_channel.request_action(
+                    explicit_motion.prompt, explicit_motion.catalog_id
+                )
             else:
                 enqueue_motion_job(
-                    motion_channel, explicit_motion.prompt, 1,
-                    catalog_id=explicit_motion.catalog_id, position=0.0,
+                    motion_channel,
+                    explicit_motion.prompt,
+                    1,
+                    catalog_id=explicit_motion.catalog_id,
+                    position=0.0,
                 )
             print(f"[motion_request] explicit action: {explicit_motion.prompt!r}")
         first_text_logged = False
@@ -685,7 +710,9 @@ async def char_stream_orchestrator(request: Request):
             # 受理済み動作の内部ツール記法が本文に出た場合は読み上げない。
             # JSON内の句点で文を切らず、ブロックが閉じるまで元バッファを保持する。
             if explicit_motion:
-                clean_buffer, incomplete_motion_tool = clean_motion_tool_artifacts(sentence_buffer)
+                clean_buffer, incomplete_motion_tool = clean_motion_tool_artifacts(
+                    sentence_buffer
+                )
                 if incomplete_motion_tool:
                     continue
                 sentence_buffer = clean_buffer
@@ -741,14 +768,20 @@ async def char_stream_orchestrator(request: Request):
                 # 長い発話でタグが足りない分は機械的に補う。
                 # モデルの遵守に依存すると、11秒や13秒の文が丸ごと無動作になる。
                 rhythm_layer = layered_turn is not None and layered_turn.rhythm
-                auto_tags = [] if explicit_motion or rhythm_layer else plan_auto_gestures(
-                    current_sentence, action_tags, auto_gesture_count
+                auto_tags = (
+                    []
+                    if explicit_motion or rhythm_layer
+                    else plan_auto_gestures(
+                        current_sentence, action_tags, auto_gesture_count
+                    )
                 )
                 auto_gesture_count += len(auto_tags)
 
                 # この文に紐づくモーションを、TTS を待たずに走らせる。
                 # T2M は 1 秒前後かかるので、少しでも早く投げておきたい。
-                planned = [] if explicit_motion else carried_tags + action_tags + auto_tags
+                planned = (
+                    [] if explicit_motion else carried_tags + action_tags + auto_tags
+                )
                 carried_tags = []
                 next_segment = motion_channel.segment_index + 1
                 if planned and not needs_audio and layered_turn is None:
@@ -843,11 +876,16 @@ async def char_stream_orchestrator(request: Request):
 
         # 最後に残った文を処理
         if explicit_motion:
-            sentence_buffer, _ = clean_motion_tool_artifacts(sentence_buffer, final=True)
+            sentence_buffer, _ = clean_motion_tool_artifacts(
+                sentence_buffer, final=True
+            )
             # 音声時計がないと動作キューを開始できないため、内部記法しか
             # 残らなかった返答にも短い受理の一言を配信する。
             readable_buffer, _ = extract_action_tags(sentence_buffer)
-            if not full_response.strip() and not _sanitize_for_speech(readable_buffer).strip():
+            if (
+                not full_response.strip()
+                and not _sanitize_for_speech(readable_buffer).strip()
+            ):
                 sentence_buffer = "承知しました。"
 
         if sentence_buffer.strip():
@@ -879,11 +917,17 @@ async def char_stream_orchestrator(request: Request):
             current_sentence = _sanitize_for_speech(raw_sentence_for_metadata)
             if current_sentence.strip():
                 rhythm_layer = layered_turn is not None and layered_turn.rhythm
-                auto_tags = [] if explicit_motion or rhythm_layer else plan_auto_gestures(
-                    current_sentence, action_tags, auto_gesture_count
+                auto_tags = (
+                    []
+                    if explicit_motion or rhythm_layer
+                    else plan_auto_gestures(
+                        current_sentence, action_tags, auto_gesture_count
+                    )
                 )
                 auto_gesture_count += len(auto_tags)
-                planned = [] if explicit_motion else carried_tags + action_tags + auto_tags
+                planned = (
+                    [] if explicit_motion else carried_tags + action_tags + auto_tags
+                )
                 carried_tags = []
                 if planned and not needs_audio and layered_turn is None:
                     next_segment = motion_channel.segment_index + 1

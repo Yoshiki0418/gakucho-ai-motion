@@ -1,130 +1,144 @@
-name: Sync Issue status when PR is created (Draft → In Progress / Ready → Review)
+name: Sync Issue status
 
 on:
+  create:
   pull_request:
-    types: [opened]
+    types: [opened, reopened, synchronize, converted_to_draft, ready_for_review]
+  pull_request_review:
+    types: [submitted, dismissed]
+  issues:
+    types: [closed]
 
 permissions:
-  contents: read
+  issues: write
   pull-requests: read
-  issues: read
 
 jobs:
   sync-issue-status:
+    if: >-
+      (github.event_name != 'create' || github.event.ref_type == 'branch') &&
+      (github.event_name == 'create' || github.event_name == 'issues' ||
+       github.event.pull_request.head.repo.full_name == github.repository)
     runs-on: ubuntu-latest
+    concurrency:
+      group: issue-status-${{ github.event.pull_request.head.ref || github.event.ref || github.event.issue.number }}
+      cancel-in-progress: false
+    env:
+      HAS_PROJECT_TOKEN: ${{ secrets.GH_PERSONAL_TOKEN != '' }}
     steps:
-      - name: Sync Issue status with PR draft state
+      - name: Sync repository Issue labels
+        id: labels
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const { pull_request, issue, ref } = context.payload;
+            const branch = pull_request?.head.ref || ref || '';
+            const branchIssue = branch.match(/^[a-z]+\/([1-9]\d*)\/[^/]+$/)?.[1];
+            let issueNumber = issue?.number || Number(branchIssue);
+            let prNumber = pull_request?.number;
+            let status = 'In Progress';
+
+            if (context.eventName === 'create') {
+              if (!branchIssue) return;
+              // A delayed branch event can arrive after the PR is already in review.
+              const { data: open } = await github.rest.pulls.list({
+                owner, repo, state: 'open', head: `${owner}:${branch}`, per_page: 1,
+              });
+              prNumber = open[0]?.number;
+            }
+
+            if (prNumber) {
+              // Read the current draft/review state on retries, push events and review dismissals.
+              // Branches without required reviews can have a null aggregate reviewDecision.
+              let cursor = null;
+              let approved = false;
+              do {
+                const { repository } = await github.graphql(
+                  `query($owner: String!, $repo: String!, $number: Int!, $cursor: String) {
+                    repository(owner: $owner, name: $repo) {
+                      pullRequest(number: $number) {
+                        state isDraft reviewDecision
+                        closingIssuesReferences(first: 100) { nodes { number repository { nameWithOwner } } }
+                        latestOpinionatedReviews(first: 100, after: $cursor) {
+                          nodes { state } pageInfo { hasNextPage endCursor }
+                        }
+                      }
+                    }
+                  }`, { owner, repo, number: prNumber, cursor });
+                const pr = repository.pullRequest;
+                if (pr.state !== 'OPEN') return;
+                if (!issueNumber) {
+                  const linked = pr.closingIssuesReferences.nodes.find(
+                    item => item.repository.nameWithOwner === `${owner}/${repo}`);
+                  if (!linked) return;
+                  issueNumber = linked.number;
+                }
+                if (pr.isDraft || pr.reviewDecision === 'CHANGES_REQUESTED') break;
+                if (pr.reviewDecision) {
+                  status = pr.reviewDecision === 'APPROVED' ? 'Ready to Merge' : 'Review';
+                  break;
+                }
+                const { nodes, pageInfo } = pr.latestOpinionatedReviews;
+                if (nodes.some(review => review.state === 'CHANGES_REQUESTED')) break;
+                approved ||= nodes.some(review => review.state === 'APPROVED');
+                cursor = pageInfo.hasNextPage ? pageInfo.endCursor : null;
+                if (!cursor) status = approved ? 'Ready to Merge' : 'Review';
+              } while (cursor);
+            }
+
+            const params = { owner, repo, issue_number: issueNumber };
+            const { data: current } = await github.rest.issues.get(params);
+            if (current.pull_request) return;
+            const labels = current.labels.map(label => label.name);
+            let target;
+            if (context.eventName === 'issues') {
+              if (current.state !== 'closed') return;
+            } else {
+              if (current.state !== 'open' || labels.includes('type:tracking') || labels.includes('type:operation')) return;
+              target = status === 'In Progress' ? 'status:in-progress' : 'status:review';
+              if (!labels.includes(target)) await github.rest.issues.addLabels({ ...params, labels: [target] });
+            }
+            for (const name of labels.filter(name => name.startsWith('status:') && name !== target)) {
+              await github.rest.issues.removeLabel({ ...params, name });
+            }
+            if (target) {
+              core.setOutput('issue-id', current.node_id);
+              core.setOutput('project-status', status);
+            }
+
+      - name: Sync GitHub Project status
+        if: env.HAS_PROJECT_TOKEN == 'true' && steps.labels.outputs.issue-id != ''
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GH_PERSONAL_TOKEN }}
           script: |
-            const owner = "Yoshiki0418";
-            const projectNumber = 8;
-            const statusFieldName = "Status";
-            const draftStatusValue = "In Progress";
-            const reviewStatusValue = "Review";
-
-            const pr = context.payload.pull_request;
-            const prNumber = pr.number;
-            console.log(`📌 PR #${prNumber} が作成されました（Draft: ${pr.draft}）`);
-
-            // --- ① PR 本文から Issue 番号を抽出 (#15 のようなもの) ---
-            const issueMatch = pr.body?.match(/#(\d+)/) || pr.title?.match(/#(\d+)/);
-            if (!issueMatch) {
-              console.log("⚠️ 関連する Issue が見つかりません。処理をスキップします。");
-              return;
-            }
-            const issueNumber = parseInt(issueMatch[1], 10);
-            console.log(`🔗 関連 Issue #${issueNumber} を検出`);
-
-            // --- ② Project ID を取得 ---
-            const projectData = await github.graphql(
-              `query($owner: String!, $number: Int!) {
+            const { owner } = context.repo;
+            const { user } = await github.graphql(
+              `query($owner: String!) {
                 user(login: $owner) {
-                  projectV2(number: $number) {
+                  projectV2(number: 8) {
                     id
-                  }
-                }
-              }`,
-              { owner, number: projectNumber }
-            );
-
-            const projectId = projectData.user?.projectV2?.id;
-            if (!projectId) throw new Error(`❌ Project number ${projectNumber} が見つかりません`);
-            console.log(`✅ Project ID: ${projectId}`);
-
-            // --- ③ Issue の Node ID を取得 ---
-            const issueData = await github.graphql(
-              `query($owner: String!, $repo: String!, $number: Int!) {
-                repository(owner: $owner, name: $repo) {
-                  issue(number: $number) {
-                    id
-                  }
-                }
-              }`,
-              { owner, repo: context.repo.repo, number: issueNumber }
-            );
-            const issueId = issueData.repository.issue.id;
-
-            // --- ④ Project 内の Issue アイテムを追加（存在しない場合のみ） ---
-            const addItemRes = await github.graphql(
-              `mutation($projectId: ID!, $contentId: ID!) {
-                addProjectV2ItemById(input: { projectId: $projectId, contentId: $contentId }) {
-                  item { id }
-                }
-              }`,
-              { projectId, contentId: issueId }
-            );
-            const itemId = addItemRes.addProjectV2ItemById.item.id;
-
-            // --- ⑤ Status フィールドとオプション取得 ---
-            const fieldsRes = await github.graphql(
-              `query($projectId: ID!) {
-                node(id: $projectId) {
-                  ... on ProjectV2 {
-                    fields(first: 50) {
-                      nodes {
-                        ... on ProjectV2SingleSelectField {
-                          id
-                          name
-                          options {
-                            id
-                            name
-                          }
-                        }
-                      }
+                    field(name: "Status") {
+                      ... on ProjectV2SingleSelectField { id options { id name } }
                     }
                   }
                 }
-              }`,
-              { projectId }
-            );
-
-            const statusField = fieldsRes.node.fields.nodes.find(f => f.name === statusFieldName);
-            if (!statusField) throw new Error(`❌ Status フィールド '${statusFieldName}' が見つかりません`);
-
-            const targetStatusName = pr.draft ? draftStatusValue : reviewStatusValue;
-            const option = statusField.options.find(o => o.name === targetStatusName);
-            if (!option) throw new Error(`❌ ステータス値 '${targetStatusName}' が見つかりません`);
-
-            // --- ⑥ ステータス更新 ---
+              }`, { owner });
+            const project = user?.projectV2;
+            const field = project?.field;
+            const option = field?.options?.find(item => item.name === process.env.PROJECT_STATUS);
+            if (!option) throw new Error(`Project #8: missing Status option ${process.env.PROJECT_STATUS}`);
+            const { addProjectV2ItemById } = await github.graphql(
+              `mutation($project: ID!, $issue: ID!) {
+                addProjectV2ItemById(input: {projectId: $project, contentId: $issue}) { item { id } }
+              }`, { project: project.id, issue: process.env.ISSUE_ID });
             await github.graphql(
-              `mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $optionId: String!) {
+              `mutation($project: ID!, $item: ID!, $field: ID!, $option: String!) {
                 updateProjectV2ItemFieldValue(input: {
-                  projectId: $projectId,
-                  itemId: $itemId,
-                  fieldId: $fieldId,
-                  value: { singleSelectOptionId: $optionId }
-                }) {
-                  projectV2Item { id }
-                }
-              }`,
-              {
-                projectId,
-                itemId,
-                fieldId: statusField.id,
-                optionId: option.id
-              }
-            );
-
-            console.log(`✅ Issue #${issueNumber} のステータスを '${targetStatusName}' に更新しました`);
+                  projectId: $project, itemId: $item, fieldId: $field, value: {singleSelectOptionId: $option}
+                }) { projectV2Item { id } }
+              }`, { project: project.id, item: addProjectV2ItemById.item.id, field: field.id, option: option.id });
+        env:
+          ISSUE_ID: ${{ steps.labels.outputs.issue-id }}
+          PROJECT_STATUS: ${{ steps.labels.outputs.project-status }}

@@ -64,7 +64,9 @@ def _with_seated_context(prompt: str, normalized: str) -> str:
             return "椅子に座っている状態から、電話をかける。"
         if _contains_any(normalized, ("胸に手", "胸を", "感謝", "ありがとう")):
             return "椅子に座っている状態から、胸に手をあてる。"
-        if _contains_any(normalized, ("右手を上", "右手をあげ", "右手を挙", "右腕を上", "挙手")):
+        if _contains_any(
+            normalized, ("右手を上", "右手をあげ", "右手を挙", "右腕を上", "挙手")
+        ):
             return "椅子に座っている状態から、右手を上げる。"
 
     if _is_floor_seated(normalized):
@@ -76,7 +78,9 @@ def _with_seated_context(prompt: str, normalized: str) -> str:
             return "床に座った状態で、首を横に振る。"
         if _contains_any(normalized, ("拍手",)):
             return "床に座った状態で、両手でリズミカルに拍手する。"
-        if _contains_any(normalized, ("右手を上", "右手をあげ", "右手を挙", "右腕を上", "挙手")):
+        if _contains_any(
+            normalized, ("右手を上", "右手をあげ", "右手を挙", "右腕を上", "挙手")
+        ):
             return "床に座った状態で、右手を上げる。"
 
     return prompt
@@ -237,10 +241,41 @@ _RULES: tuple[MotionCatalogRule, ...] = (
 # match must not turn a left-hand wave into a right-hand wave, or a slow bow
 # into a calming hand gesture.  Exact catalog labels are still accepted.
 _PHYSICAL_DETAILS = (
-    "右", "左", "両", "片", "だけ", "のみ", "てから", "その後", "ずに", "せず",
-    "右手", "左手", "両手", "右腕", "左腕", "両腕", "右足", "左足", "両足",
-    "頭上", "頭の上", "顔の前", "胸の前", "胸に", "肩の高さ", "横に",
-    "前方", "後方", "水平", "垂直", "ゆっくり", "速く", "早く", "小さく", "大きく",
+    "右",
+    "左",
+    "両",
+    "片",
+    "だけ",
+    "のみ",
+    "てから",
+    "その後",
+    "ずに",
+    "せず",
+    "右手",
+    "左手",
+    "両手",
+    "右腕",
+    "左腕",
+    "両腕",
+    "右足",
+    "左足",
+    "両足",
+    "頭上",
+    "頭の上",
+    "顔の前",
+    "胸の前",
+    "胸に",
+    "肩の高さ",
+    "横に",
+    "前方",
+    "後方",
+    "水平",
+    "垂直",
+    "ゆっくり",
+    "速く",
+    "早く",
+    "小さく",
+    "大きく",
 )
 
 # This detects a request to perform a motion, rather than a discussion of it.
@@ -258,14 +293,30 @@ _PERFORMABLE_ACTION = re.compile(
     r"お辞儀|礼|会釈|拍手|敬礼|うなず|頷|挙手|ガッツポーズ|ピース|サムズ)"
 )
 _REQUEST_VERB_ENDINGS = (
-    ("指差して", "指差す"), ("指さして", "指さす"), ("指し示して", "指し示す"),
-    ("立ち上がって", "立ち上がる"), ("うなずいて", "うなずく"), ("頷いて", "頷く"),
-    ("伸ばして", "伸ばす"), ("下ろして", "下ろす"), ("動かして", "動かす"),
-    ("曲げて", "曲げる"), ("広げて", "広げる"), ("上げて", "上げる"),
-    ("あげて", "あげる"), ("挙げて", "挙げる"), ("下げて", "下げる"), ("振って", "振る"),
-    ("歩いて", "歩く"), ("走って", "走る"), ("跳んで", "跳ぶ"),
-    ("座って", "座る"), ("立って", "立つ"), ("踊って", "踊る"),
-    ("回って", "回る"), ("して", "する"),
+    ("指差して", "指差す"),
+    ("指さして", "指さす"),
+    ("指し示して", "指し示す"),
+    ("立ち上がって", "立ち上がる"),
+    ("うなずいて", "うなずく"),
+    ("頷いて", "頷く"),
+    ("伸ばして", "伸ばす"),
+    ("下ろして", "下ろす"),
+    ("動かして", "動かす"),
+    ("曲げて", "曲げる"),
+    ("広げて", "広げる"),
+    ("上げて", "上げる"),
+    ("あげて", "あげる"),
+    ("挙げて", "挙げる"),
+    ("下げて", "下げる"),
+    ("振って", "振る"),
+    ("歩いて", "歩く"),
+    ("走って", "走る"),
+    ("跳んで", "跳ぶ"),
+    ("座って", "座る"),
+    ("立って", "立つ"),
+    ("踊って", "踊る"),
+    ("回って", "回る"),
+    ("して", "する"),
 )
 
 _ACTION_REQUEST_END = re.compile(
@@ -295,25 +346,39 @@ def extract_explicit_motion_request(text: str) -> Optional[MotionCatalogMatch]:
         ):
             continue
         # Avoid speech/body idioms such as 「頭を使って答えて」「足りない」.
-        if re.search(r"(?:話して|答えて|返答|回答|声|口調|考えて|頭を使|足り)", command):
+        if re.search(
+            r"(?:話して|答えて|返答|回答|声|口調|考えて|頭を使|足り)", command
+        ):
             continue
         if not _ACTION_REQUEST_END.search(command):
             continue
-        command = re.sub(r"^(?:(?:学長|あなた|アバター|キャラクター|キャラ)[はがに、, ]*)", "", command)
-        command = re.sub(r"^(?:では|それでは|じゃあ|まず|次は|今度は)[、, ]*", "", command)
+        command = re.sub(
+            r"^(?:(?:学長|あなた|アバター|キャラクター|キャラ)[はがに、, ]*)",
+            "",
+            command,
+        )
+        command = re.sub(
+            r"^(?:では|それでは|じゃあ|まず|次は|今度は)[、, ]*", "", command
+        )
         # Remove only request politeness.  Body, direction, speed and sequences
         # are intentionally retained and sent to the T2M model unchanged.
-        command = re.sub(r"(?:ください|下さい|もらえませんか|もらえますか|くれますか|くれる|お願い(?:します)?)(?:ね|よ)?$", "", command).rstrip("、, ")
+        command = re.sub(
+            r"(?:ください|下さい|もらえませんか|もらえますか|くれますか|くれる|お願い(?:します)?)(?:ね|よ)?$",
+            "",
+            command,
+        ).rstrip("、, ")
         for request_ending, caption_ending in _REQUEST_VERB_ENDINGS:
             if command.endswith(request_ending):
-                command = command[:-len(request_ending)] + caption_ending
+                command = command[: -len(request_ending)] + caption_ending
                 break
         if not command:
             continue
         match = normalize_motion_prompt(command)
         return MotionCatalogMatch(
-            original_prompt=clause.strip(), prompt=match.prompt,
-            catalog_id=match.catalog_id, reason="explicit_request",
+            original_prompt=clause.strip(),
+            prompt=match.prompt,
+            catalog_id=match.catalog_id,
+            reason="explicit_request",
         )
     return None
 
@@ -324,45 +389,64 @@ def normalize_motion_prompt(motion_description: str) -> MotionCatalogMatch:
     for rule in _RULES:
         if normalized == _normalize(rule.prompt):
             return MotionCatalogMatch(
-                original_prompt=original, prompt=rule.prompt,
-                catalog_id=rule.catalog_id, reason="catalog_exact",
+                original_prompt=original,
+                prompt=rule.prompt,
+                catalog_id=rule.catalog_id,
+                reason="catalog_exact",
             )
     # A few unconstrained, compatible commands benefit from the exact
     # training caption.  Match the entire short action: left/both hands,
     # exclusive limbs, speed, height, location and sequences must not match.
     short_action = normalized
     for prefix in (
-        "立っている状態から", "立っている状態で", "立った状態から",
-        "立った状態で", "立ったまま",
+        "立っている状態から",
+        "立っている状態で",
+        "立った状態から",
+        "立った状態で",
+        "立ったまま",
     ):
         if short_action.startswith(prefix):
-            short_action = short_action[len(prefix):]
+            short_action = short_action[len(prefix) :]
             break
     if short_action == "歩く":
         return MotionCatalogMatch(
-            original_prompt=original, prompt="立っている状態から、歩く。",
+            original_prompt=original,
+            prompt="立っている状態から、歩く。",
             reason="verified_basic_caption",
         )
     simple_catalog_id = None
     if short_action in (
-        "手を振る", "右手を振る", "手を振って挨拶する", "右手を振って挨拶する",
+        "手を振る",
+        "右手を振る",
+        "手を振って挨拶する",
+        "右手を振って挨拶する",
     ):
         simple_catalog_id = "MOT_701"
     elif short_action in (
-        "手を上げる", "右手を上げる", "手をあげる", "右手をあげる",
-        "手を挙げる", "右手を挙げる", "挙手", "挙手する",
+        "手を上げる",
+        "右手を上げる",
+        "手をあげる",
+        "右手をあげる",
+        "手を挙げる",
+        "右手を挙げる",
+        "挙手",
+        "挙手する",
     ):
         simple_catalog_id = "MOT_783"
     if simple_catalog_id:
         rule = next(rule for rule in _RULES if rule.catalog_id == simple_catalog_id)
         return MotionCatalogMatch(
-            original_prompt=original, prompt=rule.prompt,
-            catalog_id=rule.catalog_id, reason="compatible_catalog_caption",
+            original_prompt=original,
+            prompt=rule.prompt,
+            catalog_id=rule.catalog_id,
+            reason="compatible_catalog_caption",
         )
 
     # Keep detailed requests intact instead of substituting a broader gesture.
     # This also protects seated left/both-hand motions before seated rewriting.
-    if _contains_any(normalized, _PHYSICAL_DETAILS) or re.search(r"[0-9０-９]", normalized):
+    if _contains_any(normalized, _PHYSICAL_DETAILS) or re.search(
+        r"[0-9０-９]", normalized
+    ):
         return MotionCatalogMatch(original_prompt=original, prompt=original)
 
     without_standing_prefix = normalized.replace("立っている状態から", "")
@@ -374,7 +458,9 @@ def normalize_motion_prompt(motion_description: str) -> MotionCatalogMatch:
 
     # Posture transitions should stay explicit because the frontend also uses
     # these words to decide whether to keep or release the final pose.
-    if _contains_any(without_standing_prefix, ("立ち上が", "起き上が", "起立", "立って", "立つ")):
+    if _contains_any(
+        without_standing_prefix, ("立ち上が", "起き上が", "起立", "立って", "立つ")
+    ):
         return MotionCatalogMatch(
             original_prompt=original,
             prompt="座った状態から、立ち上がる",

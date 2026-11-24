@@ -29,7 +29,19 @@ from pathlib import Path
 
 import numpy as np
 
-from .bvh import Motion, Skeleton, forward_kinematics, parse_bvh, qangle, qinv, qmean, qmul, qslerp, resample, write_bvh
+from .bvh import (
+    Motion,
+    Skeleton,
+    forward_kinematics,
+    parse_bvh,
+    qangle,
+    qinv,
+    qmean,
+    qmul,
+    qslerp,
+    resample,
+    write_bvh,
+)
 from .groups import group_joint_indices
 from .library import mirror_motion
 from .neutral import onto_neutral, viewer_neutral
@@ -52,29 +64,47 @@ T2M_CANDIDATES = 10
 
 # 1 フレームで回転がこれ以上跳ぶのは収録ノイズとみなして補修する
 GLITCH_RAD_PER_S = 30.0
-ACTIVE_THRESHOLD_DEG = {"right_arm": 12.0, "left_arm": 12.0, "head": 6.0, "spine": 6.0, "hips": 8.0}
+ACTIVE_THRESHOLD_DEG = {
+    "right_arm": 12.0,
+    "left_arm": 12.0,
+    "head": 6.0,
+    "spine": 6.0,
+    "hips": 8.0,
+}
 
 
 def load_labels() -> dict[str, str]:
     text = LABELS.read_text(encoding="utf-8-sig")
-    return {number: label.strip() for number, label in re.findall(r"(\d{3})\s*\n\s*(.+)", text)}
+    return {
+        number: label.strip()
+        for number, label in re.findall(r"(\d{3})\s*\n\s*(.+)", text)
+    }
 
 
 def leg_length(skeleton: Skeleton) -> float:
-    return float(sum(np.linalg.norm(skeleton.joints[skeleton.index(n)].offset) for n in ("LeftLeg", "LeftFoot")))
+    return float(
+        sum(
+            np.linalg.norm(skeleton.joints[skeleton.index(n)].offset)
+            for n in ("LeftLeg", "LeftFoot")
+        )
+    )
 
 
 def to_canonical(motion: Motion, canonical: Skeleton) -> Motion:
     """同じ関節名の骨格へ。回転はそのまま、ルート位置は脚の長さの比で縮める。"""
     index = [motion.skeleton.index(name) for name in canonical.names]
     ratio = leg_length(canonical) / leg_length(motion.skeleton)
-    return Motion(canonical, motion.root * ratio, motion.quats[:, index].copy(), motion.fps)
+    return Motion(
+        canonical, motion.root * ratio, motion.quats[:, index].copy(), motion.fps
+    )
 
 
 def repair_glitches(motion: Motion) -> tuple[Motion, int]:
     """1〜数フレームだけ跳ぶ回転を、前後の正常フレームの slerp で埋める。"""
     motion = motion.copy()
-    speed = qangle(qmul(motion.quats[1:], qinv(motion.quats[:-1]))) * motion.fps  # (T-1, J)
+    speed = (
+        qangle(qmul(motion.quats[1:], qinv(motion.quats[:-1]))) * motion.fps
+    )  # (T-1, J)
     repaired = 0
     for j in range(motion.quats.shape[1]):
         bad = np.zeros(motion.frames, dtype=bool)
@@ -98,7 +128,9 @@ def repair_glitches(motion: Motion) -> tuple[Motion, int]:
             else:
                 span = right - left
                 alpha = np.arange(1, span) / span
-                motion.quats[left + 1:right, j] = qslerp(motion.quats[left, j], motion.quats[right, j], alpha)
+                motion.quats[left + 1 : right, j] = qslerp(
+                    motion.quats[left, j], motion.quats[right, j], alpha
+                )
             repaired += right - left - 1
     return motion, repaired
 
@@ -124,8 +156,16 @@ def analyse(motion: Motion) -> dict:
     above = np.nonzero(activity > 0.12)[0]
     onset = int(above[0]) if len(above) else 0
     offset = int(above[-1]) if len(above) else motion.frames - 1
-    stroke = int(np.nonzero(activity >= 0.7)[0][0]) if (activity >= 0.7).any() else onset
-    return {"groups": groups, "onset": onset, "offset": offset, "stroke": stroke, "activity": activity}
+    stroke = (
+        int(np.nonzero(activity >= 0.7)[0][0]) if (activity >= 0.7).any() else onset
+    )
+    return {
+        "groups": groups,
+        "onset": onset,
+        "offset": offset,
+        "stroke": stroke,
+        "activity": activity,
+    }
 
 
 def quality(motion: Motion) -> dict:
@@ -137,9 +177,15 @@ def quality(motion: Motion) -> dict:
     speed = qangle(qmul(motion.quats[1:], qinv(motion.quats[:-1]))) * motion.fps
     names = motion.skeleton.names
     feet = [names.index("LeftToeBase"), names.index("RightToeBase")]
-    foot_slide = float(np.abs(np.diff(positions[:, feet][:, :, [0, 2]], axis=0)).sum(axis=0).max())
-    return {"hipDropM": round(drop, 3), "rootTravelM": round(travel, 3),
-            "maxAngularSpeed": round(float(speed.max()), 1), "footSlideM": round(foot_slide, 3)}
+    foot_slide = float(
+        np.abs(np.diff(positions[:, feet][:, :, [0, 2]], axis=0)).sum(axis=0).max()
+    )
+    return {
+        "hipDropM": round(drop, 3),
+        "rootTravelM": round(travel, 3),
+        "maxAngularSpeed": round(float(speed.max()), 1),
+        "footSlideM": round(foot_slide, 3),
+    }
 
 
 def trim(motion: Motion, info: dict) -> tuple[Motion, float]:
@@ -152,7 +198,9 @@ def trim(motion: Motion, info: dict) -> tuple[Motion, float]:
 
 def t2m_generate(text: str, seed: int) -> str:
     body = json.dumps({"text": text, "seed": seed, **T2M_SAMPLING}).encode()
-    request = urllib.request.Request(T2M_SERVICE, data=body, headers={"Content-Type": "application/json"})
+    request = urllib.request.Request(
+        T2M_SERVICE, data=body, headers={"Content-Type": "application/json"}
+    )
     opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
     with opener.open(request, timeout=180) as response:
         result = json.loads(response.read())
@@ -162,7 +210,9 @@ def t2m_generate(text: str, seed: int) -> str:
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--output", required=True)
-    parser.add_argument("--canonical", required=True, help="T2M 出力の BVH(標準骨格の見本)")
+    parser.add_argument(
+        "--canonical", required=True, help="T2M 出力の BVH(標準骨格の見本)"
+    )
     parser.add_argument("--preview", help="確認用に各クリップの BVH を書き出す先")
     parser.add_argument("--skip-t2m", action="store_true")
     args = parser.parse_args()
@@ -188,7 +238,9 @@ def main() -> None:
     # 足を床に着ける。ここがずれていると、ターンのたびに浮いて沈む。
     canonical_positions, _ = forward_kinematics(canonical_motion.slice(0, 1))
     lowest = float(canonical_positions[0, :, 1].min())
-    at_zero, _ = forward_kinematics(Motion(canonical, np.zeros((1, 3)), neutral[None], FPS))
+    at_zero, _ = forward_kinematics(
+        Motion(canonical, np.zeros((1, 3)), neutral[None], FPS)
+    )
     root_height = lowest - float(at_zero[0, :, 1].min())
 
     for path, source, repaired in sources:
@@ -198,16 +250,25 @@ def main() -> None:
         info = analyse(motion)
         clip, stroke = trim(motion, info)
         clips[catalog_id] = clip
-        entries.append({
-            "id": catalog_id, "label": labels.get(number, ""), "source": "mocap",
-            "sourcePath": str(path.relative_to(SOURCE)),
-            "sourceSha256": hashlib.sha256(path.read_bytes()).hexdigest(),
-            "duration": round(clip.duration, 3), "stroke": round(stroke, 3),
-            "groups": info["groups"], "repairedFrames": repaired, "quality": quality(clip),
-            "reference": "clipStartOntoViewerNeutral",
-        })
-        print(f"{catalog_id} {clip.duration:5.2f}s stroke={stroke:4.2f}s repaired={repaired:3d} "
-              f"active={[g for g, v in info['groups'].items() if v['active']]} {labels.get(number, '')[:24]}")
+        entries.append(
+            {
+                "id": catalog_id,
+                "label": labels.get(number, ""),
+                "source": "mocap",
+                "sourcePath": str(path.relative_to(SOURCE)),
+                "sourceSha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+                "duration": round(clip.duration, 3),
+                "stroke": round(stroke, 3),
+                "groups": info["groups"],
+                "repairedFrames": repaired,
+                "quality": quality(clip),
+                "reference": "clipStartOntoViewerNeutral",
+            }
+        )
+        print(
+            f"{catalog_id} {clip.duration:5.2f}s stroke={stroke:4.2f}s repaired={repaired:3d} "
+            f"active={[g for g, v in info['groups'].items() if v['active']]} {labels.get(number, '')[:24]}"
+        )
 
     if not args.skip_t2m:
         for catalog_id, text in T2M_ONLY.items():
@@ -219,17 +280,32 @@ def main() -> None:
                 motion, repaired = repair_glitches(motion)
                 # T2M は左右を取り違えやすい(「右手を上げる」で左手が上がる)。
                 # 本番の motion_handedness と同じく、鏡映した版も候補に入れる。
-                for mirrored, candidate in ((False, motion), (True, mirror_motion(motion))):
+                for mirrored, candidate in (
+                    (False, motion),
+                    (True, mirror_motion(motion)),
+                ):
                     info = analyse(candidate)
                     q = quality(candidate)
                     arm = info["groups"]["right_arm"]["rangeDeg"]
                     other = info["groups"]["left_arm"]["rangeDeg"]
                     # しゃがみ込み・移動・跳びは減点。右腕が動き、左腕は大きく動かない
-                    score = (arm - other - 400 * max(q["hipDropM"] - 0.03, 0) - 200 * q["rootTravelM"]
-                             - 2 * max(q["maxAngularSpeed"] - 15, 0))
-                    ok = arm >= 30 and other <= 0.4 * arm and q["hipDropM"] < 0.08 and q["rootTravelM"] < 0.25
-                    print(f"  {catalog_id} seed={seed} mirrored={mirrored} right={arm:.0f}deg left={other:.0f}deg "
-                          f"{q} score={score:.1f} ok={ok} ({time.time() - started:.1f}s)")
+                    score = (
+                        arm
+                        - other
+                        - 400 * max(q["hipDropM"] - 0.03, 0)
+                        - 200 * q["rootTravelM"]
+                        - 2 * max(q["maxAngularSpeed"] - 15, 0)
+                    )
+                    ok = (
+                        arm >= 30
+                        and other <= 0.4 * arm
+                        and q["hipDropM"] < 0.08
+                        and q["rootTravelM"] < 0.25
+                    )
+                    print(
+                        f"  {catalog_id} seed={seed} mirrored={mirrored} right={arm:.0f}deg left={other:.0f}deg "
+                        f"{q} score={score:.1f} ok={ok} ({time.time() - started:.1f}s)"
+                    )
                     if ok and (best is None or score > best[0]):
                         best = (score, seed, candidate, info, q, repaired, mirrored)
             if best is None:
@@ -240,13 +316,23 @@ def main() -> None:
             info = analyse(motion)
             clip, stroke = trim(motion, info)
             clips[catalog_id] = clip
-            entries.append({
-                "id": catalog_id, "label": text, "source": "t2m", "t2mSeed": seed, "t2mSampling": T2M_SAMPLING,
-                "t2mMirrored": mirrored,
-                "duration": round(clip.duration, 3), "stroke": round(stroke, 3), "groups": info["groups"],
-                "repairedFrames": repaired, "quality": quality(clip), "candidates": T2M_CANDIDATES,
-                "reference": "clipStartOntoViewerNeutral",
-            })
+            entries.append(
+                {
+                    "id": catalog_id,
+                    "label": text,
+                    "source": "t2m",
+                    "t2mSeed": seed,
+                    "t2mSampling": T2M_SAMPLING,
+                    "t2mMirrored": mirrored,
+                    "duration": round(clip.duration, 3),
+                    "stroke": round(stroke, 3),
+                    "groups": info["groups"],
+                    "repairedFrames": repaired,
+                    "quality": quality(clip),
+                    "candidates": T2M_CANDIDATES,
+                    "reference": "clipStartOntoViewerNeutral",
+                }
+            )
 
     order = [e["id"] for e in entries]
     lengths = np.asarray([clips[i].frames for i in order])
@@ -255,16 +341,26 @@ def main() -> None:
         output / "library.npz",
         root=np.concatenate([clips[i].root for i in order]).astype(np.float32),
         quats=np.concatenate([clips[i].quats for i in order]).astype(np.float32),
-        offsets=offsets, neutral=neutral.astype(np.float32),
+        offsets=offsets,
+        neutral=neutral.astype(np.float32),
     )
     for entry, start in zip(entries, offsets[:-1]):
         entry["frameStart"] = int(start)
-    neutral_motion = Motion(canonical, np.array([[0.0, root_height, 0.0]]), neutral[None], FPS)
+    neutral_motion = Motion(
+        canonical, np.array([[0.0, root_height, 0.0]]), neutral[None], FPS
+    )
     (output / "skeleton.bvh").write_text(write_bvh(neutral_motion))
-    catalog = {"version": 1, "fps": FPS, "rootHeight": root_height, "clips": entries,
-               "builtAt": time.strftime("%Y-%m-%d %H:%M:%S"),
-               "note": "MOT_7xx は Custom-T2M-Lab 0010/01 のモーキャプ。t2m は崩れ検出で選んだ生成。"}
-    (output / "catalog.json").write_text(json.dumps(catalog, ensure_ascii=False, indent=1) + "\n")
+    catalog = {
+        "version": 1,
+        "fps": FPS,
+        "rootHeight": root_height,
+        "clips": entries,
+        "builtAt": time.strftime("%Y-%m-%d %H:%M:%S"),
+        "note": "MOT_7xx は Custom-T2M-Lab 0010/01 のモーキャプ。t2m は崩れ検出で選んだ生成。",
+    }
+    (output / "catalog.json").write_text(
+        json.dumps(catalog, ensure_ascii=False, indent=1) + "\n"
+    )
     if args.preview:
         preview = Path(args.preview)
         preview.mkdir(parents=True, exist_ok=True)
