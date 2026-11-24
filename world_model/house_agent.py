@@ -2,8 +2,8 @@
 
     python -m world_model.house_agent --output .runtime/world-model/house2f/agent [--only kitchen]
 
-One episode = one Japanese instruction in the visible two-storey house (``house2f``), first floor,
-closed loop in native MuJoCo with the trained whole-body tracker:
+One episode = one Japanese instruction in the visible two-storey house (``house2f``), starting on the first
+floor, closed loop in native MuJoCo with the trained whole-body tracker:
 
 * look: the head depth image (``house_tour_depth.Map``: obstacles and seen-free floor), the colour
   image of the same camera (``tools/house_render_server.mjs``, the house page), YOLO on it
@@ -15,8 +15,11 @@ closed loop in native MuJoCo with the trained whole-body tracker:
   answers one tool as JSON: look_around / go_to_object / explore / finish
 * act: walking uses the depth map only (A*, stop-and-look segments of at most 2.5 m), the captured
   walk bent onto the route and turns on the spot, followed by the tracker (``house_tour_depth``)
+* stairs: the VLM frames the stairs; going to them walks up (or down) the flight (``use_stairs``) and the
+  other floor gets its own depth map and remembered places
 
-No scene geometry or object list is read for deciding or planning; they only score the result.
+No scene geometry or object list is read for deciding or planning; they only score the result. The one
+exception is the staircase, a fixture the body is set up for (where it starts and its step sizes).
 Every look and decision is logged with its images for the web page (/world-model/house).
 """
 from __future__ import annotations
@@ -48,6 +51,9 @@ SHADOW = .5              # m2: unseen pockets smaller than this inside seen floo
 SPAWN = (0.45, -4.3)     # just inside the LDK door from the hall, facing north (the hall is 1.1 m wide)
 MAX_SEGMENTS_PER_MOVE = 10
 STAND_OFF = 1.2          # m from a remembered object to where the body stops (outside narrow aisles)
+TOUCH = .6               # m: never stop nearer to a remembered object (its front surface) than this
+FLOORS = {1: 0., 2: 3.04}   # floor heights (house2f.FLOOR_2F)
+STAIR_WALKS = ROOT / ".runtime/world-model/tracker/house-stair-walks-v15.json"   # walks the tracker follows on these stairs
 HARD, SOFT = .3, .75     # m: routes keep at least HARD from obstacles (the 1F toilet door is 0.75 m) and pay for less than SOFT
 CLOSE_ENOUGH = .6        # m: nearer to the goal than this the body stays where it is if getting there needs a big turn in a tight spot
 NARROW = .45             # m: a passage this tight (a door) is walked along its centre line, not cut across
@@ -75,11 +81,12 @@ TASKS = [
     {"id": "toilet", "text": "トイレに行って", "kind": "room", "target": "toilet-1f"},
     {"id": "washroom", "text": "洗面所に行って", "kind": "room", "target": "washroom"},
     {"id": "tatami", "text": "畳のコーナーに行って", "kind": "zone", "target": "tatami"},
-    {"id": "kids", "text": "子ども部屋に行って", "kind": "unable", "target": "kids-room-1"},
+    {"id": "kids", "text": "子ども部屋に行って", "kind": "room", "target": ["kids-room-1", "kids-room-2"]},
+    {"id": "garage", "text": "車庫に行って", "kind": "unable", "target": None},
 ]
 PROMPT = """あなたは家庭用ロボット（学長アバター）の実行係です。ユーザーの指示を達成するために、次の行動を1つだけ選びます。
-ロボットは家の1階にいます。家の間取りは分かりません。部屋は今いる部屋の外（出入口の先の廊下など）にもあります。
-階段は上れないので2階には行けません。ただし、行き先が2階にあると画像や状況から確かに分かったときだけ「できない」と判断してください。
+家は2階建てで、ロボットはいま{floor}階にいます。家の間取りは分かりません。部屋は今いる部屋の外（出入口の先の廊下など）にもあります。
+【階段】へ go_to_object すると、階段を{stairs}の階へ移動します。寝室・子ども部屋は2階にあることが多いです。
 今いる部屋がLDK（リビング・ダイニング・キッチン）なら、トイレ・洗面所・浴室・玄関・寝室・子ども部屋はその外（出入口の先）にあります。
 
 指示：「{instruction}」
@@ -98,30 +105,33 @@ PROMPT = """あなたは家庭用ロボット（学長アバター）の実行�
 
 選べる行動：
 - look_around：その場で一回りして周りを見る
-- go_to_object：見つけた物・場所・出入口の前へ行く（target に O の番号）
+- go_to_object：見つけた物・場所・出入口・階段へ行く（target に O の番号。階段なら別の階へ移動する）
 - explore：まだ見ていない所へ行く（target に F の番号）
 - finish：終わる（success に true か false、message に一言）
 
 決め方：
 1. 【行き先】が見つかっていれば、遠くても部屋の外かどうかに関係なく、まずその前へ go_to_object。前に着いて画像で確かめられたら finish（success true）
 2. 【手がかり】（行き先の部屋にある物）が見つかっていれば、その前へ行って確かめる
-3. 今いる部屋で見つからなければ、【出入口】の先や、まだ見ていない所へ行く。新しい場所に入ったら look_around
-4. 同じ所へ何度も行かない。まだ見ていない所が残っている間は、見つからないという理由で finish（false）にしない
+3. 今いる部屋で見つからなければ、【出入口】の先や、まだ見ていない所へ行く。この階にないと分かったら【階段】で別の階へ。新しい場所に入ったら look_around
+4. 同じ所へ何度も行かない。まだ見ていない所が残っている間は、見つからないという理由で finish（false）にしない。家のどこにもない（そもそも家にない物・部屋）と確かに分かったときだけ finish（false）
 
 JSON だけで答えてください：{{"thought": "状況の判断（短く）", "action": "look_around|go_to_object|explore|finish", "target": "", "success": true, "message": ""}}"""
 SCAN = """ロボットの頭のカメラ画像です。ユーザーの指示は「{instruction}」。
 この画像に次のものが写っていれば挙げてください。
 - target：指示の行き先そのもの（部屋・場所・物）
 - clue：行き先が部屋や場所のとき、その部屋にしかない物（例：キッチンなら冷蔵庫・コンロ・シンク、トイレなら便器、洗面所なら洗面台・洗濯機）
-- door：今いる場所から別の場所へ出る出入口（扉・開口・廊下の先）。画像の端に写っていても挙げる。窓は含めない
+- door：今いる場所から別の場所へ出る出入口（扉・開口・廊下の先）。画像の端に写っていても挙げる。窓と階段は含めない
+- stairs：別の階へ行く階段（上り口・下り口）
 位置は画像の枠 [x0,y0,x1,y1]（左上0・右下1000 の相対座標）。place は、部屋や場所（床の広がり）なら true、物なら false。
-target と clue は確かに見分けられる物だけを、同じ物は一度だけ（端に少しだけ写っている物や、似ているだけの物は挙げない）。なければ空のリスト。
-JSON だけで答えてください：{{"items": [{{"kind": "target|clue|door", "what": "名前", "place": false, "box": [x0,y0,x1,y1]}}]}}"""
+target と clue は確かに見分けられる物だけを、同じ物は一度だけ（端に少しだけ写っている物や、似ているだけの物は挙げない）。部屋を target に
+するのは、その部屋の中が確かに写っているときだけ（扉や廊下しか見えなければ door）。なければ空のリスト。
+JSON だけで答えてください：{{"items": [{{"kind": "target|clue|door|stairs", "what": "名前", "place": false, "box": [x0,y0,x1,y1]}}]}}"""
 VERIFY = """ロボットの頭のカメラの画像です（1枚目がいまの正面。床は約1.2m先から写ります）。ユーザーの指示は「{instruction}」。
-ロボットはいま、この指示の行き先に着いていますか？行き先そのものが目の前に確かに写っているか（部屋や場所なら、その中か入口にいるか）で
-判断してください。似ているだけの物なら着いていません。
+ロボットはいま、この指示の行き先に着いていますか？行き先そのものが目の前に確かに写っているかで判断してください。
+部屋なら、その部屋の中に入っているか（廊下や別の部屋から扉越しに見えているだけなら着いていません）、コーナーなどの場所ならその上か目の前か。
+似ているだけの物なら着いていません。
 JSON だけで答えてください：{{"arrived": true, "reason": "短く"}}"""
-KIND = {"target": "行き先", "clue": "手がかり", "door": "出入口"}
+KIND = {"target": "行き先", "clue": "手がかり", "door": "出入口", "stairs": "階段"}
 
 
 class Stop(Exception):
@@ -156,7 +166,7 @@ class Agent:
         run_dir = TRACKER / "runs" / args.model
         library = TRACKER / "motion-library-v1"
         self.run, self.policy, self.config, self.env, self.observe_fn, bank = _load(run_dir, run_dir / "final_params.pkl", library)
-        self.walk = bank[0][1]
+        self.walk, self.bank = bank[0][1], dict(bank)
         from .tracker.home_navigation import _clip
         self.turn, self.plain = _turn_clip(library), B.build_model()
         self.tight = _clip(library, TIGHT_TURN).astype(np.float64)
@@ -169,6 +179,8 @@ class Agent:
         nb = self.nb = len(B.SEGMENTS)
         self.body_geoms = {g for g in range(model.ngeom) if 1 <= model.geom_bodyid[g] <= nb}
         self.names = {model.geom(g["id"]).id: g["id"] for g in self.scene["geoms"] if g.get("semantic") != "floor"}
+        self.treads = {model.geom(g["id"]).id for g in self.scene["geoms"] if g.get("semantic") == "stair"}
+        self.floor, self.on_stairs, self.floors = 1, False, {}   # the floor it is on; other floors' maps
         self.map = Map((-5.2, -8.0), (5.2, 5.2))
         self.table_size = 40000
         self.table = np.zeros((self.table_size, model.nq), np.float32)
@@ -212,8 +224,13 @@ class Agent:
             proc.wait(timeout=60)
 
     # ------------------------------------------------------------------ body (as house_tour_depth)
-    def append(self, segment, blend=True):
+    def append(self, segment, blend=True, placed=False):
+        """Add ``segment`` to the reference. Walks and turns are made on a floor at height 0 and are raised to the
+        floor the body is on; a ``placed`` one (a hold, a stair flight) is in the world already."""
         from .tracker.house_tour import blend_join
+        if not placed and FLOORS[self.floor]:
+            segment = segment.copy()
+            segment[:, 2] += FLOORS[self.floor]
         self.reference = blend_join(self.reference, segment) if blend else np.concatenate([self.reference, segment])
         if len(self.reference) + 20 > self.table_size:
             raise Stop("動作が長すぎる")
@@ -221,7 +238,7 @@ class Agent:
         self.table[len(self.reference):len(self.reference) + 20] = self.reference[-1]
 
     def hold(self, frames):
-        self.append(np.repeat(self.reference[-1:], frames, axis=0), blend=False)
+        self.append(np.repeat(self.reference[-1:], frames, axis=0), blend=False, placed=True)
 
     def simulate(self):
         jp, mujoco, data, model, state, nb = self.jp, self.mujoco, self.data, self.model, self.state, self.nb
@@ -237,7 +254,7 @@ class Agent:
                 mujoco.mj_step(model, data)
                 for c in data.contact[:data.ncon]:
                     pair = (c.geom1, c.geom2)
-                    hit = [g for g in pair if g in self.names]
+                    hit = [g for g in pair if g in self.names and not (self.on_stairs and g in self.treads)]
                     if hit and any(g in self.body_geoms for g in pair) and not any(
                             c["obstacle"] == self.names[hit[0]] and data.time - c["time"] < 1. for c in state["contacts"][-5:]):
                         part = next(g for g in pair if g in self.body_geoms)
@@ -250,10 +267,15 @@ class Agent:
             state["info"] = {"clip": jp.int32(0), "frame": jp.int32(frame), "last_act": jp.asarray(action),
                              "linvel": jp.asarray((data.xpos[1:nb + 1] - prev) * 50.)}
             up = data.xmat[1].reshape(3, 3)[2, 2]
-            if up < .5 or data.qpos[2] < .55:
+            if up < .5 or data.qpos[2] - self.ground(data.qpos[0]) < .55:
                 state["fell"] = float(data.time)
                 raise Stop("転倒")
 
+
+    def ground(self, x):
+        """Height of what the body stands on: the stair under it on the flight, else the floor it is on."""
+        from .tracker.house_stairs import surface
+        return float(surface(x)) if self.on_stairs else FLOORS[self.floor]
 
     def heading(self):
         r = self.data.xmat[1].reshape(3, 3)
@@ -355,7 +377,7 @@ class Agent:
         self.views[k] = (origin, rays, depth)
         # floor seen below the floor is a step down (the entrance): kept off like an obstacle
         hits = origin + rays * np.maximum(depth.reshape(-1), 0.)[:, None]
-        drop = (depth.reshape(-1) > 0) & (hits[:, 2] < DROP_Z)
+        drop = (depth.reshape(-1) > 0) & (hits[:, 2] - FLOORS[self.floor] < DROP_Z)
         self.map.grid.mark(hits[drop, :2])
         side = sum(self.glance(math.radians(a)) for a in SIDE_CAMERAS)
         self.hits = g.occupied.copy()
@@ -398,7 +420,8 @@ class Agent:
         ranges, ids = _cast(sensor, query, origin, rays, cfg.far_meters, "multi_ray")
         hit = (ids >= 0) & (ranges >= 0)
         pts = origin + rays * np.where(hit, ranges, cfg.far_meters)[:, None]
-        obstacle = hit & (((pts[:, 2] > OBSTACLE_Z[0]) & (pts[:, 2] < OBSTACLE_Z[1])) | (pts[:, 2] < DROP_Z))
+        above = pts[:, 2] - FLOORS[self.floor]
+        obstacle = hit & (((above > OBSTACLE_Z[0]) & (above < OBSTACLE_Z[1])) | (above < DROP_Z))
         g = self.map.grid
         g.mark(pts[obstacle, :2])
         # every ray crosses free floor up to its end
@@ -413,13 +436,13 @@ class Agent:
 
     def box_points(self, k, box):
         """Every depth hit inside the pixel box of look ``k`` (the depth image's columns run to the body's
-        left, see publish_results.encode_shot)."""
+        left, see publish_results.encode_shot); heights above the floor the body is on."""
         origin, rays, depth = self.views[k]
         u0, v0, u1, v1 = box
         rows = range(max(0, int(v0 / 10)), min(48, int(math.ceil(v1 / 10))))
         cols = range(max(0, 63 - int(math.ceil(u1 / 10)) + 1), min(64, 63 - int(u0 / 10) + 1))
         pts = [origin + rays[r * 64 + c] * float(depth[r, c]) for r in rows for c in cols if depth[r, c] > 0]
-        return origin, np.asarray(pts).reshape(-1, 3)
+        return origin, np.asarray(pts).reshape(-1, 3) - (0., 0., FLOORS[self.floor])
 
     def place(self, k, box):
         """Where a framed object stands: only hits at obstacle heights belong to it (the rest passed between
@@ -448,7 +471,13 @@ class Agent:
             origin, pts = self.box_points(k, box)
             floor = pts[np.abs(pts[:, 2]) < .06] if len(pts) else pts
             solid = pts[(pts[:, 2] > .08) & (pts[:, 2] < 2.)] if len(pts) else pts
-            if kind == "door":
+            if kind == "stairs":
+                # the flight (treads above the floor going up, below it going down): the nearer half of what is framed
+                if len(pts) < 3:
+                    continue
+                near = np.linalg.norm(pts[:, :2] - origin[:2], axis=1)
+                point, on_floor = np.median(pts[near <= np.median(near)], axis=0), False
+            elif kind == "door":
                 # a way out is where the floor goes on beyond it: the far half of the floor seen through the frame
                 if len(floor) < 3:
                     continue
@@ -461,7 +490,7 @@ class Agent:
                 point, on_floor = self.place(k, box), False
             else:
                 continue
-            if kind != "door" and any(np.linalg.norm(point[:2] - r) < 1.2 for r in self.rejected):
+            if kind not in ("door", "stairs") and any(np.linalg.norm(point[:2] - r) < 1.2 for r in self.rejected):
                 continue
             entry = {"kind": kind, "what": what, "box": [round(v, 1) for v in box],
                      "position": [round(float(v), 2) for v in point], "floor": on_floor}
@@ -471,21 +500,21 @@ class Agent:
 
     def remember_place(self, e):
         p = np.asarray(e["position"][:2])
-        for m in self.memory:
-            if m["coco"] == "vlm" and m["kind"] == e["kind"] and m["name"] == e["what"] and \
-                    np.linalg.norm(np.asarray(m["position"][:2]) - p) < (.8 if e["kind"] == "door" else 1.2):
+        for m in self.known():
+            if m["coco"] == "vlm" and m["kind"] == e["kind"] and (m["name"] == e["what"] or e["kind"] == "stairs") and \
+                    np.linalg.norm(np.asarray(m["position"][:2]) - p) < {"door": .8, "stairs": 2.}.get(e["kind"], 1.2):
                 n = m["seen"]
                 m["position"] = [round((a * n + b) / (n + 1), 2) for a, b in zip(m["position"], e["position"])]
                 m["seen"] = n + 1
                 return m["id"]
         self.memory.append({"id": f"O{len(self.memory) + 1}", "coco": "vlm", "kind": e["kind"], "name": e["what"],
-                            "position": e["position"], "seen": 1, "conf": 1., "floor": e["floor"]})
+                            "position": e["position"], "seen": 1, "conf": 1., "floor": e["floor"], "level": self.floor})
         return self.memory[-1]["id"]
 
     def remember(self, d):
         p = np.asarray(d["position"][:2])
         reach = 1.0 if d["coco"] in BIG else .6
-        for m in self.memory:
+        for m in self.known():
             if m["coco"] == d["coco"] and np.linalg.norm(np.asarray(m["position"][:2]) - p) < reach:
                 n = m["seen"]
                 m["position"] = [round((a * n + b) / (n + 1), 2) for a, b in zip(m["position"], d["position"])]
@@ -493,14 +522,18 @@ class Agent:
                 m["conf"] = max(m["conf"], d["conf"])
                 return
         self.memory.append({"id": f"O{len(self.memory) + 1}", "coco": d["coco"], "name": JA.get(d["coco"], d["coco"]),
-                            "position": d["position"], "seen": 1, "conf": d["conf"]})
+                            "position": d["position"], "seen": 1, "conf": d["conf"], "level": self.floor})
+
+    def known(self):
+        """The remembered things and places of the floor the body is on."""
+        return [m for m in self.memory if m.get("level", 1) == self.floor]
 
     def mark_objects(self):
         """Recognised floor-standing objects become obstacle discs in the depth map (drawn again from the memory
         after every look, as the remembered positions settle; never where the body has stood)."""
         g = self.map.grid
         self.discs[:] = False
-        for m in self.memory:
+        for m in self.known():
             radius = FOOTPRINT.get(m["coco"])
             if radius is None or (m["conf"] < .5 and m["seen"] < 2):
                 continue
@@ -589,8 +622,8 @@ class Agent:
 
     def decide(self, instruction):
         here = self.data.qpos[:2]
-        places = sorted((m for m in self.memory if m["coco"] == "vlm"), key=lambda m: ("tcd".index(m["kind"][0]), m["id"]))
-        seen = sorted((m for m in self.memory if m["coco"] != "vlm" and (m["conf"] >= .45 or m["seen"] >= 2)),
+        places = sorted((m for m in self.known() if m["coco"] == "vlm"), key=lambda m: ("tcds".index(m["kind"][0]), m["id"]))
+        seen = sorted((m for m in self.known() if m["coco"] != "vlm" and (m["conf"] >= .45 or m["seen"] >= 2)),
                       key=lambda m: np.linalg.norm(np.asarray(m["position"][:2]) - here))[:15]
         objects = places + seen
         lines = []
@@ -613,7 +646,8 @@ class Agent:
             where = direction_text((shot["pose"][2] - self.heading() + math.pi) % (2 * math.pi) - math.pi)
             moved = float(np.hypot(shot["pose"][0] - here[0], shot["pose"][1] - here[1]))
             captions.append(f"画像{i + 1}：いまの向きから見て{where}を向いて撮影" + (f"（{moved:.1f}m 離れた所から）" if moved > .5 else ""))
-        prompt = PROMPT.format(instruction=instruction, images="\n".join(captions), objects="\n".join(lines) or "（まだない）",
+        prompt = PROMPT.format(floor=self.floor, stairs="上って2" if self.floor == 1 else "下りて1", instruction=instruction,
+                               images="\n".join(captions), objects="\n".join(lines) or "（まだない）",
                                frontiers="\n".join(flines) or "（なし）", history="\n".join(self.history) or "（まだない）")
         text, seconds = self.ask(prompt, images)
         try:
@@ -644,7 +678,7 @@ class Agent:
             answer = json.loads(text)
         except ValueError:
             answer = {"arrived": True, "reason": f"（答えを読めなかった：{text[:60]}）"}
-        goals = [m for m in self.memory if m.get("kind") == "target"]
+        goals = [m for m in self.known() if m.get("kind") == "target"]
         far = min((self.relative(m["position"])[1] for m in goals), default=0.)
         if answer.get("arrived") and far > 2.5:
             # seen, but the remembered destination is still some way off: not there yet
@@ -711,10 +745,80 @@ class Agent:
         if face is not None:
             d = np.asarray(face[:2]) - self.data.qpos[:2]
             left = (math.atan2(d[1], d[0]) + math.pi / 2 - self.heading() + math.pi) % (2 * math.pi) - math.pi
-            if abs(left) > math.radians(40) and self.clearance(self.data.qpos[:2]) >= TIGHT_ROOM and \
+            # turning round (over 120 degrees) drifted 0.4 m and fell in the 1.1 m hall: only where there is room
+            room = TURN_ROOM if abs(left) > math.radians(120) else TIGHT_ROOM
+            if abs(left) > math.radians(40) and self.clearance(self.data.qpos[:2]) >= room and \
                     self.turn_to(math.atan2(d[1], d[0]) + math.pi / 2):
                 self.look(f"{why}：向きを合わせる")
         return "到着"
+
+    def use_stairs(self, obj):
+        """Up or down the staircase. Seeing the stairs and choosing to take them are the VLM's; the flight itself is
+        a fixture the body is set up for (where it starts and its step sizes, as a robot is set up for the stairs of
+        its home), so remembered stairs that are not over it are not the stairs. The body walks to the foot (or the
+        top), faces along the flight and walks a stair reference (``house_stairs.stair_walk``) made from a walk the
+        tracker follows on these stairs and that keeps clear of the walls; then the other floor is its own map."""
+        from .house2f import STAIR_X0, STAIR_X1, STAIR_Y
+        from .tracker.house_stairs import BOTTOM, CENTRE_Y, TOP, _touches, stair_walk
+        from .tracker.path_reference import root_yaw
+        p = np.asarray(obj["position"][:2])
+        if not (STAIR_X0 - 1. <= p[0] <= STAIR_X1 + 1. and STAIR_Y[0] - .8 <= p[1] <= STAIR_Y[1] + .8):
+            return "階段ではなかった"
+        up = self.floor == 1
+        start = np.asarray([BOTTOM if up else TOP, CENTRE_Y])
+        status = self.go(start, why="階段の" + ("下" if up else "上") + "へ")
+        if status != "到着" or np.linalg.norm(self.data.qpos[:2] - start) > .35:
+            return "階段の" + ("下" if up else "上") + "に着けなかった"
+        self.turn_to((0. if up else math.pi) + math.pi / 2)      # along the flight (+x is up)
+        here = self.reference[-1]
+        check = self.mujoco.MjData(self.model)
+        blocked = {g for g in self.names if g not in self.treads}
+        end, ahead = (TOP, 0.) if up else (BOTTOM, math.pi)
+        best = None
+        for name in json.loads(STAIR_WALKS.read_text())["up" if up else "down"]:
+            try:
+                flight = stair_walk(self.plain, self.bank[name], up, float(here[0]), end,
+                                    float(np.clip(here[1] - CENTRE_Y, -.08, .08)))[0]["qpos"].astype(np.float64)
+            except ValueError:        # its steps do not end on the floor beyond the flight
+                continue
+            if _touches(self.model, check, flight, blocked, self.body_geoms):
+                continue
+            # ending in the middle of the small landing (not at the edge of the flight) and facing along it
+            turned = abs((root_yaw(flight[-1:])[0] - ahead - math.pi / 2 + math.pi) % (2 * math.pi) - math.pi)
+            cost = abs(flight[-1, 0] - end) + .5 * turned
+            if best is None or cost < best[0]:
+                best = (cost, name, flight)
+        if best is None:
+            return "階段を歩く動きが作れなかった"
+        _, name, flight = best
+        self.doing = f"階段を{'上る' if up else '下りる'}（{name}）"
+        self.on_stairs = True
+        self.append(flight, placed=True)
+        self.hold(25)
+        self.simulate()
+        self.on_stairs = False
+        self.change_floor(2 if up else 1)
+        return "到着"
+
+    def change_floor(self, floor):
+        """Now on ``floor``: its own depth map and the places seen there (the floor left is kept for coming back)."""
+        from .tracker.house_tour_depth import Map
+        self.floors[self.floor] = (self.map, self.hits, self.discs, self.walked, self.frontier_ids, self.dead, self.rejected)
+        if floor in self.floors:
+            self.map, self.hits, self.discs, self.walked, self.frontier_ids, self.dead, self.rejected = self.floors[floor]
+        else:
+            from .house2f import STAIR_X0, STAIR_X1, STAIR_Y
+            self.map = Map((-5.2, -8.0), (5.2, 5.2))
+            self.map.floor_z = FLOORS[floor]
+            self.map.frame_index = lambda: len(self.trajectory) - 1
+            # the flight just walked (the well on the floor above) is known before it is seen behind the body
+            xs, ys = np.meshgrid(np.arange(STAIR_X0, STAIR_X1, self.map.cell), np.arange(STAIR_Y[0], STAIR_Y[1], self.map.cell))
+            self.map.grid.mark(np.stack([xs.ravel(), ys.ravel()], 1))
+            self.hits = self.map.grid.occupied.copy()
+            self.discs, self.walked = np.zeros_like(self.hits), np.zeros_like(self.hits)
+            self.frontier_ids, self.dead, self.rejected = [], [], []
+        self.floor = floor
+        self.recent_images = []
 
     def narrow_ahead(self, route):
         """Distance along ``route`` to the next narrow passage (a door: less than NARROW room) after some wider
@@ -859,14 +963,18 @@ class Agent:
         return place
 
     def stand_point(self, target):
-        """A free spot STAND_OFF from ``target``, on the side facing the body."""
+        """A free spot STAND_OFF from ``target``, on the side facing the body; where the body stands already when it
+        is about that near and sees it (in the 1 m kitchen aisle in front of the fridge no spot 1.2 m off has room)."""
         target = np.asarray(target[:2], float)
         here = self.data.qpos[:2].copy()
+        if TOUCH <= np.linalg.norm(here - target) <= STAND_OFF + .1 and self.in_sight(here, target, .5):
+            return here
         # room to turn round there (the arms reach about 0.5 m while turning on the spot); a spot next to
         # space not seen yet does not count as roomy
-        for clearance in (.6, TURN_ROOM, .45):
+        for clearance, radii in ((.6, (STAND_OFF, 1.5, 1.8, 2.2)), (TURN_ROOM, (STAND_OFF, 1.5, 1.8, 2.2)),
+                                 (.45, (STAND_OFF, 1.5, 1.8, 2.2)), (.4, (.9, .75))):   # last: nearer in an aisle
             best = None
-            for radius in (STAND_OFF, 1.5, 1.8, 2.2):
+            for radius in radii:
                 for a in np.linspace(-math.pi, math.pi, 48, endpoint=False):
                     p = target + radius * np.asarray([math.cos(a), math.sin(a)])
                     if self.clearance(p, unseen_blocks=True) < clearance or not self.in_sight(p, target, .5):
@@ -900,7 +1008,7 @@ class Agent:
                     action, target = "go_to_object", goal["id"]
                 if action == "finish":
                     success = bool(answer.get("success"))
-                    goals = [m for m in self.memory if m.get("kind") == "target"]
+                    goals = [m for m in self.known() if m.get("kind") == "target"]
                     far = min((self.relative(m["position"])[1] for m in goals), default=0.)
                     if not success and fronts and self.refused["give_up"] < 2:
                         # not yet: unexplored places are left (asked at most twice)
@@ -948,16 +1056,27 @@ class Agent:
                         continue
                     name = f"{obj['name']}（{obj['id']}）"
                     self.tried.add(obj["id"])
+                    if obj.get("kind") == "stairs":        # up or down the flight, onto the other floor
+                        status = self.use_stairs(obj)
+                        self.history.append(f"{step + 1}. {name}で別の階へ：{status}" + (f"（いまは{self.floor}階）" if status == "到着" else ""))
+                        if status == "到着":
+                            self.look(f"{self.floor}階に着いた")
+                        continue
                     if obj.get("kind") == "door":          # through the way out: to the floor beyond it
                         status = self.go(lambda: self.safe_point(obj["position"], .45), why=f"出入口 {name} の先へ")
                     elif obj.get("floor"):                 # a place on the floor: onto it, or next to it where there is room
                         status = self.go(lambda: self.place_point(obj["position"]), face=obj["position"], why=f"{name}へ")
                     else:
                         status = self.go(lambda: self.stand_point(obj["position"]), face=obj["position"], why=f"{name}へ")
+                    if status == "経路が見つからない" and obj.get("kind") in ("target", "clue") and \
+                            np.linalg.norm(np.asarray(obj["position"][:2]) - self.data.qpos[:2]) <= 1.5 and \
+                            self.in_sight(self.data.qpos[:2], obj["position"], .5):
+                        # no room to step nearer, but it is right there (inside the 1F toilet): checked from here
+                        status = "到着（すぐ近くにいて、それ以上は近づけない）"
                     self.history.append(f"{step + 1}. {name}の{'先' if obj.get('kind') == 'door' else '前'}へ移動：{status}")
                     if status == "経路が見つからない":
                         self.unreachable.add(obj["id"])
-                    if obj.get("kind") in ("target", "clue") and status == "到着" and self.refused["check"] < 4:
+                    if obj.get("kind") in ("target", "clue") and status.startswith("到着") and self.refused["check"] < 4:
                         # at the destination (or a clue to it): the executor looks whether this is it, and ends there
                         # when it is; a wrong one is forgotten
                         check = self.verify(obj["position"])
@@ -1004,18 +1123,20 @@ class Agent:
 
     def score(self, task):
         x, y = map(float, self.data.qpos[:2])
+        level = 2 if self.data.qpos[2] > FLOORS[2] else 1      # the floor the body ended on (the pelvis is above it)
         fell = self.state["fell"] is not None
         if task["kind"] == "zone":
             x0, y0, x1, y1 = self.scene["metadata"]["ldkZones"][task["target"]]
-            reached = x0 <= x <= x1 and y0 <= y <= y1
+            reached = level == 1 and x0 <= x <= x1 and y0 <= y <= y1
         elif task["kind"] == "room":
-            room = next(r for r in self.scene["rooms"] if r["id"] == task["target"])
-            reached = any(r[0] <= x <= r[2] and r[1] <= y <= r[3] for r in room["rects"])
+            targets = task["target"] if isinstance(task["target"], list) else [task["target"]]
+            rooms = [r for r in self.scene["rooms"] if r["id"] in targets and r.get("floor", 1) == level]
+            reached = any(r[0] <= x <= r[2] and r[1] <= y <= r[3] for room in rooms for r in room["rects"])
             # a secondary record (success stays "inside"): within 0.5 m of the room, i.e. at its door
-            at_door = any(r[0] - .5 <= x <= r[2] + .5 and r[1] - .5 <= y <= r[3] + .5 for r in room["rects"])
+            at_door = any(r[0] - .5 <= x <= r[2] + .5 and r[1] - .5 <= y <= r[3] + .5 for room in rooms for r in room["rects"])
         elif task["kind"] == "object":
-            near = min(np.hypot(o["position"][0] - x, o["position"][1] - y) for o in self.scene["objects"] if o["class"] == task["target"]
-                       or o.get("coco") == task["target"])
+            near = min((np.hypot(o["position"][0] - x, o["position"][1] - y) for o in self.scene["objects"]
+                        if (o["class"] == task["target"] or o.get("coco") == task["target"]) and o.get("floor", 1) == level), default=99.)
             reached = bool(near <= 1.4)
         elif task["kind"] == "free":   # an instruction from the conversation: no ground truth, the VLM's own check
             reached = any(e["kind"] == "check" and e["answer"].get("arrived") for e in self.events[-3:]) or \
@@ -1026,7 +1147,7 @@ class Agent:
             reached = bool(last and last["answer"].get("action") == "finish" and not last["answer"].get("success"))
         return {"success": bool(reached and not fell and not self.state["contacts"]), "reached": bool(reached),
                 **({"atDoor": bool(at_door)} if task["kind"] == "room" else {}),
-                "position": [round(x, 2), round(y, 2)], "fell": fell, "contactCount": len(self.state["contacts"]),
+                "position": [round(x, 2), round(y, 2)], "floor": level, "fell": fell, "contactCount": len(self.state["contacts"]),
                 "contacts": self.state["contacts"][:5], "decisions": sum(e["kind"] == "decision" for e in self.events),
                 "looks": self.looks, "seconds": round((len(self.trajectory) - 1) * .02, 1)}
 
@@ -1084,7 +1205,7 @@ class Agent:
         ax.imshow(np.transpose(img, (1, 0, 2)), origin="lower", extent=ext)
         q = np.asarray(self.trajectory)
         ax.plot(q[:, 0], q[:, 1], color="#E69138", lw=1.4)
-        for m in self.memory:
+        for m in self.known():
             if m["conf"] < .4 and m["seen"] < 2:
                 continue
             ax.plot(*m["position"][:2], "s" if m["coco"] == "vlm" else "o", ms=6,
@@ -1099,7 +1220,7 @@ class Agent:
         ax.set_ylim(-8.2, 5.4)
         ax.set_aspect("equal")
         ax.set_xticks([]); ax.set_yticks([])
-        ax.set_title(f"{event['time']:.1f}秒の地図（赤＝障害物・灰＝見た床・◆＝未確認の境目）", fontsize=8.5)
+        ax.set_title(f"{event['time']:.1f}秒の{self.floor}階の地図（赤＝障害物・灰＝見た床・◆＝未確認の境目）", fontsize=8.5)
         fig.tight_layout()
         fig.savefig(path)
         plt.close(fig)

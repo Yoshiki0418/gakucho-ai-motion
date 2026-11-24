@@ -468,3 +468,30 @@ v9 は歩きが良くなった一方、座るクリップ(v8 の開発配置で�
   - G7-3 の接続:`world_model/house_executor_server.py`(127.0.0.1:4013、POST /runs {"instruction"} → GET /runs/<id>、1 件ずつ実行して /training-monitor/agent/ に公開)と `world_model/house_brain.py`(OpenAI Agents SDK・gpt-5.2、ツール house_task にユーザーの言葉をそのまま渡す。環境 `.runtime/world-model/brain-venv`、キーは backend/.env)。「ちょっと畳のコーナーまで行ってみてくれる？」→ 実行係が畳まで歩いて画像で確認(接触 0)→「うん、畳のコーナーまで行ってみたよ。ちゃんと着いた。」。雑談では実行係を呼ばない。
   - v15:13:49 開始(VLM コンテナは停止中、g2 の GPU 評価の後に自動で再開)、6.9 万 step/s(v14 と同じ)。学習終了 17:40 頃、評価・公開 18:45 頃の見込み。
   - Web(`/world-model/house` の指示の実行):VLM が画像で示した物(緑の枠)、到着の確認(頭を向けた画像つき)、実行の規則による変更、接触の回数を表示。2026-10-23 14:30 ユーザー承認のうえ本番反映(frontend のみ入れ替え＋nginx reload。前回ビルド後の変更は HouseLab/index.tsx のみ)。/world-model/house が新しい page-ab9415075fd38208.js を返し、指示一覧(大脳からの live-20261023-134742 を含む 8 件)を確認。戻す場合:イメージ `gakucho-ai-motion-frontend:before-agentpanel` を :prod に付け直して `up -d --no-deps --no-build frontend`。
+
+## 5.24 v15 の結果と、2026-11-09 時点の状態
+
+- v15(v14 から家の階段 16 段×19cm の手本 240 本を加えて 6 ラウンド)は 10/23 18:05 に学習終了、after-v15.sh が 18:22 に評価・公開まで完了。
+- 家の階段(g6/v15-house-stairs32):6/32(上り 5/16、下り 1/16。v14 は 0/8)。上りは 7 本が 16 段を上り切ったが 2 本は接触あり、残りは 0〜4 段で転倒。下りはほとんどが 2 段目(開始から約 2.8 秒)で転倒。接触は上り 11/16、下り 15/16。
+- 他の評価(v14 → v15):モーキャプ 57→59/64、T2M 6→13/40、ナビ 30→31/32、codex-new32 30→29/32、階段(既存)転倒 6→6/32、家の巡回 接触 5→4、深度の巡回 接触 2→3・転倒 0→1、指示 15 件 接触・転倒 0→0。
+- 新しい動き(小回り・腕を寄せる歩き・扉前で止まる)での実行係 7 件の流し直しは未実施。
+- 2026-10-23 20:14 に学長のコンテナ(frontend・backend・db・T2M・VLM・確認画面)がすべて停止(Exited 0)。11/06 にサーバー再起動、ドライバは 595.91.07 → 595.99.02(ホストの nvidia-smi が動くようになった)。本番の nginx は upstream の frontend がないため再起動を繰り返している。
+- 11/09 時点の GPU:GPU 0 に vllm-eval-mtp、GPU 1 に vllm-tutoring(どちらも ai-tutoring-system、Qwen3.8-27B-FP8、休止モードで各約 0.9GB。起こすと各 GPU の 85% を確保)。vllm-tutoring は ai-tutoring-system の API の LLM。
+
+## 5.25 家の階段:失敗は「元の歩行」で決まる(2026-11-09)
+
+- v15 の最終のふるい分け(runs/v15/sweeps/final.json)で、家の階段の手本 240 本の成否は「元の歩行×上り下り」ごとに全部成功か全部失敗に分かれる(上り 9 種・下り 8 種が全滅、残りは全成功)。ラウンド 3 以降は上り約 65・下り約 56 本の失敗で横ばい=同じ学習を続けても伸びない。失敗は階段に入って 1〜4 段目。説明文・歩幅・IK の誤差などの数値では成否を分けられなかった。
+- 評価に 2 つの指定を追加(`house_stairs evaluate`。既定の動作と過去の結果は変わらない):
+  - `--walks <json>`:上り・下りそれぞれ、この歩行だけから選ぶ。`.runtime/world-model/tracker/house-stair-walks-v15.json`(v15 が手本で一度も失敗しなかった歩行、上り 11・下り 11)。
+  - `--check-walls`:手本そのものが(運動学的に)壁・手すりに触れるなら別の歩行を選び直す(02/007/003 の下りは止まる直前に手が洗面所の壁 x=−1.6 に届いていた)。
+  - 選び直しの回数を歩行の数×4 に(絞った候補で階段の長さに合う歩行が見つからず止まった)。
+- v15(学習し直しなし):既定 6/32 → `--walks` 24/32(転倒 0。8 件は 16 段を通り切った後の壁への接触)→ `--walks --check-walls` 31/32(上り 15/16・下り 16/16)。結果 `g6/v15-house-stairs32-goodwalks(-walls)`。下りは開始・終了位置が固定のため階段の長さに合うのが 02/004/001 だけ(16 本とも同じ歩行)。
+- 実行係が階段で使う歩き方は、この一覧から選び、壁に触れない手本だけを使えばよい(G6 の基準「16 段の上り 70%」を満たす)。
+
+## 5.26 本番の再起動と実行係の階段(2026-11-09〜11)
+
+- v16(v15 + 失敗しない歩行だけの家の階段 480 本、motion-library-v8)は 11/10 0:36 に評価まで完了。v15 を上回らず(家の階段 歩行を選んで 30/32 対 31/32、T2M 10/40 対 13/40、深度の巡回の接触 7 対 3)、引き続き v15 を使う。
+- 実行係(house_agent.py)に階・階段を追加:VLM の画像確認に kind "stairs"、`use_stairs`(階段の下/上へ歩き、向きを合わせ、house-stair-walks-v15.json の歩行から壁に触れず踊り場の中央で終わる手本を選んで歩く)、`change_floor`(階ごとの深度の地図と記憶。歩いた階段の範囲は地図に書き込む)、2 階では歩行・回転の手本に床の高さを足す(`append(placed=...)`)、転倒は足元の高さから判定、採点は階を見る。課題は「子ども部屋」を 2 階の課題に、「車庫」(できない)を追加。VLM なしの筋書き(`.runtime/staging/agent-tests/stairs_test.py`)で 1 階→階段を上る→2 階の子ども部屋 1 まで転倒なし(接触 2:2 階廊下の壁につま先、子ども部屋の棚に手)。下りは「階段の上に着けなかった」で未完成。
+- その他の実行係の修正:冷蔵庫の前で入り込まない(`stand_point` に TOUCH)、行き先が 1.5 m 以内に見えていて近づけないときはその場で確かめる、到着確認は部屋の中にいることを求める、120°を超える向き直しは余裕 0.55 m 以上の所だけ。
+- 2026-11-11 11:56 ユーザーの依頼で本番を再起動。GPU 1 は ai-tutoring-system の vllm-tutoring(起きると 85% を確保)と共有になったため、`.runtime/compose/gpu0.yml` を加えて backend と T2M を GPU 0 に置いた(T2M の設定・モデルは変更なし)。起動:`docker compose --project-name gakucho-ai-motion --project-directory $PWD -f docker-compose.prod.yml -f docker-compose.startup.yml -f .runtime/compose/gpu0.yml up -d --no-build --wait`(先に tools/prepare-t2m-runtime.py)。確認画面の配信 gakucho-motion-training-monitor も起動。
+- gakucho-vlm が途中で GPU を見失い CPU で動いていた(コンテナ内で `Failed to initialize NVML: Unknown Error`)。`docker restart gakucho-vlm` で戻る。

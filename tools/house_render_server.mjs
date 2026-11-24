@@ -5,7 +5,7 @@
 import readline from 'node:readline'
 
 const base = process.argv[2] ?? 'http://127.0.0.1:4010'
-const playwright = process.env.PLAYWRIGHT_MODULE ?? '/tmp/gakucho-motion-browser-check/node_modules/playwright/index.mjs'
+const playwright = process.env.PLAYWRIGHT_MODULE ?? new URL('../.runtime/node-tools/node_modules/playwright/index.mjs', import.meta.url).href  // playwright 1.64.1 (/tmp is wiped on reboot)
 const { chromium } = await import(playwright)
 const browser = await chromium.launch({ executablePath: '/usr/bin/google-chrome', args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] })
 const page = await browser.newPage({ viewport: { width: 800, height: 700 } })

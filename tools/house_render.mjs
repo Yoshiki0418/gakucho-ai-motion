@@ -8,7 +8,7 @@ import path from 'node:path'
 
 const [viewsPath, outDir, base = 'http://127.0.0.1:4010'] = process.argv.slice(2)
 if (!viewsPath || !outDir) { console.error('usage: node tools/house_render.mjs VIEWS.json OUT_DIR [BASE_URL]'); process.exit(2) }
-const playwright = process.env.PLAYWRIGHT_MODULE ?? '/tmp/gakucho-motion-browser-check/node_modules/playwright/index.mjs'
+const playwright = process.env.PLAYWRIGHT_MODULE ?? new URL('../.runtime/node-tools/node_modules/playwright/index.mjs', import.meta.url).href  // playwright 1.64.1 (/tmp is wiped on reboot)
 const { chromium } = await import(playwright)
 const views = JSON.parse(await fs.readFile(viewsPath, 'utf8'))
 await fs.mkdir(outDir, { recursive: true })

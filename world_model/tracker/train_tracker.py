@@ -1,8 +1,7 @@
 """Train the motion tracker with brax PPO on MuJoCo Warp (GPU).
 
-Run inside ``.runtime/world-model/mjx-venv`` with the host driver shim::
+Run inside ``.runtime/world-model/mjx-venv`` (``. world_model/tracker/cuda_env.sh`` picks the driver libraries)::
 
-    LD_LIBRARY_PATH=$PWD/.runtime/warp-cuda-shim:$PWD/.runtime/nvidia-595.91.07 \\
     CUDA_VISIBLE_DEVICES=0 .runtime/world-model/mjx-venv/bin/python -m \\
         world_model.tracker.train_tracker --library .runtime/world-model/tracker/motion-library-v1 \\
         --output .runtime/world-model/tracker/runs/<name>
