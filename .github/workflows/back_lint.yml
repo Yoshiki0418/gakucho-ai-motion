@@ -26,3 +26,6 @@ jobs:
       - name: Run pysen lint
         working-directory: ./backend
         run: pysen run lint
+
+      - name: Test Unreal body motion transport and retargeting
+        run: python -m unittest discover -s tools/ue-body-motion -v

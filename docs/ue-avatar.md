@@ -1,24 +1,13 @@
 # Unreal Engine の人型アバターを行動アバターとして適用する
 
-生成モーション(BVH)で駆動される 3D アバターに、Unreal Engine で構築した人型アバターを
-使うための手順。ビューア側(`frontend/components/organisms/BvhViewer/`)は
-**UE スケルトンをそのまま受け付けられる**ようになっているので、必要な作業は
-「UE から glb を書き出して置く」だけ。
+学長の身体モーション（BVH）の表示先は「会話の設定 → アバター・空間」で切り替えます。
 
-## 全体像
+| 表示先 | 身体を動かす場所 | 準備 |
+| --- | --- | --- |
+| ブラウザの3Dビュー | Three.jsで学長のGLBを再生 | 同梱の学長を使用。別キャラクターの追加手順は下記を参照 |
+| UE ストリーミング | 実行中のUnreal Editorの学長を再生 | LinuxのUE 5.7で身体受信を起動。[起動手順](#unreal-editorで再生する) |
 
-現在アバターの表示経路は 2 つある。
-
-| 経路 | 実装 | 生成モーションで動く | 用途 |
-| --- | --- | --- | --- |
-| **A. three.js リターゲット**(本書) | `BvhViewer` の「🧸 キャラ」モード | ✅ 動く | 行動アバター |
-| B. UE Pixel Streaming | `AvatarPanel`(`/ue-stream/`) | ❌ 動かない | 発話アバター(リップシンク) |
-
-B は UE が描画した映像を iframe で受け取るだけなので、生成した BVH は届かない。
-UE の人型アバターを**行動アバター**にしたい場合は A、つまり UE からメッシュを
-書き出して three.js 側で駆動するのが最短経路になる。
-
-## 手順
+## ブラウザ用のキャラクターを書き出す
 
 ### 1. UE で glTF エクスポータを有効にする
 
@@ -130,14 +119,28 @@ q_dst = P_dst_now⁻¹ · D_src · W_dst_rest_aligned
 
 学長アバター(v1 / v3)は BVH と同じ段数のスパイン・ネックを持つため、この制限に当たらない。
 
-## 経路 B(Pixel Streaming)を行動アバターにする場合
+## Unreal Editorで再生する
 
-UE 側でモーションを受け取る作りが別途必要になる。概略:
+1. アプリと同じLinuxホストでUE 5.7の学長プロジェクトを開き、学長のシーケンス `FOR_GAKUTYO_AI` を再生します。受信処理は、このシーケンスにスポーンされた `Body` とその骨格に対応するアニメーションセクションを使用します。
+2. リポジトリのルートで `python3 tools/ue-body-motion/bridge_path.py` を実行し、共有ディレクトリを作成します。`tools/start-system.sh` も起動時にこれを実行します。既存環境を更新する場合はフロントエンド・バックエンドの新しいコードと、backend・nginxのCompose設定を反映してください。
+3. UEの「Tools → Execute Python Script」で、このリポジトリの `tools/ue-body-motion/start_editor.py` を実行します。再起動時も有効にするには、Python Editor Script Plugin の「Project Settings → Plugins → Python → Startup Scripts」に同じファイルの絶対パスを追加します。
+4. 次のコマンドで身体受信の `ok` と既存の顔制御の `sequence_playing` がともに `true` であることを確認します。公開先と証明書の場所は環境に合わせてください。
 
-1. バックエンドが生成した BVH を UE へ送る経路を作る
-   (Pixel Streaming のデータチャネル、または UE 側に HTTP/WebSocket の受け口を実装)
-2. UE 側で BVH → `PoseableMeshComponent` / Live Link へ流す Anim BP を用意
-3. UE の IK Retargeter で BVH スケルトン → 対象スケルトンへリターゲット
+   ```sh
+   curl --cacert nginx/certs/server.crt https://192.168.29.19:30930/api/ue-motion/health
+   curl --cacert nginx/certs/server.crt https://192.168.29.19:30930/lip-sync/health
+   ```
 
-three.js 側は完結しているのに対し、こちらは UE プロジェクトの改修が必要で、
-かつ UE インスタンスが常時稼働している必要がある。
+5. 「会話の設定 → アバター・空間 → UE ストリーミング」を選び、映像の開始ボタンを押します。「手を振りながら挨拶してください」などの指示を送り、身体の動きと口パクを確認します。生成方式は「会話の設定 → 動作生成」で変更できます。
+
+### 再生経路
+
+ブラウザは音声の再生位置を基準に、動作の版・経過時間とBVHを `POST /api/ue-motion/play` に送ります。APIはLinuxホストのUnixソケットに中継し、UEは学長の基準姿勢に合わせた一時アニメーションをBodyで再生します。動作が終了するか、会話を中断するか、表示を切り替えるとBodyの元の設定に戻ります。FaceのControl Rigは既存の口パクに使用します。
+
+UEの学長はすべての視聴者で共通です。複数のタブから送信したときは新しい動作が再生を引き継ぎます。ほかのタブを閉じても再生中の動作は続きます。
+
+### 接続の確認
+
+- **身体受信が503を返す** — エディターで起動スクリプトを実行し、backendコンテナに `/tmp/gakucho-ai-motion-ue/bridge` がマウントされていることを確認します。ホスト側の配置を変えるときは、エディターとComposeで同じ `GAKUCHO_UE_BRIDGE_DIR` を指定し、親ディレクトリを実行ユーザー専用にします。
+- **映像または口パクが届かない** — Linuxのnginx構成では、Pixel Streamingの映像・WebSocketはホストの8080番、顔制御は8081番です。
+- **身体再生が422を返す** — 開いているシーケンスのBodyと互換アニメーションセクションを確認します。詳細はUEのOutput Logに出ます。
