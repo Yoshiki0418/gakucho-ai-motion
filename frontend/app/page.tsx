@@ -206,6 +206,7 @@ export default function ChatDemoPage() {
                   対話モデル設定を取得できません。 <button type="button" className="gakucho-model-retry" onClick={modelSettings.retry}>再試行</button>
                 </div>
               )}
+              {modelSettings.ttsNotice && <div role="status" style={{ padding: '6px 16px', color: '#fbbf24' }}>{modelSettings.ttsNotice}</div>}
               {chatError && <div role="alert" style={{ padding: '6px 16px', color: '#fbbf24' }}>{chatError}</div>}
               {avatarViewMode === 'bvh' && (motionModeStatus || motionActivity.length > 0) && (
                 <details className="gakucho-motion-status" style={{ padding: '6px 16px', color: '#cbd5e1', fontSize: 12 }}>

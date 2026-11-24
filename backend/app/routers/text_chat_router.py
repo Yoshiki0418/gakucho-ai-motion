@@ -7,7 +7,6 @@ import json
 import os
 import re
 import time
-from pathlib import Path
 
 # import cv2
 # import numpy as np
@@ -39,8 +38,9 @@ from app.agent.general_conversation.tools.motion_tool import (
     motion_data_queue_var,
 )
 from app.chat_models import ChatModel, model_settings, select_model
-from app.models import llm, tts
-from app.models.model_registry import create_llm
+from app.models import llm
+from app.models.model_registry import create_llm, select_tts, tts_settings
+from app.models.tts.irodori_tts import IrodoriTTSError
 from app.services.history_service import HistoryService
 
 # from app.models.lipsync.ditto_batch_streamer import AvatarStreamer
@@ -59,7 +59,7 @@ DEFAULT_SESSION_ID = os.getenv("CHAT_DEFAULT_SESSION_ID", "default")
 
 @router.get("/model-settings")
 def chat_model_settings():
-    return model_settings()
+    return {**model_settings(), "tts": tts_settings()}
 
 
 def _request_model(request: Request) -> ChatModel:
@@ -74,23 +74,25 @@ def _request_model(request: Request) -> ChatModel:
         raise HTTPException(status_code=503, detail=str(error)) from error
 
 
-def _request_tts(request: Request):
-    # There is one installed voice. Requests may name it, but cannot choose a model directory.
-    provider = request.query_params.get("tts_provider")
-    voice = request.query_params.get("tts_voice")
-    if provider and provider not in (
-        "default",
-        os.getenv("TTS_PROVIDER", "style-bert-vits2"),
-    ):
-        raise HTTPException(
-            status_code=400, detail="指定した音声合成プロバイダーは設定されていません。"
+async def _request_tts(request: Request):
+    try:
+        return await asyncio.to_thread(
+            select_tts,
+            request.query_params.get("tts_provider"),
+            request.query_params.get("tts_voice"),
         )
-    installed_voice = Path(os.getenv("TTS_MODEL_DIR", "gakucho_ai_v2")).name
-    if voice and voice not in ("default", installed_voice):
-        raise HTTPException(
-            status_code=400, detail="指定した音声モデルは設定されていません。"
-        )
-    return tts
+    except ValueError as error:
+        raise HTTPException(status_code=400, detail=str(error)) from error
+    except RuntimeError as error:
+        raise HTTPException(status_code=503, detail=str(error)) from error
+
+
+async def _stream_tts_errors(stream):
+    try:
+        async for event in stream:
+            yield event
+    except IrodoriTTSError as exc:
+        yield "data: " + json.dumps({"type": "error", "message": str(exc)}) + "\n\n"
 
 
 @router.get("/stream")
@@ -100,7 +102,7 @@ async def text_chat_stream(request: Request):
 
     model = _request_model(request)
     _llm = create_llm(model.provider, llm.system_prompt, model.name)
-    _tts = _request_tts(request)
+    _tts = await _request_tts(request)
 
     async def event_stream():
         yield f"data: {json.dumps({'type': 'start', 'message': f'{_llm.model_name} を使用します'})}\n\n"
@@ -118,7 +120,9 @@ async def text_chat_stream(request: Request):
 
         yield f"data: {json.dumps({'type': 'done', 'message': '応答完了'})}\n\n"
 
-    return StreamingResponse(event_stream(), media_type="text/event-stream")
+    return StreamingResponse(
+        _stream_tts_errors(event_stream()), media_type="text/event-stream"
+    )
 
 
 @router.get("/char-stream")
@@ -128,7 +132,7 @@ async def char_stream(request: Request):
 
     model = _request_model(request)
     _llm = create_llm(model.provider, llm.system_prompt, model.name)
-    _tts = _request_tts(request)
+    _tts = await _request_tts(request)
 
     PUNCTUATIONS = {"。", "！", "？", "!", "?"}
 
@@ -166,7 +170,9 @@ async def char_stream(request: Request):
 
         yield f"data: {json.dumps({'type': 'done', 'message': '応答完了'})}\n\n"
 
-    return StreamingResponse(event_stream(), media_type="text/event-stream")
+    return StreamingResponse(
+        _stream_tts_errors(event_stream()), media_type="text/event-stream"
+    )
 
 
 @router.get("/char-stream-agent")
@@ -175,7 +181,7 @@ async def char_stream_agent(request: Request):
     # history = request.query_params.get("history", [])
 
     agent = build_conversation_orchestrator(_request_model(request)).daily_agent
-    _tts = _request_tts(request)
+    _tts = await _request_tts(request)
 
     PUNCTUATIONS = {"。", "！", "？", "!", "?"}
 
@@ -211,7 +217,9 @@ async def char_stream_agent(request: Request):
 
         yield f"data: {json.dumps({'type': 'done', 'message': '応答完了'})}\n\n"
 
-    return StreamingResponse(event_stream(), media_type="text/event-stream")
+    return StreamingResponse(
+        _stream_tts_errors(event_stream()), media_type="text/event-stream"
+    )
 
 
 # CFG_PKL = "/workspace/backend/app/weights/lipsync/ditto_cfg/v0.4_hubert_cfg_pytorch.pkl"
@@ -454,7 +462,7 @@ async def char_stream_orchestrator(request: Request):
     motion_mode = parse_mode(request.query_params.get("motion_mode"))
     avatar_posture = request.query_params.get("posture", "standing")
 
-    _tts = _request_tts(request)
+    _tts = await _request_tts(request)
     selected_model = _request_model(request)
     conversation_orchestrator = build_conversation_orchestrator(selected_model)
 
@@ -792,10 +800,14 @@ async def char_stream_orchestrator(request: Request):
                 )
 
                 # 並列で音声生成
-                audio_b64, duration_ms = await asyncio.to_thread(
-                    _tts.synthesize_with_duration,
-                    current_sentence,
-                )
+                try:
+                    audio_b64, duration_ms = await asyncio.to_thread(
+                        _tts.synthesize_with_duration,
+                        current_sentence,
+                    )
+                except IrodoriTTSError:
+                    producer_task.cancel()
+                    raise
 
                 # この発話に採番する。モーションはこのIDを指して再生位置を決める。
                 segment_id = motion_channel.advance_segment()
@@ -1030,7 +1042,7 @@ async def char_stream_orchestrator(request: Request):
     # 途中のプロキシに圧縮・蓄積させない。後から届く動作(リズムの層の差し替え)が
     # 圧縮バッファに溜まり、数秒遅れて届くのを防ぐ。
     return StreamingResponse(
-        event_stream(),
+        _stream_tts_errors(event_stream()),
         media_type="text/event-stream",
         headers={"Cache-Control": "no-cache, no-transform", "X-Accel-Buffering": "no"},
     )

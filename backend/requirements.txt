@@ -6,6 +6,7 @@ soundfile
 openai-whisper
 transformers
 openai
+httpx
 tiktoken
 git-lfs
 style_bert_vits2

@@ -1,8 +1,8 @@
 'use client'
 
 import { useEffect, useId, useRef, useState, type KeyboardEvent } from 'react'
-import { Activity, Box, Cpu, Settings2, SlidersHorizontal, X } from 'lucide-react'
-import { ChatModelSettings, type useChatModelSettings } from '@/features/text-chat/ChatModelSettings'
+import { Activity, Box, Cpu, Settings2, SlidersHorizontal, Volume2, X } from 'lucide-react'
+import { ChatModelSettings, SpeechModelSettings, type useChatModelSettings } from '@/features/text-chat/ChatModelSettings'
 import type { MotionMode } from '@/features/text-chat/hooks/useTextChat'
 import styles from './ConversationSettings.module.css'
 
@@ -22,6 +22,7 @@ export const MOTION_MODES: { id: MotionMode; label: string; hint: string }[] = [
 const sections = [
   { id: 'general', label: '一般', icon: SlidersHorizontal },
   { id: 'model', label: '対話モデル', icon: Cpu },
+  { id: 'speech', label: '音声合成', icon: Volume2 },
   { id: 'motion', label: '動作生成', icon: Activity },
   { id: 'avatar', label: 'アバター・空間', icon: Box },
 ] as const
@@ -132,6 +133,7 @@ export function ConversationSettings({ open, onClose, modelSettings, appMode, on
               ]} value={voiceMode} onChange={onVoiceModeChange} />}
             </>}
             {key === 'model' && <ChatModelSettings settings={modelSettings} />}
+            {key === 'speech' && <SpeechModelSettings settings={modelSettings} />}
             {key === 'motion' && <>
               <p className={styles.note}>変更は次の発話から適用されます。</p>
               <Choices legend="生成方式" options={MOTION_MODES} value={motionMode} onChange={onMotionModeChange} />

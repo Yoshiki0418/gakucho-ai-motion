@@ -8,7 +8,7 @@
 
 > `handoff/collaborator-setup.md` を読み、私の端末で学長AIの開発環境を用意してください。まずローカルで会話画面を開いてください。対話も試す場合は、利用できる開発用バックエンドを確認し、下の該当手順へ進んでください。最後に起動したURL、通った確認、不足している資産の名前を教えてください。APIキーや秘密鍵の値は表示しないでください。
 
-動作生成を担当する場合は、[LLM・動作設定の実装Issue](https://github.com/Yoshiki0418/gakucho-ai-motion/issues/6) のPRにある `handoff/conversation-motion-development.md` をClaude Codeに渡してください。キーなしの起動例、3方式の比較手順、修正箇所とテストをまとめています。
+動作生成を担当する場合は、[対話中の動作生成を開発する](conversation-motion-development.md) をClaude Codeに渡してください。キーなしの起動例、Irodori-TTSの接続、3方式の比較手順、修正箇所とテストをまとめています。
 
 ## 1. 手元で会話画面を開く
 
@@ -52,7 +52,7 @@ DEV_API_PROXY_TARGET=http://127.0.0.1:18087 npm run dev -- --hostname 127.0.0.1
 | --- | --- |
 | 実行環境 | Bash、Python 3、Docker Engine、`gpus` と `!override` / `!reset` を解釈できるDocker Compose v2。GPU実行にはNVIDIAドライバとNVIDIA Container Toolkitも必要です。 |
 | DBとAPI設定 | ルートの `.env` に開発用の `POSTGRES_USER`、`POSTGRES_PASSWORD`、`POSTGRES_DB` を設定。Composeは `HF_USERNAME`、`HF_TOKEN` も参照します。ローカルLLM利用時は `backend/.env` に `LOCAL_LLM_BASE_URL` と `LOCAL_LLM_MODEL` を設定し、`OPENAI_API_KEY` は空にします。OpenAI利用時はサーバー側でキーを設定します。`DB_URL` はComposeが組み立てます。DBは空の `data/postgres/` から初期化できます。 |
-| 応答・音声モデル | 管理者から `backend/app/prompts/` 一式（`system_prompt.txt`、`president_persona.py`、`rag/default.md`）、学長音声用の `backend/app/weights/tts/gakucho_ai_v2/`（`config.json`、`style_vectors.npy`、`G_*.pth`）を受け取ります。検索モデル `cl-nagoya/ruri-v3-310m` はバックエンドから取得できるか、イメージ内にキャッシュが必要です。 |
+| 応答・音声モデル | 管理者から `backend/app/prompts/` 一式（`system_prompt.txt`、`president_persona.py`、`rag/default.md`）を受け取ります。Style-Bert-VITS2を使う場合は学長音声用の `backend/app/weights/tts/gakucho_ai_v2/`（`config.json`、`style_vectors.npy`、`G_*.pth`）も必要です。Irodoriだけで起動する場合は[音声合成の設定](conversation-motion-development.md#音声合成を切り替える)を参照してください。検索モデル `cl-nagoya/ruri-v3-310m` はバックエンドから取得できるか、イメージ内にキャッシュが必要です。 |
 | 動作生成 | このリポジトリと同じ親ディレクトリに、対応する版の `Custom-T2M-Lab/` を置きます。`t2m_gpt/inference.py`、`web_viewer/app.py` および使用する学習済みモデル一式を管理者から受け取ります。 |
 | Dockerイメージ | 専用T2M用の `gakucho-ai_devcontainer-backend` と、対話用の `gakucho-ai-motion-backend:prod` を用意します。管理者提供のイメージアーカイブは `docker load -i ファイル名.tar` で読み込めます。バックエンドを再ビルドする場合、Dockerfileは `COPY . .` を使うため、認証ファイルや非公開資産を除いたビルドコンテキストを使います。 |
 | HTTPS | 開発ホスト名に対応した証明書を `nginx/certs/server.crt`、その開発用秘密鍵を `nginx/certs/server.key` に置き、ブラウザで発行元を信頼します。 |
@@ -102,7 +102,7 @@ curl -fsS http://127.0.0.1:8100/api/realtime/status
 
 - **画面は開くが応答しない** — ターミナルから接続先の `/health` を確認し、`DEV_API_PROXY_TARGET` 設定後にNext.jsを再起動します。
 - **T2Mの準備または起動が失敗する** — `../Custom-T2M-Lab` の配置と対応バージョンを確認します。`T2M inference changed` は準備スクリプトが対象版を識別できなかったことを示します。[準備スクリプト](../tools/prepare-t2m-runtime.py)
-- **バックエンドがhealthyにならない** — DBのヘルス、システムプロンプト、TTSの3種のファイル、検索モデルへのアクセスを順に確認します。起動時にモデルを読み込みます。[モデル初期化](../backend/app/models/model_registry.py)
+- **バックエンドがhealthyにならない** — DBのヘルス、システムプロンプト、選択したTTSの設定と検索モデルへのアクセスを確認します。起動時にモデルを読み込みます。[モデル初期化](../backend/app/models/model_registry.py)
 - **「新方式」で音声リズムのみ出ない** — SentiAvatarは別配布の研究評価用サービスです。「現行」で基本動作を先に確認できます。必要な場合は管理者から利用できるサービスまたは重みを受け取ってください。[SentiAvatarの手順](../docs/sentiavatar-eval.md)
 
 住宅や階段の物理学習は別の開発環境です。担当する場合は [物理環境のREADME](../world_model/README.md) と [住宅動作の引き継ぎ](claude-course-correction-2026-10-15.md) を参照してください。

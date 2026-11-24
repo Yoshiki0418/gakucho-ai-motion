@@ -37,6 +37,7 @@ import { ROOM_SCENE_EXAMPLES } from './roomSceneExamples'
 import { applySeatContactTargets, captureStandingFootContacts, createSeatContactTargets, groundRoomFeet, type RoomFootContactReference } from './roomPoseContacts'
 
 type ViewMode = 'skeleton' | 'robot' | 'character'
+const PRESIDENT_AVATAR = { label: '学長（スーツ）', url: '/avatars/gakucho_v3_suit.glb' }
 type EnvironmentMode = 'home' | 'laboratory'
 type EnvironmentCamera = { position: THREE.Vector3; target: THREE.Vector3; fov: number }
 const HOME_CAMERA_POSITION = new THREE.Vector3(...HOME_ENVIRONMENT_CAMERA.position)
@@ -401,7 +402,7 @@ export const BvhViewer: React.FC<BvhViewerProps> = ({
   const showChair = chairVisibility[environmentMode]
   const [hasFile, setHasFile] = useState(true)
   const [fileName, setFileName] = useState('Neutral Idle (Default)')
-  const [viewMode, setViewMode] = useState<ViewMode>('robot')
+  const [viewMode, setViewMode] = useState<ViewMode>('character')
   // loadBvh / buildRobotRig / animate 内で常に最新の viewMode を参照するための ref
   const viewModeRef = useRef<ViewMode>(viewMode)
   // 外部キャラクターモデル(retarget 表示用)と、転写元の BVH スケルトン
@@ -409,8 +410,8 @@ export const BvhViewer: React.FC<BvhViewerProps> = ({
   const sourceRigRef = useRef<SourceRig | null>(null)
   const retargetErroredRef = useRef(false)
   // 選択中のアバター(glb)の URL。差し替え時に再ロードする。
-  const [avatarUrl, setAvatarUrl] = useState<string>(CHARACTER_MODEL_URL)
-  const [avatarOptions, setAvatarOptions] = useState<{ label: string; url: string }[]>([])
+  const [avatarUrl, setAvatarUrl] = useState(PRESIDENT_AVATAR.url)
+  const [avatarOptions, setAvatarOptions] = useState([PRESIDENT_AVATAR])
   const [avatarStatus, setAvatarStatus] = useState<string>('読込中…')
   const [avatarYaw, setAvatarYaw] = useState(0)
   const avatarYawRef = useRef(0)
@@ -1006,7 +1007,7 @@ export const BvhViewer: React.FC<BvhViewerProps> = ({
    * 既存キャラクターを破棄 → ロード → BVH 骨格へバインド → 高さフィット、の順。
    */
   const applyAvatar = useCallback(
-    async (url: string) => {
+    async (url: string, isCurrent: () => boolean) => {
       const scene = sceneRef.current
       if (!scene) return
 
@@ -1014,6 +1015,10 @@ export const BvhViewer: React.FC<BvhViewerProps> = ({
       retargetErroredRef.current = false
       try {
         const character = await loadCharacterModel(url)
+        if (!isCurrent() || sceneRef.current !== scene) {
+          disposeCharacter(character)
+          return
+        }
 
         if (characterRef.current) {
           disposeCharacter(characterRef.current)
@@ -1073,6 +1078,7 @@ export const BvhViewer: React.FC<BvhViewerProps> = ({
         )
         console.log(`[BvhViewer] avatar applied: ${url}`)
       } catch (err) {
+        if (!isCurrent()) return
         console.error('[BvhViewer] avatar load failed:', err)
         setAvatarStatus(
           `読込失敗: ${err instanceof Error ? err.message : String(err)}`,
@@ -1970,8 +1976,7 @@ export const BvhViewer: React.FC<BvhViewerProps> = ({
           const helperMat = skHelper.material as THREE.LineBasicMaterial
           helperMat.linewidth = 2
           helperMat.color = new THREE.Color(0x38bdf8)
-          // 初期 viewMode は 'robot' 固定なので骨格は非表示で開始
-          skHelper.visible = false
+          skHelper.visible = viewModeRef.current === 'skeleton'
           scene.add(skHelper)
           skeletonHelperRef.current = skHelper
 
@@ -2817,13 +2822,19 @@ export const BvhViewer: React.FC<BvhViewerProps> = ({
       .then((res) => (res.ok ? res.json() : Promise.reject(new Error(String(res.status)))))
       .then((data: { avatars?: { label: string; url: string }[] }) => {
         if (cancelled) return
-        setAvatarOptions(data.avatars ?? [])
+        const options = data.avatars ?? []
+        if (!options.length) return
+        setAvatarOptions(current => [
+          ...options.map(option => option.url === PRESIDENT_AVATAR.url ? PRESIDENT_AVATAR : option),
+          ...current.filter(option => option.url.startsWith('blob:')),
+        ])
+        if (!options.some(option => option.url === PRESIDENT_AVATAR.url)) {
+          const fallback = options.find(option => option.url === CHARACTER_MODEL_URL) ?? options[0]
+          setAvatarUrl(current => current === PRESIDENT_AVATAR.url ? fallback.url : current)
+        }
       })
       .catch((err) => {
         console.warn('[BvhViewer] avatar list unavailable:', err)
-        if (!cancelled) {
-          setAvatarOptions([{ label: 'character.glb', url: CHARACTER_MODEL_URL }])
-        }
       })
     return () => {
       cancelled = true
@@ -2833,7 +2844,9 @@ export const BvhViewer: React.FC<BvhViewerProps> = ({
   // シーン初期化完了後、および選択アバター変更時にモデルを差し替える。
   useEffect(() => {
     if (!sceneReady) return
-    applyAvatar(avatarUrl)
+    let current = true
+    void applyAvatar(avatarUrl, () => current)
+    return () => { current = false }
   }, [sceneReady, avatarUrl, applyAvatar])
 
   // 向き調整はモデルを読み直さず、ラッパーの回転だけ更新する。
@@ -3006,7 +3019,6 @@ export const BvhViewer: React.FC<BvhViewerProps> = ({
           <label>
             アバターファイル
             <select value={avatarUrl} onChange={(event) => setAvatarUrl(event.target.value)}>
-              {avatarOptions.length === 0 && <option value={CHARACTER_MODEL_URL}>character.glb</option>}
               {avatarOptions.map((option) => <option key={option.url} value={option.url}>{option.label}</option>)}
             </select>
           </label>
