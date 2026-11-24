@@ -20,6 +20,7 @@ interface Message {
 export type ScheduledMotion = {
   /** 同じモーションを二重に適用しないための識別子 */
   id: string
+  segmentId: number
   bvh: string
   prompt: string
   /** AudioContext.currentTime 基準の再生開始時刻 */
@@ -28,6 +29,13 @@ export type ScheduledMotion = {
   segmentDuration: number
   /** 層構成方式の動作。発話ごとの 1 本で、同じ group の新しい版が届けば差し替える。 */
   layered?: LayeredMotionInfo
+}
+
+/** BVH の最終フレームの時刻。発話中に届いた動作が再生可能か判定する。 */
+export function bvhDurationSeconds(text: string): number {
+  const frames = Number(/Frames:\s*(\d+)/.exec(text)?.[1] ?? 0)
+  const frameTime = Number(/Frame Time:\s*([\d.]+)/.exec(text)?.[1] ?? 0)
+  return Math.max(frames - 1, 0) * frameTime
 }
 
 /** 動作生成モード(会話画面で切り替える)。 */
@@ -166,6 +174,7 @@ export function useTextChat(endpoint: string) {
   const [bvhPrompt, setBvhPrompt] = useState<string | null>(null)
   // 発話タイムライン上にスケジュール済みのモーション列。BvhViewer が音声時計で再生する。
   const [scheduledMotions, setScheduledMotions] = useState<ScheduledMotion[]>([])
+  const [motionTurn, setMotionTurn] = useState(0)
   // segment_id → その発話の再生開始時刻(AudioContext 基準)と長さ
   const segmentTimingRef = useRef<Map<number, { startAt: number; duration: number }>>(
     new Map(),
@@ -196,7 +205,6 @@ export function useTextChat(endpoint: string) {
   // ========= Web Audio 再生制御 =========
   const audioCtxRef = useRef<AudioContext | null>(null)
   const playbackTimeRef = useRef<number>(0)
-  const queueClearedRef = useRef<boolean>(false)
 
   const resetChat = async () => {
     stopAllAudio()
@@ -280,6 +288,7 @@ export function useTextChat(endpoint: string) {
         pending.offsetRatio * segment.duration + pending.offsetMs / 1000
       ready.push({
         id: pending.id,
+        segmentId: pending.segmentId,
         bvh: pending.bvh,
         prompt: pending.prompt,
         startAt: segment.startAt + offsetSeconds,
@@ -320,6 +329,7 @@ export function useTextChat(endpoint: string) {
     const now = audioCtxRef.current?.currentTime ?? 0
     const flushed = pendingMotionsRef.current.map((pending) => ({
       id: pending.id,
+      segmentId: pending.segmentId,
       bvh: pending.bvh,
       prompt: pending.prompt,
       startAt: now,
@@ -343,8 +353,6 @@ export function useTextChat(endpoint: string) {
     const src = ctx.createBufferSource()
     src.buffer = buf
     src.connect(ctx.destination)
-
-    if (queueClearedRef.current) return
 
     const now = ctx.currentTime
     if (playbackTimeRef.current < now) playbackTimeRef.current = now + 0.02
@@ -396,7 +404,7 @@ export function useTextChat(endpoint: string) {
       setTimeout(() => {
         const elapsed = Date.now() - lastAudioChunkTimeRef.current
         const remaining = playbackTimeRef.current - ctx.currentTime
-        if (elapsed > checkDelay && remaining <= 0.5) {
+        if (audioCtxRef.current === ctx && elapsed > checkDelay && remaining <= 0.5) {
           setSpeakingMessageId(null)
         }
       }, checkDelay)
@@ -405,34 +413,39 @@ export function useTextChat(endpoint: string) {
 
   const handleAudioChunk = async (base64: string, segmentId?: number) => {
     ensureAudioReady()
-    const ctx = audioCtxRef.current!
+    const ctx = audioCtxRef.current
+    if (!ctx) return
     lastAudioChunkTimeRef.current = Date.now()
     decodingCountRef.current += 1
 
     try {
       const arr = b64ToArrayBuffer(base64)
       const audioBuffer = await ctx.decodeAudioData(arr.slice(0))
+      if (audioCtxRef.current !== ctx) return
       enqueueAudioBuffer(audioBuffer, base64, segmentId)
       if (currentAssistantIdRef.current) {
         setSpeakingMessageId(currentAssistantIdRef.current)
       }
     } catch (e) {
+      if (audioCtxRef.current !== ctx) return
       console.error('decodeAudioData 失敗:', e)
       await new Promise((r) => setTimeout(r, 150))
+      if (audioCtxRef.current !== ctx) return
       try {
-        ensureAudioReady()
         const arr = b64ToArrayBuffer(base64)
         const audioBuffer = await ctx.decodeAudioData(arr.slice(0))
+        if (audioCtxRef.current !== ctx) return
         enqueueAudioBuffer(audioBuffer, base64, segmentId)
       } catch (e2) {
         console.error('再試行でも失敗:', e2)
       }
     } finally {
-      decodingCountRef.current -= 1
-      // 応答は終わっているのにデコード待ちで保留していた分をここで片付ける
-      if (decodingCountRef.current === 0 && flushWhenIdleRef.current) {
-        flushWhenIdleRef.current = false
-        flushPendingMotions()
+      if (audioCtxRef.current === ctx) {
+        decodingCountRef.current -= 1
+        if (decodingCountRef.current === 0 && flushWhenIdleRef.current) {
+          flushWhenIdleRef.current = false
+          flushPendingMotions()
+        }
       }
     }
   }
@@ -442,18 +455,18 @@ export function useTextChat(endpoint: string) {
     // モーションと発話時刻の対応表も破棄する。
     segmentTimingRef.current.clear()
     pendingMotionsRef.current = []
+    decodingCountRef.current = 0
     flushWhenIdleRef.current = false
     setScheduledMotions([])
+    setMotionTurn((turn) => turn + 1)
 
     const ctx = audioCtxRef.current
     if (!ctx) return
-    queueClearedRef.current = true
     ctx.close().catch(() => { })
     audioCtxRef.current = null
     playbackTimeRef.current = 0
     currentAssistantIdRef.current = null
     setSpeakingMessageId(null)
-    setTimeout(() => (queueClearedRef.current = false), 100)
   }
 
   const interruptChat = () => {
@@ -472,6 +485,7 @@ export function useTextChat(endpoint: string) {
   ) => {
     // 新しい会話のたびにオーディオはリセット
     stopAllAudio()
+    ensureAudioReady()
     setChatError(null)
     setLatestUrl(null)
     setMotionModeStatus(null)
@@ -592,6 +606,7 @@ export function useTextChat(endpoint: string) {
                 ...prev,
                 {
                   id: motionId,
+                  segmentId: data.segment_id ?? 0,
                   bvh: data.bvh,
                   prompt: data.prompt ?? '',
                   startAt: now,
@@ -759,13 +774,14 @@ export function useTextChat(endpoint: string) {
     startChat,
     speakingMessageId,
     resetChat,
+    motionTurn,
     scheduledMotions,
     /**
      * 発話タイムラインの現在時刻(秒)。まだ音声が始まっていなければ null。
      * BvhViewer はこれをマスタークロックにして、音声とモーションの時計を一本化する。
      */
     getAudioTime: useCallback(
-      () => audioCtxRef.current?.currentTime ?? null,
+      () => audioCtxRef.current?.state === 'running' ? audioCtxRef.current.currentTime : null,
       [],
     ),
     avatarFrameSrc,

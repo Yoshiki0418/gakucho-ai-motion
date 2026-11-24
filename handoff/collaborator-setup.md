@@ -88,6 +88,7 @@ compose=(docker compose --project-name gakucho-ai-motion
   -f .runtime/compose/local.yml
   -f docker-compose.cpu.yml)
 docker image inspect gakucho-ai_devcontainer-backend gakucho-ai-motion-backend:prod --format '{{.Id}}'
+python3 tools/ue-body-motion/bridge_path.py
 "${compose[@]}" config --quiet
 "${compose[@]}" build db frontend
 "${compose[@]}" up -d --no-build --wait
@@ -106,3 +107,5 @@ curl -fsS http://127.0.0.1:8100/api/realtime/status
 - **「新方式」で音声リズムのみ出ない** — SentiAvatarは別配布の研究評価用サービスです。「現行」で基本動作を先に確認できます。必要な場合は管理者から利用できるサービスまたは重みを受け取ってください。[SentiAvatarの手順](../docs/sentiavatar-eval.md)
 
 住宅や階段の物理学習は別の開発環境です。担当する場合は [物理環境のREADME](../world_model/README.md) と [住宅動作の引き継ぎ](claude-course-correction-2026-10-15.md) を参照してください。
+
+Unreal Editor上で会話中の動作を確認する場合は、学長のシーケンスと身体受信を起動してください。[Unreal Editorで再生する](../docs/ue-avatar.md#unreal-editorで再生する)
