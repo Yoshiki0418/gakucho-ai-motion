@@ -1,11 +1,10 @@
-import sys
-import os
 import asyncio
 
-# backendパスをsys.pathに追加
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "app")))
+from app.agent.general_conversation.tools.location_tools import (
+    get_travel_info,
+    search_nearby_places,
+)
 
-from app.agent.general_conversation.tools.location_tools import search_nearby_places, get_travel_info
 
 async def main():
     print("=== Testing search_nearby_places ===")
@@ -21,6 +20,7 @@ async def main():
         print("Result:", result)
     except Exception as e:
         print("Error:", e)
+
 
 if __name__ == "__main__":
     asyncio.run(main())

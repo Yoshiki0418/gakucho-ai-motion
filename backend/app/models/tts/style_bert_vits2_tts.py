@@ -14,7 +14,6 @@ import style_bert_vits2.models.infer as infer_module
 import style_bert_vits2.nlp.bert_models as bert_models
 import torch
 from style_bert_vits2.constants import (
-    DEFAULT_LENGTH,
     DEFAULT_NOISE,
     DEFAULT_NOISEW,
     DEFAULT_SDP_RATIO,

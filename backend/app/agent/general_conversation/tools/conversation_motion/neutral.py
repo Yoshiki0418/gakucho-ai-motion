@@ -16,7 +16,16 @@ import re
 import numpy as np
 from scipy.spatial.transform import Rotation
 
-from .bvh import Motion, Skeleton, forward_kinematics, local_from_global, qinv, qmul, qnormalize, qpow
+from .bvh import (
+    Motion,
+    Skeleton,
+    forward_kinematics,
+    local_from_global,
+    qinv,
+    qmul,
+    qnormalize,
+    qpow,
+)
 
 # BvhViewer の neutralOffset(度、three.js の Euler 'XYZ')。side は左 -1・右 +1。
 VIEWER_OFFSETS = {
@@ -42,12 +51,20 @@ def viewer_role(name: str, is_root: bool) -> str:
     n = name.lower()
     if is_root:
         return "root"
-    for role, pattern in (("hips", r"hips?|pelvis"), ("head", r"head"), ("neck", r"neck"),
-                          ("lowerArm", r"forearm|lowerarm"), ("upperArm", r"(left|right)(upper)?arm$"),
-                          ("hand", r"(left|right)(hand|wrist)$"), ("thigh", r"upleg|thigh"),
-                          ("shin", r"(left|right)(lowerleg|leg|shin)$"), ("foot", r"(left|right)(foot|ankle)$"),
-                          ("chest", r"chest|upperback|spine[ _-]?[34]"), ("spine", r"spine"),
-                          ("shoulder", r"shoulder|clavicle")):
+    for role, pattern in (
+        ("hips", r"hips?|pelvis"),
+        ("head", r"head"),
+        ("neck", r"neck"),
+        ("lowerArm", r"forearm|lowerarm"),
+        ("upperArm", r"(left|right)(upper)?arm$"),
+        ("hand", r"(left|right)(hand|wrist)$"),
+        ("thigh", r"upleg|thigh"),
+        ("shin", r"(left|right)(lowerleg|leg|shin)$"),
+        ("foot", r"(left|right)(foot|ankle)$"),
+        ("chest", r"chest|upperback|spine[ _-]?[34]"),
+        ("spine", r"spine"),
+        ("shoulder", r"shoulder|clavicle"),
+    ):
         if re.search(pattern, n):
             return role
     return "other"
@@ -64,8 +81,14 @@ def viewer_neutral(skeleton: Skeleton, fingers: np.ndarray | None = None) -> np.
         if role not in VIEWER_OFFSETS:
             continue
         lower = joint.name.lower()
-        side = -1.0 if re.search(r"left|^l[_-]", lower) else 1.0 if re.search(r"right|^r[_-]", lower) else 0.0
-        quats[j] = Rotation.from_euler("XYZ", VIEWER_OFFSETS[role](side), degrees=True).as_quat()
+        side = (
+            -1.0
+            if re.search(r"left|^l[_-]", lower)
+            else 1.0 if re.search(r"right|^r[_-]", lower) else 0.0
+        )
+        quats[j] = Rotation.from_euler(
+            "XYZ", VIEWER_OFFSETS[role](side), degrees=True
+        ).as_quat()
     return quats
 
 
@@ -74,13 +97,19 @@ def onto_neutral(motion: Motion, reference: np.ndarray, neutral: np.ndarray) -> 
     skeleton = motion.skeleton
     root = motion.root[:1]
     _, rotations = forward_kinematics(motion)
-    _, reference_global = forward_kinematics(Motion(skeleton, root, reference[None], motion.fps))
-    _, neutral_global = forward_kinematics(Motion(skeleton, root, neutral[None], motion.fps))
+    _, reference_global = forward_kinematics(
+        Motion(skeleton, root, reference[None], motion.fps)
+    )
+    _, neutral_global = forward_kinematics(
+        Motion(skeleton, root, neutral[None], motion.fps)
+    )
     result = qmul(qmul(rotations, qinv(reference_global)), neutral_global)
     for j, joint in enumerate(skeleton.joints):
         if FINGERS.search(joint.name):
             result[:, j] = qmul(result[:, joint.parent], motion.quats[:, j])
-    converted = Motion(skeleton, motion.root.copy(), local_from_global(skeleton, result), motion.fps)
+    converted = Motion(
+        skeleton, motion.root.copy(), local_from_global(skeleton, result), motion.fps
+    )
     return share_wrist_twist(converted)
 
 
@@ -93,7 +122,9 @@ def share_wrist_twist(motion: Motion, share: float = FOREARM_TWIST_SHARE) -> Mot
         axis = motion.skeleton.joints[hand].offset
         axis = axis / np.linalg.norm(axis)
         q = motion.quats[:, hand]
-        twist = qnormalize(np.concatenate([(q[:, :3] @ axis)[:, None] * axis, q[:, 3:]], axis=1))
+        twist = qnormalize(
+            np.concatenate([(q[:, :3] @ axis)[:, None] * axis, q[:, 3:]], axis=1)
+        )
         moved = qpow(twist, share)
         motion.quats[:, forearm] = qnormalize(qmul(motion.quats[:, forearm], moved))
         motion.quats[:, hand] = qnormalize(qmul(qinv(moved), q))

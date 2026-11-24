@@ -16,18 +16,38 @@ from __future__ import annotations
 
 import numpy as np
 
-from .bvh import (Motion, Skeleton, forward_kinematics, limit_rotation, parse_bvh, qangle, qinv, qmean, qmul,
-                  qnormalize, qpow, qrotate, resample)
+from .bvh import (
+    Motion,
+    Skeleton,
+    forward_kinematics,
+    limit_rotation,
+    parse_bvh,
+    qangle,
+    qinv,
+    qmean,
+    qmul,
+    qnormalize,
+    qpow,
+    qrotate,
+    resample,
+)
 
 PELVIS = "pelvis"
 # 胴と頭は「合計の傾き」で抑える。関節ごとに上限を付けても、5 つの背骨と 3 つの首・頭で足し合わさると
 # 大きくのけぞる(短い発話で 16 度あごが上がったままになった)。
-CHEST_SCALE, CHEST_MAX = 0.5, 8.0          # 胸(背骨 5 関節に分配)
-HEAD_SCALE, HEAD_MAX, HEAD_MAX_UP = 0.5, 8.0, 4.0   # 頭(胸に対して。首 2 + 頭 1 に分配。上向きは 4 度まで)
+CHEST_SCALE, CHEST_MAX = 0.5, 8.0  # 胸(背骨 5 関節に分配)
+HEAD_SCALE, HEAD_MAX, HEAD_MAX_UP = (
+    0.5,
+    8.0,
+    4.0,
+)  # 頭(胸に対して。首 2 + 頭 1 に分配。上向きは 4 度まで)
 SPINE_CHAIN = ("Spine", "Spine1", "Spine2", "Spine3", "Spine4")
 NECK_CHAIN = ("Neck", "Neck1", "Head")
 # 鎖骨は差分を半分だけ(肩をすくめる程度)
-DELTA_JOINTS = {"clavicle_l": ("LeftShoulder", 0.5, 8.0), "clavicle_r": ("RightShoulder", 0.5, 8.0)}
+DELTA_JOINTS = {
+    "clavicle_l": ("LeftShoulder", 0.5, 8.0),
+    "clavicle_r": ("RightShoulder", 0.5, 8.0),
+}
 REFERENCE_JOINTS = ("spine_05", "head", "clavicle_l", "clavicle_r")
 # 向きを合わせる骨: (標準骨格の関節, その骨の先の関節, SentiAvatar の関節, その骨の先の関節, 強さ)
 DIRECTION_BONES = [
@@ -39,9 +59,12 @@ DIRECTION_BONES = [
         ("Hand", "HandMiddle1", "hand", "middle_01", 0.6),
     )
 ]
-JOINT_MAP = {"spine_05": "Spine4", "head": "Head",
-             **{source: target for source, (target, _, _) in DELTA_JOINTS.items()},
-             **{source: target for target, _, source, _, _ in DIRECTION_BONES}}
+JOINT_MAP = {
+    "spine_05": "Spine4",
+    "head": "Head",
+    **{source: target for source, (target, _, _) in DELTA_JOINTS.items()},
+    **{source: target for target, _, source, _, _ in DIRECTION_BONES},
+}
 
 
 def _arc(a: np.ndarray, b: np.ndarray) -> np.ndarray:
@@ -53,7 +76,11 @@ def _arc(a: np.ndarray, b: np.ndarray) -> np.ndarray:
     opposite = (1.0 + dot[..., 0]) < 1e-6
     if np.any(opposite):
         axis = np.cross(a[opposite], np.array([0.0, 1.0, 0.0]))
-        axis = np.where(np.linalg.norm(axis, axis=-1, keepdims=True) < 1e-6, np.array([1.0, 0.0, 0.0]), axis)
+        axis = np.where(
+            np.linalg.norm(axis, axis=-1, keepdims=True) < 1e-6,
+            np.array([1.0, 0.0, 0.0]),
+            axis,
+        )
         q[opposite] = np.concatenate([axis, np.zeros((len(axis), 1))], axis=-1)
     return qnormalize(q)
 
@@ -68,8 +95,14 @@ def _limit(q: np.ndarray, scale: float, max_degrees: float) -> np.ndarray:
 
 
 class RhythmRetargeter:
-    def __init__(self, skeleton: Skeleton, neutral: np.ndarray, root_height: float, fps: float,
-                 reference: dict | None = None) -> None:
+    def __init__(
+        self,
+        skeleton: Skeleton,
+        neutral: np.ndarray,
+        root_height: float,
+        fps: float,
+        reference: dict | None = None,
+    ) -> None:
         self.skeleton = skeleton
         self.neutral = neutral
         self.root_height = root_height
@@ -86,7 +119,7 @@ class RhythmRetargeter:
         mean_pelvis = qmean(pelvis, axis=0)
         fix = qmul(np.broadcast_to(mean_pelvis, pelvis.shape), qinv(pelvis))  # (T, 4)
         frozen_rot = qnormalize(qmul(fix[:, None], rotations))
-        frozen_pos = qrotate(fix[:, None], positions - positions[:, p:p + 1])
+        frozen_pos = qrotate(fix[:, None], positions - positions[:, p : p + 1])
         return names, frozen_rot, frozen_pos
 
     @classmethod
@@ -98,7 +131,10 @@ class RhythmRetargeter:
             names, frozen, _ = cls.pelvis_frozen(parse_bvh(text))
             frames.append(frozen)
         stacked = np.concatenate(frames)
-        return {source: qmean(stacked[:, names.index(source)], axis=0).tolist() for source in REFERENCE_JOINTS}
+        return {
+            source: qmean(stacked[:, names.index(source)], axis=0).tolist()
+            for source in REFERENCE_JOINTS
+        }
 
     def retarget(self, bvh_text: str, *, amplitude: float = 1.0) -> Motion:
         source = resample(parse_bvh(bvh_text), self.fps)
@@ -117,43 +153,65 @@ class RhythmRetargeter:
             step = qpow(delta, 1.0 / len(joint_names))
             for name in joint_names:
                 j = skeleton.index(name)
-                _, globals_ = forward_kinematics(Motion(skeleton, np.zeros((T, 3)), local, self.fps))
+                _, globals_ = forward_kinematics(
+                    Motion(skeleton, np.zeros((T, 3)), local, self.fps)
+                )
                 parent = globals_[:, skeleton.joints[j].parent]
                 local[:, j] = qmul(qinv(parent), qmul(step, globals_[:, j]))
 
         # 胸: SuSu の胸の向きの、平均的な話し姿勢からのずれ(弱めて合計に上限)
         chest = frozen_rot[:, names.index("spine_05")]
         chest_delta = qmul(chest, qinv(reference_of("spine_05", chest))[None])
-        add_world_delta(SPINE_CHAIN, limit_rotation(qpow(chest_delta, CHEST_SCALE * amplitude), CHEST_MAX))
+        add_world_delta(
+            SPINE_CHAIN,
+            limit_rotation(qpow(chest_delta, CHEST_SCALE * amplitude), CHEST_MAX),
+        )
         # 頭: 胸に対する頭のずれ(上向きは特に抑える)
         head = frozen_rot[:, names.index("head")]
         head_delta = qmul(head, qinv(reference_of("head", head))[None])
         head_relative = qmul(qinv(chest_delta), head_delta)
-        add_world_delta(NECK_CHAIN, limit_rotation(qpow(head_relative, HEAD_SCALE * amplitude), HEAD_MAX, HEAD_MAX_UP))
+        add_world_delta(
+            NECK_CHAIN,
+            limit_rotation(
+                qpow(head_relative, HEAD_SCALE * amplitude), HEAD_MAX, HEAD_MAX_UP
+            ),
+        )
         # 鎖骨
         for source_name, (target_name, scale, max_degrees) in DELTA_JOINTS.items():
             if source_name not in names:
                 continue
             column = frozen_rot[:, names.index(source_name)]
-            delta = _limit(qmul(column, qinv(reference_of(source_name, column))[None]), scale * amplitude, max_degrees)
+            delta = _limit(
+                qmul(column, qinv(reference_of(source_name, column))[None]),
+                scale * amplitude,
+                max_degrees,
+            )
             add_world_delta((target_name,), delta)
 
         # 腕: 骨の向きを SuSu に合わせる(親から順に。ねじれは立ち姿のまま)
         for joint, child, source_joint, source_child, weight in DIRECTION_BONES:
             if source_joint not in names or source_child not in names:
                 continue
-            target = frozen_pos[:, names.index(source_child)] - frozen_pos[:, names.index(source_joint)]
+            target = (
+                frozen_pos[:, names.index(source_child)]
+                - frozen_pos[:, names.index(source_joint)]
+            )
             target /= np.linalg.norm(target, axis=-1, keepdims=True).clip(1e-9)
             j = skeleton.index(joint)
-            _, globals_ = forward_kinematics(Motion(skeleton, np.zeros((T, 3)), local, self.fps))
+            _, globals_ = forward_kinematics(
+                Motion(skeleton, np.zeros((T, 3)), local, self.fps)
+            )
             bone = skeleton.joints[skeleton.index(child)].offset
             current = qrotate(globals_[:, j], bone / np.linalg.norm(bone))
             swing = _arc(current, target)
-            swing = qpow(swing, weight * amplitude) if abs(weight * amplitude - 1.0) > 1e-6 else swing
+            swing = (
+                qpow(swing, weight * amplitude)
+                if abs(weight * amplitude - 1.0) > 1e-6
+                else swing
+            )
             new_global = qmul(swing, globals_[:, j])
             parent = globals_[:, skeleton.joints[j].parent]
             local[:, j] = qmul(qinv(parent), new_global)
 
         root = np.tile([[0.0, self.root_height, 0.0]], (T, 1))
         return Motion(skeleton, root, qnormalize(local), self.fps)
-

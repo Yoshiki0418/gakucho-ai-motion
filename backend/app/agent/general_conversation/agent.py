@@ -8,9 +8,13 @@ from app.agent.general_conversation.domains import (
     PresidentAgent,
     ResearchAgent,
 )
-from app.agent.general_conversation.tools import generate_motion, get_current_time, get_weather
-from app.agent.general_conversation.tools.motion_tool import motion_data_queue_var
+from app.agent.general_conversation.tools import (
+    generate_motion,
+    get_current_time,
+    get_weather,
+)
 from app.agent.general_conversation.tools.motion_tags import action_tag_instructions
+from app.agent.general_conversation.tools.motion_tool import motion_data_queue_var
 from app.prompts.president_persona import get_president_persona
 from dotenv import load_dotenv
 
@@ -42,7 +46,11 @@ def _agent_for_preaccepted_motion(agent: Agent, explicit_prompt: str | None) -> 
             """
     return agent.clone(
         instructions=(agent.instructions or "") + turn_instructions,
-        tools=[tool for tool in agent.tools if getattr(tool, "name", None) != "generate_motion"],
+        tools=[
+            tool
+            for tool in agent.tools
+            if getattr(tool, "name", None) != "generate_motion"
+        ],
     )
 
 
@@ -403,14 +411,19 @@ class GeneralConversationAgent:
         # }
 
     async def generate(
-        self, user_id: str, message: str, history: list[dict] | None = None, mode: str = "general", **kwargs
+        self,
+        user_id: str,
+        message: str,
+        history: list[dict] | None = None,
+        mode: str = "general",
+        **kwargs,
     ) -> str:
         # 履歴がある場合はメッセージリスト形式で渡す
         if history:
             input_messages = history + [{"role": "user", "content": message}]
         else:
             input_messages = message
-        
+
         target_agent = self.ceremony_agent if mode == "ceremony" else self.general_agent
         motion_channel = motion_data_queue_var.get()
         target_agent = _agent_for_preaccepted_motion(
@@ -436,7 +449,7 @@ class GeneralConversationAgent:
             input_messages = history + [{"role": "user", "content": message}]
         else:
             input_messages = message
-            
+
         target_agent = self.ceremony_agent if mode == "ceremony" else self.general_agent
         motion_channel = motion_data_queue_var.get()
         target_agent = _agent_for_preaccepted_motion(

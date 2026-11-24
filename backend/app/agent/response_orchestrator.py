@@ -37,7 +37,11 @@ class ResponseOrchestrator:
 
     # --- 日常対話 + フィラー ---
     async def handle_daily_with_filler(
-        self, user_id: str, text: str, history: list[dict] | None = None, mode: str = "general"
+        self,
+        user_id: str,
+        text: str,
+        history: list[dict] | None = None,
+        mode: str = "general",
     ) -> AsyncIterator[str]:
         """
         - 本応答(OpenAI Agent SDK)をストリーミング

@@ -31,9 +31,13 @@ MODES = ("current", "layered", "layered-semantic")
 DEFAULT_MODE = "current"
 
 # SentiAvatar(研究評価用)は tools/sentiavatar/run-container.sh で同じ Docker ネットワークに置く
-SENTIAVATAR_URL = os.getenv("SENTIAVATAR_SERVER_URL", "http://sentiavatar:8110").rstrip("/")
+SENTIAVATAR_URL = os.getenv("SENTIAVATAR_SERVER_URL", "http://sentiavatar:8110").rstrip(
+    "/"
+)
 SENTIAVATAR_TIMEOUT = float(os.getenv("SENTIAVATAR_TIMEOUT", "30"))
-RHYTHM_ACTION_TEXT = "动作：说话"  # リズムの層は「話している」だけを渡し、意味の動作は重ねる側で出す
+RHYTHM_ACTION_TEXT = (
+    "动作：说话"  # リズムの層は「話している」だけを渡し、意味の動作は重ねる側で出す
+)
 RHYTHM_AMPLITUDE = float(os.getenv("LAYERED_RHYTHM_AMPLITUDE", "1.0"))
 
 ACK_CLIP = "MOT_702"  # 受け取りのうなずき(待機・傾聴の層)
@@ -57,17 +61,34 @@ def get_retargeter(library: ClipLibrary) -> RhythmRetargeter:
     with _retargeter_lock:
         if _retargeter is None:
             reference_path = ASSET_DIR / "sentiavatar_reference.json"
-            reference = json.loads(reference_path.read_text()) if reference_path.exists() else None
-            _retargeter = RhythmRetargeter(library.skeleton, library.neutral, library.root_height, library.fps,
-                                           reference)
+            reference = (
+                json.loads(reference_path.read_text())
+                if reference_path.exists()
+                else None
+            )
+            _retargeter = RhythmRetargeter(
+                library.skeleton,
+                library.neutral,
+                library.root_height,
+                library.fps,
+                reference,
+            )
         return _retargeter
 
 
 def request_rhythm(audio_wav: bytes) -> tuple[str, dict]:
-    body = json.dumps({"audio_wav_base64": base64.b64encode(audio_wav).decode("ascii"),
-                       "action_text": RHYTHM_ACTION_TEXT}).encode("utf-8")
-    request = urllib.request.Request(f"{SENTIAVATAR_URL}/generate", data=body,
-                                     headers={"Content-Type": "application/json"}, method="POST")
+    body = json.dumps(
+        {
+            "audio_wav_base64": base64.b64encode(audio_wav).decode("ascii"),
+            "action_text": RHYTHM_ACTION_TEXT,
+        }
+    ).encode("utf-8")
+    request = urllib.request.Request(
+        f"{SENTIAVATAR_URL}/generate",
+        data=body,
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
     opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
     with opener.open(request, timeout=SENTIAVATAR_TIMEOUT) as response:
         result = json.loads(response.read().decode("utf-8"))
@@ -75,9 +96,20 @@ def request_rhythm(audio_wav: bytes) -> tuple[str, dict]:
 
 
 def _describe(overlays: list[Overlay]) -> list[dict]:
-    return [{"tag": o.tag, "id": o.clip.id, "label": o.clip.label[:40], "source": o.clip.source,
-             "start": round(o.start, 2), "stroke": round(o.stroke_time, 2), "length": round(o.length, 2),
-             "amplitude": o.amplitude, "explicit": o.explicit} for o in overlays]
+    return [
+        {
+            "tag": o.tag,
+            "id": o.clip.id,
+            "label": o.clip.label[:40],
+            "source": o.clip.source,
+            "start": round(o.start, 2),
+            "stroke": round(o.stroke_time, 2),
+            "length": round(o.length, 2),
+            "amplitude": o.amplitude,
+            "explicit": o.explicit,
+        }
+        for o in overlays
+    ]
 
 
 class LayeredTurn:
@@ -97,19 +129,34 @@ class LayeredTurn:
 
     # ------------------------------------------------------------ 送信形式
 
-    def _payload(self, segment_id: int, motion, info: dict, revision: int, *, play_now: bool = False,
-                 latency: float = 0.0) -> dict:
+    def _payload(
+        self,
+        segment_id: int,
+        motion,
+        info: dict,
+        revision: int,
+        *,
+        play_now: bool = False,
+        latency: float = 0.0,
+    ) -> dict:
         tags = [o["tag"] for o in info.get("overlays", [])]
         return {
             "status": "ok",
-            "prompt": "layered: " + (" + ".join(tags) if tags else "idle") + (" + rhythm" if info["base"] == "rhythm" else ""),
+            "prompt": "layered: "
+            + (" + ".join(tags) if tags else "idle")
+            + (" + rhythm" if info["base"] == "rhythm" else ""),
             "bvh": write_bvh(motion, rotation_digits=2, position_digits=4),
             "latency_seconds": latency,
             "backend": "layered",
             "segment_index": segment_id,
             "start_offset_ratio": 0.0,
-            "layered": {"mode": self.mode, "group": f"seg-{segment_id}", "revision": revision,
-                        "playNow": play_now, **info},
+            "layered": {
+                "mode": self.mode,
+                "group": f"seg-{segment_id}",
+                "revision": revision,
+                "playNow": play_now,
+                **info,
+            },
         }
 
     # ------------------------------------------------------------ 待機・傾聴の層
@@ -119,27 +166,50 @@ class LayeredTurn:
         clip = self.library.get(ACK_CLIP)
         if clip is None:
             return None
-        overlay = Overlay(clip, 0.05, min(clip.duration, clip.stroke + 0.7), tag="ack", amplitude=0.55)
+        overlay = Overlay(
+            clip, 0.05, min(clip.duration, clip.stroke + 0.7), tag="ack", amplitude=0.55
+        )
         composition = compose(self.library, 1.6, [overlay], clock=self.session.clock)
         info = {"base": "idle", "overlays": _describe([overlay]), "layer": "listening"}
         return self._payload(0, composition.motion, info, 0, play_now=True)
 
     # ------------------------------------------------------------ 発話ごと
 
-    def on_sentence(self, segment_id: int, duration_ms: float, tags: list[PlannedTag],
-                    audio_wav: bytes | None) -> dict:
+    def on_sentence(
+        self,
+        segment_id: int,
+        duration_ms: float,
+        tags: list[PlannedTag],
+        audio_wav: bytes | None,
+    ) -> dict:
         """意味の層だけの版を作って返す。リズムの層は裏で作ってチャネルへ積む。"""
         started = time.perf_counter()
         duration = max(duration_ms / 1000.0, 0.3)
         plan = self.session.plan(self.library, segment_id, duration, tags)
-        composition = compose(self.library, duration, plan.overlays, start_pose=plan.start_pose, clock=plan.clock)
+        composition = compose(
+            self.library,
+            duration,
+            plan.overlays,
+            start_pose=plan.start_pose,
+            clock=plan.clock,
+        )
         end_pose = pose_at(composition.motion, duration)
         self.end_poses[segment_id] = end_pose
         self.session.update_end_pose(end_pose)
-        info = {"base": "idle", "overlays": _describe(plan.overlays), "skipped": plan.skipped,
-                "duration": round(duration, 3), "rhythm": "pending" if (self.rhythm and audio_wav) else "off"}
-        payload = self._payload(segment_id, composition.motion, info, 0,
-                                latency=time.perf_counter() - started)
+        info = {
+            "base": "idle",
+            "overlays": _describe(plan.overlays),
+            "skipped": plan.skipped,
+            "duration": round(duration, 3),
+            "rhythm": "pending" if (self.rhythm and audio_wav) else "off",
+        }
+        payload = self._payload(
+            segment_id,
+            composition.motion,
+            info,
+            0,
+            latency=time.perf_counter() - started,
+        )
         if self.rhythm and audio_wav:
             self._submit(plan, audio_wav)
         return payload
@@ -149,7 +219,9 @@ class LayeredTurn:
         with self.worker_lock:
             self.jobs.put((plan, audio_wav))
             if self.worker is None:
-                self.worker = threading.Thread(target=self._run, name="layered-rhythm", daemon=True)
+                self.worker = threading.Thread(
+                    target=self._run, name="layered-rhythm", daemon=True
+                )
                 self.worker.start()
 
     def _run(self) -> None:
@@ -164,25 +236,52 @@ class LayeredTurn:
             started = time.perf_counter()
             try:
                 bvh_raw, timing = request_rhythm(audio_wav)
-                base = get_retargeter(self.library).retarget(bvh_raw, amplitude=RHYTHM_AMPLITUDE)
+                base = get_retargeter(self.library).retarget(
+                    bvh_raw, amplitude=RHYTHM_AMPLITUDE
+                )
                 start_pose = self.end_poses.get(plan.segment_id - 1, plan.start_pose)
-                composition = compose(self.library, plan.duration, plan.overlays, base=base,
-                                      start_pose=start_pose, clock=plan.clock)
+                composition = compose(
+                    self.library,
+                    plan.duration,
+                    plan.overlays,
+                    base=base,
+                    start_pose=start_pose,
+                    clock=plan.clock,
+                )
                 end_pose = pose_at(composition.motion, plan.duration)
                 self.end_poses[plan.segment_id] = end_pose
                 if max(self.end_poses) == plan.segment_id:
                     self.session.update_end_pose(end_pose)
-                info = {"base": "rhythm", "overlays": _describe(plan.overlays), "skipped": plan.skipped,
-                        "duration": round(plan.duration, 3), "rhythm": "ok", "rhythmTiming": timing}
-                self.channel.put(self._payload(plan.segment_id, composition.motion, info, 1,
-                                               latency=time.perf_counter() - started))
+                info = {
+                    "base": "rhythm",
+                    "overlays": _describe(plan.overlays),
+                    "skipped": plan.skipped,
+                    "duration": round(plan.duration, 3),
+                    "rhythm": "ok",
+                    "rhythmTiming": timing,
+                }
+                self.channel.put(
+                    self._payload(
+                        plan.segment_id,
+                        composition.motion,
+                        info,
+                        1,
+                        latency=time.perf_counter() - started,
+                    )
+                )
             except Exception as error:  # noqa: BLE001
                 print(f"[layered] rhythm failed segment={plan.segment_id}: {error}")
-                self.channel.put({"status": "error", "prompt": "rhythm", "message": f"リズムの層の生成に失敗: {error}",
-                                  "segment_index": plan.segment_id, "start_offset_ratio": 0.0})
+                self.channel.put(
+                    {
+                        "status": "error",
+                        "prompt": "rhythm",
+                        "message": f"リズムの層の生成に失敗: {error}",
+                        "segment_index": plan.segment_id,
+                        "start_offset_ratio": 0.0,
+                    }
+                )
             finally:
                 self.channel.finish_job()
-
 
 
 def resolve_layered_request(prompt: str) -> tuple[str, bool] | None:
@@ -196,7 +295,9 @@ def resolve_layered_request(prompt: str) -> tuple[str, bool] | None:
     from ..motion_catalog import normalize_motion_prompt
 
     library = get_library()
-    left = bool(re.search(r"左(?:手|腕|の手)", prompt)) and not re.search(r"両(?:手|腕)", prompt)
+    left = bool(re.search(r"左(?:手|腕|の手)", prompt)) and not re.search(
+        r"両(?:手|腕)", prompt
+    )
     if not left:
         match = normalize_motion_prompt(prompt)
         if match.catalog_id and library.get(match.catalog_id):
