@@ -32,42 +32,44 @@ from .motion_catalog import _RULES, normalize_motion_prompt
 
 # 応答本文に書けるタグ。値は Custom-T2M-Lab のカタログ ID。
 ACTION_TAGS: dict[str, str] = {
-    "wave": "MOT_701",         # 手を振って挨拶
-    "bye": "MOT_740",          # さようならと手を振る
-    "raise_hand": "MOT_783",   # 手を挙げて示す
-    "bow": "MOT_711",          # お辞儀
-    "nod": "MOT_702",          # うなずく
-    "shake_head": "MOT_703",   # 首を横に振る
-    "thumbs_up": "MOT_714",    # いいね
+    "wave": "MOT_701",  # 手を振って挨拶
+    "bye": "MOT_740",  # さようならと手を振る
+    "raise_hand": "MOT_783",  # 手を挙げて示す
+    "bow": "MOT_711",  # お辞儀
+    "nod": "MOT_702",  # うなずく
+    "shake_head": "MOT_703",  # 首を横に振る
+    "thumbs_up": "MOT_714",  # いいね
     "thumbs_down": "MOT_715",  # ダメ
-    "wait": "MOT_774",         # ちょっと待って
-    "stop": "MOT_707",         # ストップ
-    "calm": "MOT_765",         # 落ち着いて
-    "ok": "MOT_706",           # OK サイン
-    "cross": "MOT_734",        # バツ・却下
-    "offer": "MOT_720",        # どうぞ
-    "come": "MOT_719",         # こちらへ
-    "point": "MOT_705",        # 正面を指差す
+    "wait": "MOT_774",  # ちょっと待って
+    "stop": "MOT_707",  # ストップ
+    "calm": "MOT_765",  # 落ち着いて
+    "ok": "MOT_706",  # OK サイン
+    "cross": "MOT_734",  # バツ・却下
+    "offer": "MOT_720",  # どうぞ
+    "come": "MOT_719",  # こちらへ
+    "point": "MOT_705",  # 正面を指差す
     "point_right": "MOT_721",  # 右方向を指差す
-    "thanks": "MOT_738",       # 感謝
-    "please": "MOT_739",       # お願いします
-    "shrug": "MOT_708",        # わからない
-    "think_tap": "MOT_733",    # 考えて
-    "thinking": "MOT_748",     # 考え中
-    "clap": "MOT_709",         # 拍手
-    "cheer": "MOT_735",        # ガッツポーズ
-    "phone": "MOT_729",        # 電話
-    "heart": "MOT_768",        # ハート
-    "shout": "MOT_766",        # 叫ぶ
-    "peace": "MOT_716",        # ピースサイン
-    "salute": "MOT_710",       # 敬礼
+    "thanks": "MOT_738",  # 感謝
+    "please": "MOT_739",  # お願いします
+    "shrug": "MOT_708",  # わからない
+    "think_tap": "MOT_733",  # 考えて
+    "thinking": "MOT_748",  # 考え中
+    "clap": "MOT_709",  # 拍手
+    "cheer": "MOT_735",  # ガッツポーズ
+    "phone": "MOT_729",  # 電話
+    "heart": "MOT_768",  # ハート
+    "shout": "MOT_766",  # 叫ぶ
+    "peace": "MOT_716",  # ピースサイン
+    "salute": "MOT_710",  # 敬礼
 }
 
 # カタログ ID → 生成プロンプト
 _PROMPT_BY_ID: dict[str, str] = {rule.catalog_id: rule.prompt for rule in _RULES}
 
 # `[act:wave]` / `[act: wave]` / 全角ブラケットも拾う
-TAG_PATTERN = re.compile(r"[\[［]\s*act\s*[:：]\s*([A-Za-z0-9_ぁ-んァ-ヶ一-龠]+)\s*[\]］]")
+TAG_PATTERN = re.compile(
+    r"[\[［]\s*act\s*[:：]\s*([A-Za-z0-9_ぁ-んァ-ヶ一-龠]+)\s*[\]］]"
+)
 
 
 @dataclass(frozen=True)
@@ -120,7 +122,7 @@ def extract_action_tags(text: str) -> tuple[str, list[ActionTag]]:
     raw_positions: list[tuple[int, str]] = []
 
     for match in TAG_PATTERN.finditer(text):
-        clean_parts.append(text[cursor:match.start()])
+        clean_parts.append(text[cursor : match.start()])
         # 除去後の本文における位置
         raw_positions.append((sum(len(p) for p in clean_parts), match.group(1)))
         cursor = match.end()
@@ -225,8 +227,18 @@ def action_tag_instructions(indent: str = "                ") -> str:
 # 長い一覧を文脈の末尾に置くと読み飛ばされるため、RAG のように
 # 検索結果が前段に入るプロンプトではこちらを冒頭付近で使う。
 BRIEF_TAGS = (
-    "nod", "wave", "bow", "thanks", "point", "offer",
-    "thinking", "shrug", "ok", "cheer", "please", "stop",
+    "nod",
+    "wave",
+    "bow",
+    "thanks",
+    "point",
+    "offer",
+    "thinking",
+    "shrug",
+    "ok",
+    "cheer",
+    "please",
+    "stop",
 )
 
 
@@ -318,14 +330,20 @@ def plan_auto_gestures(
         if any(abs(position - t) < MIN_TAG_DISTANCE for t in taken):
             continue
 
-        name = AUTO_FILL_ROTATION[(rotation_offset + len(added)) % len(AUTO_FILL_ROTATION)]
+        name = AUTO_FILL_ROTATION[
+            (rotation_offset + len(added)) % len(AUTO_FILL_ROTATION)
+        ]
         resolved = resolve_tag(name)
         if resolved is None:
             continue
         prompt, catalog_id = resolved
         added.append(
-            ActionTag(name=f"auto:{name}", prompt=prompt,
-                      catalog_id=catalog_id, position=position)
+            ActionTag(
+                name=f"auto:{name}",
+                prompt=prompt,
+                catalog_id=catalog_id,
+                position=position,
+            )
         )
         taken.append(position)
 

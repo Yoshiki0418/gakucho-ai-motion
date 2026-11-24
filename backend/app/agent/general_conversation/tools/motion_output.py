@@ -2,10 +2,9 @@
 
 import re
 
-
 _TOOL_MARKER = re.compile(
-    r'<functions\.generate_motion\b|'
-    r'assistant\s+to=functions\.generate_motion\b(?:\s+in\s+commentary)?'
+    r"<functions\.generate_motion\b|"
+    r"assistant\s+to=functions\.generate_motion\b(?:\s+in\s+commentary)?"
 )
 
 
@@ -19,15 +18,15 @@ def _object_end(text: str, start: int) -> int | None:
         if quoted:
             if escaped:
                 escaped = False
-            elif char == '\\':
+            elif char == "\\":
                 escaped = True
             elif char == '"':
                 quoted = False
         elif char == '"':
             quoted = True
-        elif char == '{':
+        elif char == "{":
             depth += 1
-        elif char == '}':
+        elif char == "}":
             depth -= 1
             if depth == 0:
                 return index + 1
@@ -44,39 +43,39 @@ def clean_motion_tool_artifacts(text: str, *, final: bool = False) -> tuple[str,
     parts = []
     cursor = 0
     while match := _TOOL_MARKER.search(text, cursor):
-        parts.append(text[cursor:match.start()])
-        object_start = text.find('{', match.end())
+        parts.append(text[cursor : match.start()])
+        object_start = text.find("{", match.end())
         if object_start < 0:
-            return ''.join(parts), not final
+            return "".join(parts), not final
         object_end = _object_end(text, object_start)
         if object_end is None:
-            return ''.join(parts), not final
+            return "".join(parts), not final
         end = object_end
-        if match.group().startswith('<'):
-            closing = text.find('>', object_end)
+        if match.group().startswith("<"):
+            closing = text.find(">", object_end)
             if closing < 0:
-                return ''.join(parts), not final
+                return "".join(parts), not final
             end = closing + 1
         else:
             # This literal suffix appeared after the malformed tool JSON.
             # Remove it only here, rather than removing Korean dialogue.
-            suffix = '\ub2c8\ub2e4'
+            suffix = "\ub2c8\ub2e4"
             if text.startswith(suffix, end):
                 end += len(suffix)
             elif text[end:] and suffix.startswith(text[end:]):
-                return ''.join(parts), not final
+                return "".join(parts), not final
         if end == len(text) and not final:
-            return ''.join(parts), True
+            return "".join(parts), True
         cursor = end
     remaining = text[cursor:]
     for marker, final_minimum in (
-        ('<functions.generate_motion', len('<functions')),
-        ('assistant to=functions.generate_motion in commentary', len('assistant to=')),
+        ("<functions.generate_motion", len("<functions")),
+        ("assistant to=functions.generate_motion in commentary", len("assistant to=")),
     ):
         minimum = final_minimum if final else 1
         for length in range(min(len(marker), len(remaining)), minimum - 1, -1):
             if remaining.endswith(marker[:length]):
                 parts.append(remaining[:-length])
-                return ''.join(parts), not final
+                return "".join(parts), not final
     parts.append(remaining)
-    return ''.join(parts), False
+    return "".join(parts), False

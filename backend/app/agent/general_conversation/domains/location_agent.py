@@ -1,7 +1,11 @@
 from typing import AsyncIterator
 
 from agents import Agent, Runner, WebSearchTool
-from app.agent.general_conversation.tools import get_travel_info, search_nearby_places, generate_motion
+from app.agent.general_conversation.tools import (
+    generate_motion,
+    get_travel_info,
+    search_nearby_places,
+)
 from app.agent.general_conversation.tools.motion_tags import action_tag_instructions
 
 

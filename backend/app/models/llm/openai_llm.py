@@ -58,8 +58,8 @@ class OpenAILLM(BaseLLM):
         }
 
         # 新しいモデル（gpt-5.2やo1等）では max_completion_tokens を使用する
-        if (
-            self.provider == "openai" and self._model_name.startswith(("gpt-5", "o1", "o3", "o4"))
+        if self.provider == "openai" and self._model_name.startswith(
+            ("gpt-5", "o1", "o3", "o4")
         ):
             kwargs["max_completion_tokens"] = max_tokens
         else:
@@ -96,8 +96,8 @@ class OpenAILLM(BaseLLM):
         }
 
         # 新しいモデル（gpt-5.2やo1等）では max_completion_tokens を使用する
-        if (
-            self.provider == "openai" and self._model_name.startswith(("gpt-5", "o1", "o3", "o4"))
+        if self.provider == "openai" and self._model_name.startswith(
+            ("gpt-5", "o1", "o3", "o4")
         ):
             kwargs["max_completion_tokens"] = max_tokens
         else:

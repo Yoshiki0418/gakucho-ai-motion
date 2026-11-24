@@ -13,7 +13,6 @@ from dataclasses import dataclass, field
 import numpy as np
 from scipy.spatial.transform import Rotation
 
-
 # ---------------------------------------------------------------- 骨格と動作
 
 
@@ -83,7 +82,12 @@ class Motion:
         return Motion(self.skeleton, self.root.copy(), self.quats.copy(), self.fps)
 
     def slice(self, start: int, stop: int) -> "Motion":
-        return Motion(self.skeleton, self.root[start:stop].copy(), self.quats[start:stop].copy(), self.fps)
+        return Motion(
+            self.skeleton,
+            self.root[start:stop].copy(),
+            self.quats[start:stop].copy(),
+            self.fps,
+        )
 
 
 # ---------------------------------------------------------------- 四元数
@@ -96,12 +100,15 @@ def qnormalize(q: np.ndarray) -> np.ndarray:
 def qmul(a: np.ndarray, b: np.ndarray) -> np.ndarray:
     ax, ay, az, aw = np.moveaxis(a, -1, 0)
     bx, by, bz, bw = np.moveaxis(b, -1, 0)
-    return np.stack([
-        aw * bx + ax * bw + ay * bz - az * by,
-        aw * by - ax * bz + ay * bw + az * bx,
-        aw * bz + ax * by - ay * bx + az * bw,
-        aw * bw - ax * bx - ay * by - az * bz,
-    ], axis=-1)
+    return np.stack(
+        [
+            aw * bx + ax * bw + ay * bz - az * by,
+            aw * by - ax * bz + ay * bw + az * bx,
+            aw * bz + ax * by - ay * bx + az * bw,
+            aw * bw - ax * bx - ay * by - az * bz,
+        ],
+        axis=-1,
+    )
 
 
 def qinv(q: np.ndarray) -> np.ndarray:
@@ -144,16 +151,25 @@ def qpow(q: np.ndarray, s) -> np.ndarray:
     return Rotation.from_rotvec(rotvec.reshape(-1, 3)).as_quat().reshape(shape)
 
 
-def limit_rotation(q: np.ndarray, max_degrees: float, max_up_degrees: float | None = None) -> np.ndarray:
+def limit_rotation(
+    q: np.ndarray, max_degrees: float, max_up_degrees: float | None = None
+) -> np.ndarray:
     """回転の大きさを max_degrees までに抑える。max_up_degrees を与えると、
     左右軸(x)まわりの「顔を上げる向き」(負の角度)をその角度までに抑える。"""
     q = qnormalize(np.array(q, dtype=np.float64))
     angle = np.degrees(qangle(q))
     scale = np.minimum(1.0, max_degrees / np.maximum(angle, 1e-9))
     if max_up_degrees is not None:
-        pitch = np.degrees(2.0 * np.arctan2(q[..., 0], np.abs(q[..., 3]) + 1e-12) * np.sign(q[..., 3] + 1e-12))
+        pitch = np.degrees(
+            2.0
+            * np.arctan2(q[..., 0], np.abs(q[..., 3]) + 1e-12)
+            * np.sign(q[..., 3] + 1e-12)
+        )
         up = np.maximum(-pitch, 0.0)
-        scale = np.minimum(scale, np.where(up > max_up_degrees, max_up_degrees / np.maximum(up, 1e-9), 1.0))
+        scale = np.minimum(
+            scale,
+            np.where(up > max_up_degrees, max_up_degrees / np.maximum(up, 1e-9), 1.0),
+        )
     return qpow(q, scale) if np.any(scale < 1.0) else q
 
 
@@ -217,7 +233,7 @@ def parse_bvh(text: str) -> Motion:
                 in_end_site = False
             i += 1
         elif token == "OFFSET":
-            values = np.asarray([float(v) for v in tokens[i + 1:i + 4]])
+            values = np.asarray([float(v) for v in tokens[i + 1 : i + 4]])
             if in_end_site:
                 owner = next(s for s in reversed(stack) if s >= 0)
                 joints[owner].end_site = values
@@ -226,7 +242,7 @@ def parse_bvh(text: str) -> Motion:
             i += 4
         elif token == "CHANNELS":
             count = int(tokens[i + 1])
-            joints[stack[-1]].channels = tokens[i + 2:i + 2 + count]
+            joints[stack[-1]].channels = tokens[i + 2 : i + 2 + count]
             i += 2 + count
         else:
             i += 1
@@ -235,7 +251,10 @@ def parse_bvh(text: str) -> Motion:
     lines = [line.strip() for line in motion_text.strip().split("\n") if line.strip()]
     frames = int(lines[0].split(":")[1])
     frame_time = float(lines[1].split(":")[1])
-    data = np.asarray([[float(v) for v in line.split()] for line in lines[2:2 + frames]], dtype=np.float64)
+    data = np.asarray(
+        [[float(v) for v in line.split()] for line in lines[2 : 2 + frames]],
+        dtype=np.float64,
+    )
     if data.ndim != 2 or len(data) == 0:
         raise ValueError("BVH のフレームが空です")
 
@@ -253,7 +272,9 @@ def parse_bvh(text: str) -> Motion:
             column += 1
         if rotation_columns:
             sequence = _rotation_sequence(joint.channels)
-            quats[:, j] = Rotation.from_euler(sequence, data[:, rotation_columns], degrees=True).as_quat()
+            quats[:, j] = Rotation.from_euler(
+                sequence, data[:, rotation_columns], degrees=True
+            ).as_quat()
         else:
             quats[:, j] = [0.0, 0.0, 0.0, 1.0]
     if not any(c.lower().endswith("position") for c in joints[0].channels):
@@ -264,7 +285,9 @@ def parse_bvh(text: str) -> Motion:
 # ---------------------------------------------------------------- BVH 書き出し
 
 
-def write_bvh(motion: Motion, *, rotation_digits: int = 3, position_digits: int = 5) -> str:
+def write_bvh(
+    motion: Motion, *, rotation_digits: int = 3, position_digits: int = 5
+) -> str:
     """ルート 6ch・他 3ch (ZXY) の素直な BVH を書く。"""
     skeleton = motion.skeleton
     children: dict[int, list[int]] = {i: [] for i in range(len(skeleton.joints))}
@@ -279,9 +302,13 @@ def write_bvh(motion: Motion, *, rotation_digits: int = 3, position_digits: int 
         pad = "  " * depth
         lines.append(f"{pad}{'ROOT' if joint.parent < 0 else 'JOINT'} {joint.name}")
         lines.append(f"{pad}{{")
-        lines.append(f"{pad}  OFFSET {joint.offset[0]:.6f} {joint.offset[1]:.6f} {joint.offset[2]:.6f}")
+        lines.append(
+            f"{pad}  OFFSET {joint.offset[0]:.6f} {joint.offset[1]:.6f} {joint.offset[2]:.6f}"
+        )
         if joint.parent < 0:
-            lines.append(f"{pad}  CHANNELS 6 Xposition Yposition Zposition Zrotation Xrotation Yrotation")
+            lines.append(
+                f"{pad}  CHANNELS 6 Xposition Yposition Zposition Zrotation Xrotation Yrotation"
+            )
         else:
             lines.append(f"{pad}  CHANNELS 3 Zrotation Xrotation Yrotation")
         for child in children[j]:
@@ -296,7 +323,11 @@ def write_bvh(motion: Motion, *, rotation_digits: int = 3, position_digits: int 
 
     emit(0, 0)
     T, J = motion.quats.shape[:2]
-    euler = Rotation.from_quat(motion.quats.reshape(-1, 4)).as_euler("ZXY", degrees=True).reshape(T, J * 3)
+    euler = (
+        Rotation.from_quat(motion.quats.reshape(-1, 4))
+        .as_euler("ZXY", degrees=True)
+        .reshape(T, J * 3)
+    )
     lines += ["MOTION", f"Frames: {T}", f"Frame Time: {1.0 / motion.fps:.6f}"]
     rotation_format = f"{{:.{rotation_digits}f}}"
     position_format = f"{{:.{position_digits}f}}"
@@ -341,7 +372,9 @@ def forward_kinematics(motion: Motion) -> tuple[np.ndarray, np.ndarray]:
         else:
             parent_rotation = rotations[:, joint.parent]
             rotations[:, j] = qmul(parent_rotation, motion.quats[:, j])
-            positions[:, j] = positions[:, joint.parent] + qrotate(parent_rotation, joint.offset)
+            positions[:, j] = positions[:, joint.parent] + qrotate(
+                parent_rotation, joint.offset
+            )
     return positions, rotations
 
 
