@@ -3,6 +3,16 @@
 import { useEffect, useRef, useState } from 'react'
 import { bvhDurationSeconds, type ScheduledMotion } from './useTextChat'
 
+// Standing still is common in gesture captions. Only a requested change of
+// posture or a travelling movement should enable root and leg motion.
+function usesWholeBody(prompt: string) {
+  const changePosture = /立ち上が|起立|腰を下ろ|腰掛け[るた]|座[るりっ]|すわ[るりっ]|しゃが|屈伸|お辞儀|おじぎ|前屈/
+  const travel = /歩[くきい]|走[るりっ]|跳[ぶびん]|ジャンプ|スクワット|ダンス/
+  const english = /\b(?:walk(?:ing)?|run(?:ning)?|jump(?:ing)?|bow(?:ing)?|sit(?:ting)? down|stand(?:ing)? up)\b/i
+  // 「座ったまま」「座っている状態」での手振りはその場の身振り。
+  return changePosture.test(prompt.replace(/(?:座っ|すわっ)(?:たまま|ている(?:状態)?)/g, '')) || travel.test(prompt) || english.test(prompt)
+}
+
 export function useUnrealBodyMotion(
   enabled: boolean,
   turn: number,
@@ -59,6 +69,7 @@ export function useUnrealBodyMotion(
             segment_id: motion.segmentId,
             clip_id: `${turn}-${motion.layered?.group ?? motion.id}`,
             revision: motion.layered?.revision ?? 0,
+            whole_body: usesWholeBody(motion.prompt),
             bvh: motion.bvh,
             offset_seconds: offset,
             remaining_seconds: remaining,

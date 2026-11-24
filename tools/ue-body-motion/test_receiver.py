@@ -48,8 +48,21 @@ class SchedulingTest(unittest.TestCase):
         self.body.clear.assert_called_once_with()
         self.assertFalse(self.scheduler.health()["playing"])
 
+    def test_waits_for_visible_window_before_acknowledging_play(self):
+        cmd = play("a", 1)
+        cmd.whole_body = True
+        self.scheduler.reserve(cmd)
+        self.body.show.side_effect = [False, True]
+        self.scheduler.tick()
+        self.assertFalse(cmd.done.is_set())
+        self.assertEqual(self.scheduler.frame, -1)
+        self.body.prepare.assert_called_once_with(cmd.clip, whole_body=True)
+        self.scheduler.tick()
+        self.assertTrue(cmd.done.is_set())
+        self.assertEqual(cmd.result[1]["state"], "playing")
+
     def test_prepare_time_revalidates_audio_deadline(self):
-        def delayed_prepare(_clip):
+        def delayed_prepare(_clip, whole_body=False):
             self.now = 1.0
             return object()
 

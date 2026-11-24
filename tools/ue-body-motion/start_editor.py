@@ -25,6 +25,7 @@ def start():
     def tick(_delta):
         try:
             scheduler.tick()
+            scheduler.playback.advance_release()
         except Exception as exc:
             unreal.log_error(f"Gakucho body playback: {exc}")
 

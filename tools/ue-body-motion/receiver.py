@@ -25,6 +25,7 @@ class Command:
     offset: float = 0.0
     remaining: float = math.inf
     clip: object = None
+    whole_body: bool = False
     done: threading.Event = field(default_factory=threading.Event)
     result: tuple = (200, {"ok": True, "state": "stale"})
 
@@ -45,6 +46,9 @@ def command_from_json(action, data, now):
         raise ValueError("Invalid sequence")
     cmd = Command(client, sequence, now, action)
     if action == "play":
+        cmd.whole_body = data.get("whole_body", False)
+        if type(cmd.whole_body) is not bool:
+            raise ValueError("Invalid whole_body")
         cmd.clip_id = data.get("clip_id")
         cmd.revision = data.get("revision")
         if not isinstance(cmd.clip_id, str) or not 0 < len(cmd.clip_id) <= 256:
@@ -137,7 +141,7 @@ class Scheduler:
             elapsed = self.clock() - cmd.received
             deadline = min(cmd.remaining, cmd.clip.frame_count * cmd.clip.frame_time - cmd.offset)
             if elapsed < deadline and self.handle is None:
-                self.handle = self.playback.prepare(cmd.clip)
+                self.handle = self.playback.prepare(cmd.clip, whole_body=cmd.whole_body)
                 self.active = cmd
                 elapsed = self.clock() - cmd.received
             with self.lock:
@@ -148,7 +152,8 @@ class Scheduler:
                 return
             frame = int((cmd.offset + elapsed) / cmd.clip.frame_time)
             if frame != self.frame:
-                self.playback.show(self.handle, frame)
+                if self.playback.show(self.handle, frame) is False:
+                    return
                 self.frame = frame
             self.failure = None
             with self.lock:
