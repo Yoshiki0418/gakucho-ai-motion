@@ -84,7 +84,12 @@ def torso_yaw(motion: Motion) -> np.ndarray:
 def mirror_motion(motion: Motion) -> Motion:
     """左右反転(正中面 x=0 に対する鏡映)。右手の収録から左手の動作を作る。"""
     names = motion.skeleton.names
-    swap = [names.index(n.replace("Left", "@").replace("Right", "Left").replace("@", "Right")) for n in names]
+    swap = [
+        names.index(
+            n.replace("Left", "@").replace("Right", "Left").replace("@", "Right")
+        )
+        for n in names
+    ]
     quats = motion.quats[:, swap] * np.array([1.0, -1.0, -1.0, 1.0])
     root = motion.root.copy()
     root[:, 0] *= -1.0
@@ -104,13 +109,25 @@ class ClipLibrary:
         root, quats, offsets = data["root"], data["quats"], data["offsets"]
         self.clips: dict[str, Clip] = {}
         for entry, start, stop in zip(catalog["clips"], offsets[:-1], offsets[1:]):
-            motion = Motion(self.skeleton, root[start:stop].astype(np.float64),
-                            quats[start:stop].astype(np.float64), self.fps)
+            motion = Motion(
+                self.skeleton,
+                root[start:stop].astype(np.float64),
+                quats[start:stop].astype(np.float64),
+                self.fps,
+            )
             full_body = entry["id"] in FULL_BODY
-            self.clips[entry["id"]] = Clip(entry["id"], entry["label"], entry["source"], motion,
-                                           float(entry["stroke"]), group_weights(entry["groups"], full_body),
-                                           full_body, entry, torso_yaw(motion),
-                                           DEFAULT_AMPLITUDE.get(entry["id"], 1.0))
+            self.clips[entry["id"]] = Clip(
+                entry["id"],
+                entry["label"],
+                entry["source"],
+                motion,
+                float(entry["stroke"]),
+                group_weights(entry["groups"], full_body),
+                full_body,
+                entry,
+                torso_yaw(motion),
+                DEFAULT_AMPLITUDE.get(entry["id"], 1.0),
+            )
         self._mirrored: dict[str, Clip] = {}
 
     def get(self, catalog_id: str | None, *, mirrored: bool = False) -> Clip | None:
@@ -121,16 +138,30 @@ class ClipLibrary:
             return clip
         if catalog_id not in self._mirrored:
             weights = dict(clip.weights)
-            weights["right_arm"], weights["left_arm"] = clip.weights["left_arm"], clip.weights["right_arm"]
+            weights["right_arm"], weights["left_arm"] = (
+                clip.weights["left_arm"],
+                clip.weights["right_arm"],
+            )
             mirrored_motion = mirror_motion(clip.motion)
-            self._mirrored[catalog_id] = Clip(clip.id, clip.label, clip.source, mirrored_motion, clip.stroke,
-                                              weights, clip.full_body, clip.entry, torso_yaw(mirrored_motion),
-                                              clip.amplitude)
+            self._mirrored[catalog_id] = Clip(
+                clip.id,
+                clip.label,
+                clip.source,
+                mirrored_motion,
+                clip.stroke,
+                weights,
+                clip.full_body,
+                clip.entry,
+                torso_yaw(mirrored_motion),
+                clip.amplitude,
+            )
         return self._mirrored[catalog_id]
 
     def neutral_motion(self, frames: int) -> Motion:
         root = np.tile([[0.0, self.root_height, 0.0]], (frames, 1))
-        return Motion(self.skeleton, root, np.tile(self.neutral, (frames, 1, 1)), self.fps)
+        return Motion(
+            self.skeleton, root, np.tile(self.neutral, (frames, 1, 1)), self.fps
+        )
 
 
 _library: ClipLibrary | None = None
@@ -147,4 +178,6 @@ def get_library() -> ClipLibrary:
 
 
 def library_available() -> bool:
-    return (ASSET_DIR / "catalog.json").exists() and (ASSET_DIR / "library.npz").exists()
+    return (ASSET_DIR / "catalog.json").exists() and (
+        ASSET_DIR / "library.npz"
+    ).exists()

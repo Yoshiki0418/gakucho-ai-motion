@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import Link from 'next/link'
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import * as THREE from 'three'
@@ -116,6 +117,7 @@ export function HouseLab() {
   useEffect(() => {
     const scene = sceneRef.current
     if (!trace || !scene) return
+    const agent = agentRef.current
     let disposed = false
     let avatar: PhysicsAvatar | null = null
     loadPhysicsAvatar(trace.avatarProfile, trace.physicsRestBodies, trace.avatarBodyMap).then((loaded) => {
@@ -124,12 +126,12 @@ export function HouseLab() {
       avatar.root.traverse((object) => { const mesh = object as THREE.Mesh; if (mesh.isMesh) { mesh.castShadow = true; mesh.receiveShadow = true } })
       scene.add(avatar.root)
       avatar.update(trace.frames[0].bodies, trace.frames[0].bodies, 0)
-      agentRef.current.avatar = avatar
+      agent.avatar = avatar
     }).catch(() => setStatus('学長アバターを読み込めませんでした'))
     return () => {
       disposed = true
       if (avatar) { avatar.root.removeFromParent(); avatar.dispose() }
-      if (agentRef.current.avatar === avatar) agentRef.current.avatar = null
+      if (agent.avatar === avatar) agent.avatar = null
     }
   }, [trace, sceneReady])
   const seekAgent = (time: number, play = false) => {
@@ -405,15 +407,18 @@ function AgentPanel({ runs, runId, setRunId, run, trace, time, playing, speed, s
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 14, marginTop: 12 }}>
           <figure style={{ ...card, margin: 0 }}>
             <figcaption style={{ fontSize: 12.5, marginBottom: 8 }}><strong>止まって見た画像</strong><span style={{ color: '#9fb3c6' }}>（{look?.time.toFixed(1)}秒・{look?.why}）</span></figcaption>
-            {look?.boxes && <img src={`${base}/${look.boxes}`} alt="頭のカメラのカラー画像と物体検出の枠" style={{ width: '100%', borderRadius: 6, display: 'block' }} />}
+            {look?.boxes && <Image unoptimized src={`${base}/${look.boxes}`} alt="頭のカメラのカラー画像と物体検出の枠"
+              width={640} height={480} style={{ width: '100%', height: 'auto', borderRadius: 6, display: 'block' }} />}
             <p style={{ fontSize: 11.5, color: '#b7c9d9', margin: '8px 0 0', lineHeight: 1.7 }}>物体検出（黄）：{(look?.detections ?? []).map((d) => `${COCO_JA[d.coco] ?? d.coco} ${d.conf.toFixed(2)}`).join('・') || 'なし'}</p>
             <p style={{ fontSize: 11.5, color: '#b7c9d9', margin: '4px 0 0', lineHeight: 1.7 }}>VLM が画像で示した物（緑）：{(look?.vlm?.items ?? []).map((d) => `${VLM_KIND[d.kind] ?? d.kind}「${d.what}」${d.id ? `→${d.id}` : ''}`).join('・') || 'なし'}{look?.vlm?.seconds ? `（${look.vlm.seconds} 秒）` : ''}</p>
             {look?.depth && <><p style={{ fontSize: 12, margin: '10px 0 6px' }}><strong>同じ瞬間の深度画像</strong><span style={{ color: '#9fb3c6' }}>（近い＝明るい・水色＝障害物）</span></p>
-              <img src={`${base}/${look.depth}`} alt="深度画像" style={{ width: '62%', borderRadius: 6, display: 'block', imageRendering: 'pixelated' }} /></>}
+              <Image unoptimized src={`${base}/${look.depth}`} alt="深度画像" width={320} height={240}
+                style={{ width: '62%', height: 'auto', borderRadius: 6, display: 'block', imageRendering: 'pixelated' }} /></>}
           </figure>
           <figure style={{ ...card, margin: 0 }}>
             <figcaption style={{ fontSize: 12.5, marginBottom: 8 }}><strong>深度から作った地図と記憶した物</strong></figcaption>
-            {look?.map && <img src={`${base}/${look.map}`} alt="地図" style={{ width: '100%', borderRadius: 6, display: 'block', background: '#fff' }} />}
+            {look?.map && <Image unoptimized src={`${base}/${look.map}`} alt="地図" width={480} height={560}
+              style={{ width: '100%', height: 'auto', borderRadius: 6, display: 'block', background: '#fff' }} />}
             <p style={{ fontSize: 11, color: '#9fb3c6', margin: '8px 0 0', lineHeight: 1.6 }}>赤＝障害物（頭の深度カメラ3台：正面と左右60°、と認識した家具）・灰＝見て空いていると分かった床・青点＝物体検出で記憶した物・緑四角＝VLM が示した行き先・手がかり・出入口・◆＝まだ見ていない所の候補・橙＝歩いた軌跡</p>
           </figure>
           <div style={{ ...card, display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -432,7 +437,8 @@ function AgentPanel({ runs, runId, setRunId, run, trace, time, playing, speed, s
               {decisions.map((d, i) => <li key={i} style={{ marginBottom: 4 }}>
                 <button onClick={() => seek(d.time)} style={{ background: 'none', border: 'none', color: decision === d ? '#ffd27a' : d.kind === 'check' ? '#9fe0b4' : '#c5dcf4', padding: 0, textAlign: 'left', cursor: 'pointer', font: 'inherit' }}>
                   {d.kind === 'check' ? <>{d.time.toFixed(1)}秒 到着の確認：{d.answer?.arrived ? '着いている' : '着いていない'}（{d.answer?.reason ?? ''}）
-                    {d.headTurn && <><br /><img src={`${base}/${d.headTurn}`} alt="頭だけを行き先へ向けて撮った画像" style={{ width: 160, borderRadius: 4, marginTop: 4 }} /></>}</>
+                    {d.headTurn && <><br /><Image unoptimized src={`${base}/${d.headTurn}`} alt="頭だけを行き先へ向けて撮った画像"
+                      width={160} height={120} style={{ borderRadius: 4, marginTop: 4 }} /></>}</>
                     : <>{d.time.toFixed(1)}秒 {ACTION_LABEL[d.answer?.action ?? ''] ?? d.answer?.action}{d.answer?.target ? `（${d.answer.target}）` : ''}：{(d.answer?.thought ?? '').slice(0, 46)}{(d.answer?.thought ?? '').length > 46 ? '…' : ''}</>}
                 </button></li>)}
             </ol>

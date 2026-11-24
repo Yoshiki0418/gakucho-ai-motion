@@ -21,7 +21,6 @@ from agents import function_tool
 from .motion_backends import MotionRequest, get_motion_backend
 from .motion_catalog import normalize_motion_prompt
 
-
 T2M_SERVER_URL = os.getenv("T2M_SERVER_URL", "http://t2m:8099").rstrip("/")
 T2M_MODEL_NAME = os.getenv("T2M_MODEL_NAME", "t2m_gpt")
 T2M_PRELOAD_MODEL = os.getenv("T2M_PRELOAD_MODEL", "true").lower() in {
@@ -394,18 +393,22 @@ def enqueue_motion_job(
     # Deduplicate the action itself.  Audio cache suffixes must not change
     # the prompt compared against an explicit user request.
     if not channel.claim_prompt(cache_key, segment_index):
-        print(f"[motion_tool] duplicate skipped (tag): seg={segment_index} {cache_key!r}")
+        print(
+            f"[motion_tool] duplicate skipped (tag): seg={segment_index} {cache_key!r}"
+        )
         return False
 
     # A repeated segment number across turns does not identify the same
     # speech waveform, so audio-driven generation never reuses text caches.
     cached = None if audio_wav is not None else _get_cached_motion(cache_key)
     if cached is not None:
-        channel.put({
-            **cached,
-            "segment_index": segment_index,
-            "start_offset_ratio": position,
-        })
+        channel.put(
+            {
+                **cached,
+                "segment_index": segment_index,
+                "start_offset_ratio": position,
+            }
+        )
         return True
 
     channel.start_job()
@@ -452,14 +455,16 @@ def generate_motion(motion_description: str) -> str:
         )
 
     if channel.explicit_prompt is not None:
-        return json.dumps({
-            "status": "accepted",
-            "motion_description": channel.explicit_prompt,
-            "message": (
-                "The user's requested motion is already scheduled once. "
-                "Continue the spoken reply without additional gestures."
-            ),
-        })
+        return json.dumps(
+            {
+                "status": "accepted",
+                "motion_description": channel.explicit_prompt,
+                "message": (
+                    "The user's requested motion is already scheduled once. "
+                    "Continue the spoken reply without additional gestures."
+                ),
+            }
+        )
 
     catalog_match = normalize_motion_prompt(motion_description)
     normalized_description = catalog_match.prompt
@@ -469,14 +474,16 @@ def generate_motion(motion_description: str) -> str:
     # プロンプトで「両方出すな」と書いても守られないことがあるので構造で防ぐ。
     if not channel.claim_prompt(cache_key, channel.segment_index + 1):
         print(f"[motion_tool] duplicate skipped (tool): {cache_key!r}")
-        return json.dumps({
-            "status": "duplicate",
-            "motion_description": normalized_description,
-            "message": (
-                "This motion was already requested for this response. "
-                "Continue without mentioning it."
-            ),
-        })
+        return json.dumps(
+            {
+                "status": "duplicate",
+                "motion_description": normalized_description,
+                "message": (
+                    "This motion was already requested for this response. "
+                    "Continue without mentioning it."
+                ),
+            }
+        )
 
     # 層構成方式では、事前作成クリップで表せる動作は T2M を呼ばずに次の発話へ重ねる。
     # 座る・立つなどクリップに無いものは、下の現行経路(T2M)で生成する。
@@ -486,23 +493,27 @@ def generate_motion(motion_description: str) -> str:
         resolved = resolve_layered_request(motion_description)
         if resolved is not None:
             channel.request_action(motion_description, resolved[0])
-            return json.dumps({
-                "status": "accepted",
-                "motion_description": normalized_description,
-                "catalog_id": resolved[0],
-                "message": "Queued as a prepared gesture. Continue the response without mentioning it.",
-            })
+            return json.dumps(
+                {
+                    "status": "accepted",
+                    "motion_description": normalized_description,
+                    "catalog_id": resolved[0],
+                    "message": "Queued as a prepared gesture. Continue the response without mentioning it.",
+                }
+            )
 
     # 音声駆動バックエンドでは、音声が確定するまで生成できない。
     # ここでは要求だけ預け、TTS 完了後にオーケストレータが拾う。
     if motion_backend_requires_audio():
         channel.request_action(normalized_description, catalog_match.catalog_id)
-        return json.dumps({
-            "status": "accepted",
-            "motion_description": normalized_description,
-            "catalog_id": catalog_match.catalog_id,
-            "message": "Queued for audio-driven generation. Continue the response.",
-        })
+        return json.dumps(
+            {
+                "status": "accepted",
+                "motion_description": normalized_description,
+                "catalog_id": catalog_match.catalog_id,
+                "message": "Queued for audio-driven generation. Continue the response.",
+            }
+        )
 
     # ツール呼び出し時点で N 文が送出済みなら、いま組み立て中の文が N+1 になる。
     # モーションはその文に合わせて再生したいので +1 する。
@@ -511,11 +522,13 @@ def generate_motion(motion_description: str) -> str:
 
     cached = _get_cached_motion(cache_key)
     if cached is not None:
-        channel.put({
-            **cached,
-            "segment_index": segment_index,
-            "start_offset_ratio": 0.0,
-        })
+        channel.put(
+            {
+                **cached,
+                "segment_index": segment_index,
+                "start_offset_ratio": 0.0,
+            }
+        )
         return json.dumps(
             {
                 "status": "success",
