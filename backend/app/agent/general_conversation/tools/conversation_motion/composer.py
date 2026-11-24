@@ -84,8 +84,14 @@ def idle_base(library: ClipLibrary, frames: int, clock: float) -> Motion:
         vector[:, axis] = np.radians(degrees)
         half = vector / 2
         angle = np.linalg.norm(half, axis=1, keepdims=True)
-        q = np.concatenate([np.where(angle > 1e-9, np.sin(angle) / np.maximum(angle, 1e-9), 1.0) * half,
-                            np.cos(angle)], axis=1)
+        q = np.concatenate(
+            [
+                np.where(angle > 1e-9, np.sin(angle) / np.maximum(angle, 1e-9), 1.0)
+                * half,
+                np.cos(angle),
+            ],
+            axis=1,
+        )
         motion.quats[:, j] = qmul(motion.quats[:, j], q)
 
     breath = np.sin(2 * np.pi * 0.23 * t)
@@ -128,8 +134,12 @@ def apply_overlay(motion: Motion, overlay: Overlay, library: ClipLibrary) -> Non
         return
     frames = np.arange(first, last + 1)
     local_time = frames / fps - overlay.start
-    envelope = (_smoothstep(local_time / FADE_IN) * _smoothstep((overlay.length - local_time) / FADE_OUT)
-                * overlay.amplitude * overlay.clip.amplitude)
+    envelope = (
+        _smoothstep(local_time / FADE_IN)
+        * _smoothstep((overlay.length - local_time) / FADE_OUT)
+        * overlay.amplitude
+        * overlay.clip.amplitude
+    )
     clip_quats, clip_root = _sample(overlay.clip, local_time)
     reference = overlay.clip.motion.quats[0]
     for group, (_main, members) in library.groups.items():
@@ -142,7 +152,9 @@ def apply_overlay(motion: Motion, overlay: Overlay, library: ClipLibrary) -> Non
             if group in ("right_arm", "left_arm") or (group == "hips" and j != 0):
                 target = clip_quats[:, j]  # 姿勢そのもの
             else:
-                delta = qmul(clip_quats[:, j], qinv(reference[j])[None])  # 始めからの変化分
+                delta = qmul(
+                    clip_quats[:, j], qinv(reference[j])[None]
+                )  # 始めからの変化分
                 if group == "head":
                     delta = limit_rotation(delta, 60.0, HEAD_MAX_UP / len(members))
                 target = qmul(delta, current)
@@ -151,17 +163,27 @@ def apply_overlay(motion: Motion, overlay: Overlay, library: ClipLibrary) -> Non
             displacement = clip_root - overlay.clip.motion.root[0]
             motion.root[frames] += displacement * w[:, None]
     # 腕の動作で収録者が胴ごと向きを変えていれば、その分を背骨へ分けて足す
-    arm_weight = max(overlay.clip.weights.get("right_arm", 0.0), overlay.clip.weights.get("left_arm", 0.0))
+    arm_weight = max(
+        overlay.clip.weights.get("right_arm", 0.0),
+        overlay.clip.weights.get("left_arm", 0.0),
+    )
     if not overlay.clip.full_body and arm_weight > 0.0:
-        share = (envelope * arm_weight * TORSO_TURN / len(SPINE_CHAIN))
+        share = envelope * arm_weight * TORSO_TURN / len(SPINE_CHAIN)
         step = qpow(_sample_yaw(overlay.clip, local_time), share)
         for name in SPINE_CHAIN:
             j = library.skeleton.index(name)
             motion.quats[frames, j] = qmul(step, motion.quats[frames, j])
 
 
-def compose(library: ClipLibrary, duration: float, overlays: list[Overlay], *, base: Motion | None = None,
-            start_pose: Pose | None = None, clock: float = 0.0) -> Composition:
+def compose(
+    library: ClipLibrary,
+    duration: float,
+    overlays: list[Overlay],
+    *,
+    base: Motion | None = None,
+    start_pose: Pose | None = None,
+    clock: float = 0.0,
+) -> Composition:
     """1 発話ぶんの動作を作る。長さは発話と、はみ出す動作の終わりの長い方。"""
     fps = library.fps
     end = max([duration] + [o.end for o in overlays])
@@ -175,10 +197,14 @@ def compose(library: ClipLibrary, duration: float, overlays: list[Overlay], *, b
             last_q = np.repeat(motion.quats[-1:], pad, axis=0)
             last_r = np.repeat(motion.root[-1:], pad, axis=0)
             fade = _smoothstep(np.arange(1, pad + 1) / (0.5 * fps))[:, None]
-            quats = qslerp(last_q, idle.quats[motion.frames:], fade)
-            root = last_r * (1 - fade) + idle.root[motion.frames:] * fade
-            motion = Motion(motion.skeleton, np.concatenate([motion.root, root]),
-                            np.concatenate([motion.quats, quats]), fps)
+            quats = qslerp(last_q, idle.quats[motion.frames :], fade)
+            root = last_r * (1 - fade) + idle.root[motion.frames :] * fade
+            motion = Motion(
+                motion.skeleton,
+                np.concatenate([motion.root, root]),
+                np.concatenate([motion.quats, quats]),
+                fps,
+            )
         else:
             motion = motion.slice(0, frames)
         base_name = "rhythm"
@@ -190,9 +216,15 @@ def compose(library: ClipLibrary, duration: float, overlays: list[Overlay], *, b
     if start_pose is not None:
         count = min(int(START_BLEND * fps), frames)
         blend = _smoothstep(np.arange(count) / max(count - 1, 1))
-        motion.quats[:count] = qslerp(np.repeat(start_pose.quats[None], count, axis=0), motion.quats[:count],
-                                      blend[:, None])
-        motion.root[:count] = start_pose.root * (1 - blend[:, None]) + motion.root[:count] * blend[:, None]
+        motion.quats[:count] = qslerp(
+            np.repeat(start_pose.quats[None], count, axis=0),
+            motion.quats[:count],
+            blend[:, None],
+        )
+        motion.root[:count] = (
+            start_pose.root * (1 - blend[:, None])
+            + motion.root[:count] * blend[:, None]
+        )
     motion.quats = qnormalize(motion.quats)
     return Composition(motion, list(overlays), base_name)
 
@@ -200,4 +232,3 @@ def compose(library: ClipLibrary, duration: float, overlays: list[Overlay], *, b
 def pose_at(motion: Motion, seconds: float) -> Pose:
     index = int(np.clip(round(seconds * motion.fps), 0, motion.frames - 1))
     return Pose(motion.root[index].copy(), motion.quats[index].copy())
-

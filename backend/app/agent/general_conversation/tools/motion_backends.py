@@ -71,11 +71,9 @@ class MotionBackend(Protocol):
     requires_audio: bool
     """生成に発話音声が要るか。True なら TTS 完了後にしか呼べない。"""
 
-    def generate(self, request: MotionRequest) -> MotionResult:
-        ...
+    def generate(self, request: MotionRequest) -> MotionResult: ...
 
-    def health(self) -> dict:
-        ...
+    def health(self) -> dict: ...
 
 
 # ---------------------------------------------------------------- Custom-T2M
@@ -119,9 +117,13 @@ class CustomT2MBackend:
             try:
                 top_k = int(raw_top_k)
             except ValueError as error:
-                raise ValueError("T2M_TOP_K must be an integer greater than or equal to 0") from error
+                raise ValueError(
+                    "T2M_TOP_K must be an integer greater than or equal to 0"
+                ) from error
             if top_k < 0:
-                raise ValueError("T2M_TOP_K must be an integer greater than or equal to 0")
+                raise ValueError(
+                    "T2M_TOP_K must be an integer greater than or equal to 0"
+                )
             self.generation_options["top_k"] = top_k
         self._model_loaded = False
         self._lock = threading.Lock()
@@ -231,7 +233,8 @@ class CustomT2MBackend:
     def generate(self, request: MotionRequest) -> MotionResult:
         raise_constraint = simple_hand_raise_constraint(request.prompt)
         generation_caption = (
-            RIGHT_RAISE_CAPTION if raise_constraint is not None
+            RIGHT_RAISE_CAPTION
+            if raise_constraint is not None
             else simple_left_generation_caption(request.prompt)
         )
         result = self._request_generation(generation_caption or request.prompt)
@@ -241,7 +244,9 @@ class CustomT2MBackend:
 
         bvh = self._download_bvh(bvh_path)
         if raise_constraint is not None:
-            bvh, generated_side, mirrored = correct_generated_hand_raise(bvh, raise_constraint)
+            bvh, generated_side, mirrored = correct_generated_hand_raise(
+                bvh, raise_constraint
+            )
             print(
                 "[motion_backends] qualified generated hand raise "
                 f"request={request.prompt!r} generation_caption={generation_caption!r} "
@@ -263,8 +268,11 @@ class CustomT2MBackend:
 
     def health(self) -> dict:
         try:
-            return {"backend": self.name, "ok": True,
-                    "status": self._get_json("/api/realtime/status", timeout=5)}
+            return {
+                "backend": self.name,
+                "ok": True,
+                "status": self._get_json("/api/realtime/status", timeout=5),
+            }
         except Exception as error:  # noqa: BLE001
             return {"backend": self.name, "ok": False, "error": str(error)}
 

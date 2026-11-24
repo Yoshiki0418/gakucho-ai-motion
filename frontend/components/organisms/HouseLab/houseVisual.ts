@@ -174,7 +174,6 @@ export const createHouseVisual = (house: HouseDescription, assetBase = '/environ
   if (tatamiTexture) tatamiMaterial.map = tatamiTexture
 
   // ---------------------------------------------------------------- primitives
-  const add = (object: THREE.Object3D, parent: THREE.Object3D) => { parent.add(object); return object }
   const mesh = (name: string, geometry: THREE.BufferGeometry, surface: THREE.Material, parent: THREE.Object3D,
     position: [number, number, number] = [0, 0, 0]) => {
     geometries.add(geometry)
