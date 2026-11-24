@@ -88,7 +88,7 @@ jobs:
             }
 
             const params = { owner, repo, issue_number: issueNumber };
-            const { data: current } = await github.rest.issues.get(params);
+            let { data: current } = await github.rest.issues.get(params);
             if (current.pull_request) return;
             const labels = current.labels.map(label => label.name);
             let target;
@@ -97,10 +97,21 @@ jobs:
             } else {
               if (current.state !== 'open' || labels.includes('type:tracking') || labels.includes('type:operation')) return;
               target = status === 'In Progress' ? 'status:in-progress' : 'status:review';
-              if (!labels.includes(target)) await github.rest.issues.addLabels({ ...params, labels: [target] });
+              if (!labels.includes(target)) {
+                await github.rest.issues.addLabels({ ...params, labels: [target] });
+                // The close handler may have finished cleaning up before the addition.
+                ({ data: current } = await github.rest.issues.get(params));
+                if (current.state === 'closed') target = undefined;
+              }
             }
-            for (const name of labels.filter(name => name.startsWith('status:') && name !== target)) {
-              await github.rest.issues.removeLabel({ ...params, name });
+            for (const { name } of current.labels) {
+              if (!name.startsWith('status:') || name === target) continue;
+              try {
+                await github.rest.issues.removeLabel({ ...params, name });
+              } catch (error) {
+                // Another handler may already have removed this label.
+                if (error.status !== 404) throw error;
+              }
             }
             if (target) {
               core.setOutput('issue-id', current.node_id);
