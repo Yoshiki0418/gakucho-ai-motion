@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import styled from 'styled-components'
+import styles from '@/features/settings/ConversationSettings.module.css'
 
 export type ChatProvider = 'openai' | 'local'
 type Preference = { provider: 'auto' | ChatProvider; local: string; openai: string }
@@ -88,31 +88,12 @@ export function useChatModelSettings() {
   }
 }
 
-const Panel = styled.details`
-  color: #cbd5e1;
-  background: #0f172a;
-  border-bottom: 1px solid #334155;
-  font-size: 0.85rem;
-  padding: 8px 16px;
-  summary { cursor: pointer; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  strong { color: #f1f5f9; margin-right: 10px; }
-  summary::before { content: '▸'; margin-right: 6px; }
-  &[open] summary::before { content: '▾'; }
-  summary { list-style: none; }
-  summary::-webkit-details-marker { display: none; }
-  label { display: grid; gap: 4px; margin: 8px 0 4px; }
-  input, select, button {
-    color: #f1f5f9; background: #1e293b; border: 1px solid #64748b;
-    font: inherit; border-radius: 6px; padding: 4px 8px; min-width: 0;
-  }
-`
-
 export function ChatModelSettings({ settings }: { settings: ReturnType<typeof useChatModelSettings> }) {
   const { server, failed, provider, model, setModel, selectProvider, retry } = settings
   if (!server) {
     return (
-      <div role="status" style={{ padding: '8px 16px', color: '#cbd5e1', fontSize: '0.85rem' }}>
-        {failed ? <>対話モデル設定を取得できません。 <button onClick={retry}>再試行</button></>
+      <div role="status" className={styles.status}>
+        {failed ? <>対話モデル設定を取得できません。 <button type="button" onClick={retry}>再試行</button></>
           : '対話モデル設定を読み込み中…'}
       </div>
     )
@@ -120,12 +101,9 @@ export function ChatModelSettings({ settings }: { settings: ReturnType<typeof us
   const effective = provider === 'auto' ? server.default_provider : provider
   const defaultModel = effective === 'openai' ? server.openai_model : server.local_model
   return (
-    <Panel>
-      <summary>
-        <strong>対話モデル</strong>{provider === 'auto' && '自動 · '}{LABELS[effective]} / {model.trim() || defaultModel}
-      </summary>
+    <div className={styles.modelFields}>
       <label>
-        接続先
+        <span className={styles.fieldLabel}>接続先</span>
         <select value={provider} onChange={(event) => selectProvider(event.target.value as Preference['provider'])}>
           <option value="auto">自動（{LABELS[server.default_provider]}）</option>
           <option value="openai" disabled={!server.openai_available}>
@@ -134,13 +112,15 @@ export function ChatModelSettings({ settings }: { settings: ReturnType<typeof us
           <option value="local">ローカルLLM</option>
         </select>
       </label>
-      {provider !== 'auto' && (
+      {provider === 'auto' ? (
+        <p className={styles.note}>使用するモデル　{LABELS[effective]} / {defaultModel}</p>
+      ) : (
         <label>
-          モデルID（空欄でサーバー既定）
+          <span className={styles.fieldLabel}>モデルID（空欄でサーバー既定）</span>
           <input value={model} onChange={(event) => setModel(event.target.value)}
             placeholder={defaultModel} maxLength={256} spellCheck={false} autoComplete="off" />
         </label>
       )}
-    </Panel>
+    </div>
   )
 }

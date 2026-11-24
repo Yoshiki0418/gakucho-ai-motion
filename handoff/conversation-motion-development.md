@@ -53,13 +53,13 @@ LOCAL_LLM_MODEL=qwen2.5:7b
 
 1. 開発用バックエンドの `GET /api/text-chat/model-settings` で `default_provider` が `local`、`openai_available` が `false`、`local_model` が配備したモデルIDになっていることを確認します。サーバーにOpenAI APIキーを設定した場合、自動選択は `openai` になります。
 2. フロントエンドを開発モードで動かす場合は `frontend/` で `npm ci` の後、例えば `DEV_API_PROXY_TARGET=http://127.0.0.1:8087 npm run dev` を実行し、`http://127.0.0.1:4000/` を開きます。
-3. 「対話モデル」を開き、「自動」「OpenAI API」「ローカルLLM」から選びます。明示的に接続先を選んだときはモデルIDを入力できます。ローカルのモデルIDは `/v1/models` が返すID（Ollamaならタグを含む）に合わせてください。変更は次の送信から適用されます。選択はブラウザに保存されるので、キーの有無に再び追従したいときは「自動」に戻します。
+3. 会話ヘッダーの「設定」→「対話モデル」を開き、「自動」「OpenAI API」「ローカルLLM」から選びます。明示的に接続先を選んだときはモデルIDを入力できます。ローカルのモデルIDは `/v1/models` が返すID（Ollamaならタグを含む）に合わせてください。変更は次の送信から適用されます。選択はブラウザに保存されるので、キーの有無に再び追従したいときは「自動」に戻します。
 
 LLMの設定だけを切り替えても、音声合成、会話DB、各方式の動作サービスは従来どおり必要です。新規クローンでは `backend/app/prompts/`（`president_persona.py`、`system_prompt.txt`、`rag/default.md` を含む）と学長TTSの重みを管理者から受け取ります。初期セットアップは [共同開発者向けの手順](https://github.com/Yoshiki0418/gakucho-ai-motion/pull/5) を参照してください。
 
 ## 動作方式の比較
 
-会話画面の行動アバターで「動作生成」を開きます。方式は次のターンから反映されます。比較を再現するには、URLに `?motion_mode=layered` などのIDを指定できます。
+会話ヘッダーの「設定」→「動作生成」を開きます。方式は次のターンから反映されます。比較を再現するには、URLに `?motion_mode=layered` などのIDを指定できます。
 
 | UIの方式 | ID | 発話中の動きと必要な資産 |
 | --- | --- | --- |
@@ -71,7 +71,7 @@ LLMの設定だけを切り替えても、音声合成、会話DB、各方式の
 
 | 変更したい箇所 | 実装の入口 |
 | --- | --- |
-| UIで方式を選び、送信する | [会話画面](../frontend/app/page.tsx)・[SSEの送受信](../frontend/features/text-chat/hooks/useTextChat.ts) |
+| UIで方式を選び、送信する | [設定画面](../frontend/features/settings/ConversationSettings.tsx)・[会話画面](../frontend/app/page.tsx)・[SSEの送受信](../frontend/features/text-chat/hooks/useTextChat.ts) |
 | 返答の行動タグを解釈する | [タグとカタログIDの対応](../backend/app/agent/general_conversation/tools/motion_tags.py) |
 | タグの時刻を決め、音声の動きと合成する | [クリップの配置](../backend/app/agent/general_conversation/tools/conversation_motion/session.py)・[部位別の重ね方](../backend/app/agent/general_conversation/tools/conversation_motion/composer.py) |
 | 層を段階的に配信する | [リズムの生成と再配信](../backend/app/agent/general_conversation/tools/conversation_motion/pipeline.py)・[対話ルーター](../backend/app/routers/text_chat_router.py) |
