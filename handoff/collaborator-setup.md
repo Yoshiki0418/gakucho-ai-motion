@@ -8,6 +8,8 @@
 
 > `handoff/collaborator-setup.md` を読み、私の端末で学長AIの開発環境を用意してください。まずローカルで会話画面を開いてください。対話も試す場合は、利用できる開発用バックエンドを確認し、下の該当手順へ進んでください。最後に起動したURL、通った確認、不足している資産の名前を教えてください。APIキーや秘密鍵の値は表示しないでください。
 
+動作生成を担当する場合は、[LLM・動作設定の実装Issue](https://github.com/Yoshiki0418/gakucho-ai-motion/issues/6) のPRにある `handoff/conversation-motion-development.md` をClaude Codeに渡してください。キーなしの起動例、3方式の比較手順、修正箇所とテストをまとめています。
+
 ## 1. 手元で会話画面を開く
 
 初めて取得する場合は以下を実行します。既にクローンしている場合は、そのルートから `frontend` に移ります。
@@ -21,11 +23,11 @@ npm ci
 npm run dev -- --hostname 127.0.0.1
 ~~~
 
-`http://127.0.0.1:4000/` を開き、チャット入力欄と動作生成モードの選択が表示されればUIの準備は完了です。初期設定はタグごとにT2M-GPTで生成する「現行」です。必要に応じて「新方式」「新方式・リズムなし」を選べます。[モードの定義](../frontend/app/page.tsx)・[開発用コマンド](../frontend/package.json)
+`http://127.0.0.1:4000/` を開き、チャット入力欄と動作生成モードの選択が表示されればUIの準備は完了です。動作方式はタグごとのT2M生成が初期設定です。収録クリップに音声リズムまたは待機姿勢を組み合わせる方式へ切り替えられます。[モードの定義](../frontend/app/page.tsx)・[開発用コマンド](../frontend/package.json)
 
 ## 2. 提供済みの開発用バックエンドで対話する
 
-管理者から受け取るのは、開発用バックエンドの接続先です。APIキーとモデルはサーバー側で管理できます。例えば、接続を許可されたSSHホストでバックエンドが `127.0.0.1:8087` を利用している場合、Next.jsを動かす環境（WSLなら同じWSL）の別ターミナルで転送します。`user@dev-host` は自分の接続先に置き換えます。
+管理者から受け取るのは、開発用バックエンドの接続先です。LLMの接続設定はサーバー側で管理します。OpenAI APIキーを持っていない共同開発者は、ローカルLLMが設定済みの開発用バックエンドを利用できます（Issue #6の実装）。例えば、接続を許可されたSSHホストでバックエンドが `127.0.0.1:8087` を利用している場合、Next.jsを動かす環境（WSLなら同じWSL）の別ターミナルで転送します。`user@dev-host` は自分の接続先に置き換えます。
 
 ~~~bash
 ssh -N -L 127.0.0.1:18087:127.0.0.1:8087 user@dev-host
@@ -38,7 +40,7 @@ curl -fsS http://127.0.0.1:18087/health
 DEV_API_PROXY_TARGET=http://127.0.0.1:18087 npm run dev -- --hostname 127.0.0.1
 ~~~
 
-ヘルス応答は `{"status":"ok"}` です。画面から短い挨拶を1件送って、返答テキスト、音声、アバターの身振りを確認します。この確認では接続先のLLM APIを使い、会話履歴は接続先のDBに保存されます。[APIとWebSocketの転送設定](../frontend/next.config.ts)
+ヘルス応答は `{"status":"ok"}` です。画面から短い挨拶を1件送って、返答テキスト、音声、アバターの身振りを確認します。この確認では開発用バックエンドで選んだLLMを使い、会話履歴は接続先のDBに保存されます。[APIとWebSocketの転送設定](../frontend/next.config.ts)
 
 ## 3. 専用マシンでバックエンドも用意する場合
 
@@ -49,8 +51,8 @@ DEV_API_PROXY_TARGET=http://127.0.0.1:18087 npm run dev -- --hostname 127.0.0.1
 | 対象 | 配置と確認事項 |
 | --- | --- |
 | 実行環境 | Bash、Python 3、Docker Engine、`gpus` と `!override` / `!reset` を解釈できるDocker Compose v2。GPU実行にはNVIDIAドライバとNVIDIA Container Toolkitも必要です。 |
-| DBとAPI設定 | ルートの `.env` に開発用の `POSTGRES_USER`、`POSTGRES_PASSWORD`、`POSTGRES_DB` を設定。Composeは `HF_USERNAME`、`HF_TOKEN` も参照します。`backend/.env` に利用を許可された `OPENAI_API_KEY` を設定します。`DB_URL` はComposeが組み立てます。DBは空の `data/postgres/` から初期化できます。 |
-| 応答・音声モデル | 管理者から `backend/app/prompts/system_prompt.txt`、学長音声用の `backend/app/weights/tts/gakucho_ai_v2/`（`config.json`、`style_vectors.npy`、`G_*.pth`）を受け取ります。検索モデル `cl-nagoya/ruri-v3-310m` はバックエンドから取得できるか、イメージ内にキャッシュが必要です。 |
+| DBとAPI設定 | ルートの `.env` に開発用の `POSTGRES_USER`、`POSTGRES_PASSWORD`、`POSTGRES_DB` を設定。Composeは `HF_USERNAME`、`HF_TOKEN` も参照します。ローカルLLM利用時は `backend/.env` に `LOCAL_LLM_BASE_URL` と `LOCAL_LLM_MODEL` を設定し、`OPENAI_API_KEY` は空にします。OpenAI利用時はサーバー側でキーを設定します。`DB_URL` はComposeが組み立てます。DBは空の `data/postgres/` から初期化できます。 |
+| 応答・音声モデル | 管理者から `backend/app/prompts/` 一式（`system_prompt.txt`、`president_persona.py`、`rag/default.md`）、学長音声用の `backend/app/weights/tts/gakucho_ai_v2/`（`config.json`、`style_vectors.npy`、`G_*.pth`）を受け取ります。検索モデル `cl-nagoya/ruri-v3-310m` はバックエンドから取得できるか、イメージ内にキャッシュが必要です。 |
 | 動作生成 | このリポジトリと同じ親ディレクトリに、対応する版の `Custom-T2M-Lab/` を置きます。`t2m_gpt/inference.py`、`web_viewer/app.py` および使用する学習済みモデル一式を管理者から受け取ります。 |
 | Dockerイメージ | 専用T2M用の `gakucho-ai_devcontainer-backend` と、対話用の `gakucho-ai-motion-backend:prod` を用意します。管理者提供のイメージアーカイブは `docker load -i ファイル名.tar` で読み込めます。バックエンドを再ビルドする場合、Dockerfileは `COPY . .` を使うため、認証ファイルや非公開資産を除いたビルドコンテキストを使います。 |
 | HTTPS | 開発ホスト名に対応した証明書を `nginx/certs/server.crt`、その開発用秘密鍵を `nginx/certs/server.key` に置き、ブラウザで発行元を信頼します。 |
