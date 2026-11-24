@@ -6,7 +6,7 @@ set -e
 cd "$(dirname "$0")/../.."
 name=$1; library=$2; shift 2
 runs=.runtime/world-model/tracker/runs
-export LD_LIBRARY_PATH="$PWD/.runtime/warp-cuda-shim:$PWD/.runtime/nvidia-595.91.07"
+. world_model/tracker/cuda_env.sh
 export CUDA_VISIBLE_DEVICES=0 XLA_PYTHON_CLIENT_MEM_FRACTION=.6
 nohup sh -c ".runtime/world-model/mjx-venv/bin/python -u -m world_model.tracker.train_tracker \
   --library $library --output $runs/$name $* 2>&1 \

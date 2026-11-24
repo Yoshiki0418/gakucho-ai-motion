@@ -48,6 +48,7 @@ class Map:
         self.seen = np.zeros_like(self.grid.occupied)
         self.cell = CELL
         self.frame_index = None   # set by the episode: control step of the current pose (for the viewer records)
+        self.floor_z = 0.         # height of the floor this map is of (the 2F floor for a map of the first floor up)
         self.shots = []           # every depth image the planner used: (frame, metres or -1 when nothing hit, obstacle pixels)
 
     def observe(self, model, data):
@@ -64,7 +65,8 @@ class Map:
         hit = (ids >= 0) & (ranges >= 0)
         reach = np.where(hit, ranges, config.far_meters)
         points = origin + rays * reach[:, None]
-        obstacle = hit & (points[:, 2] > OBSTACLE_Z[0]) & (points[:, 2] < OBSTACLE_Z[1])
+        above = points[:, 2] - self.floor_z
+        obstacle = hit & (above > OBSTACLE_Z[0]) & (above < OBSTACLE_Z[1])
         self.grid.mark(points[obstacle, :2])
         self.shots.append((self.frame_index() if self.frame_index else -1,
                            np.where(hit, ranges, -1.).reshape(config.height, config.width),

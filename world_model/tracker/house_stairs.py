@@ -258,10 +258,13 @@ def _clip(args):
     os.environ.setdefault("JAX_PLATFORMS", "cpu")
     from . import body as B
     from .navigation_eval import _walk_bank
-    index, library = args
+    index, library, walks = args
     rng = random.Random(index)
     bank = _walk_bank(library)
     up = index % 2 == 0
+    if walks:     # only the walks given for this direction
+        allowed = set(json.loads(Path(walks).read_text())["up" if up else "down"])
+        bank = [b for b in bank if b[0] in allowed]
     rise = RISE if rng.random() < .7 else rng.uniform(.17, RISE)
     lateral = rng.uniform(-.08, .08)
     start = rng.uniform(-1.25, -1.0) if up else rng.uniform(3.4, 3.75)
@@ -287,7 +290,7 @@ def _clip(args):
 def references(args):
     from .motion_library import ARRAYS
     with get_context("spawn").Pool(args.workers) as pool:
-        made = pool.map(_clip, [(i, args.library) for i in range(args.clips)], chunksize=1)
+        made = pool.map(_clip, [(i, args.library, args.walks) for i in range(args.clips)], chunksize=1)
     manifest, arrays, offset = [], {k: [] for k in ARRAYS}, 0
     for clip, data in made:
         clip["start"], clip["length"] = offset, int(len(data["qpos"]))
@@ -298,7 +301,7 @@ def references(args):
     out = Path(args.output)
     out.mkdir(parents=True, exist_ok=False)
     np.savez(out / "library.npz", **{k: np.concatenate(v) for k, v in arrays.items()})
-    summary = {"version": 1, "source": "house_stairs.stair_walk (captured walks, one tread per step)", "hz": 50,
+    summary = {"version": 1, "source": "house_stairs.stair_walk (captured walks, one tread per step)", "walks": args.walks, "hz": 50,
                "clips": len(manifest), "usable": len(manifest), "frames": offset,
                "byDirection": {d: sum(c["label"] == d for c in manifest) for d in ("up", "down")}}
     (out / "manifest.json").write_text(json.dumps({"summary": summary, "clips": manifest}, ensure_ascii=False, indent=1))
@@ -306,6 +309,18 @@ def references(args):
 
 
 # ---------------------------------------------------------------------------------------------- evaluation
+def _touches(model, data, qpos, blocked, body_geoms):
+    """True when the reference itself (kinematically, every other frame) puts a body part into a wall or a railing."""
+    import mujoco
+    for q in qpos[::2]:
+        data.qpos[:] = q
+        mujoco.mj_forward(model, data)
+        for c in data.contact[:data.ncon]:
+            if c.dist < 0 and ((c.geom1 in blocked and c.geom2 in body_geoms) or (c.geom2 in blocked and c.geom1 in body_geoms)):
+                return True
+    return False
+
+
 def _episode(args):
     os.environ.setdefault("JAX_PLATFORMS", "cpu")
     import jax
@@ -314,29 +329,36 @@ def _episode(args):
     from . import body as B
     from ..house2f import create_house
     from .navigation_eval import _load, scene_elements
-    run_dir, params, library, index, output = args
+    run_dir, params, library, index, output, walks, check_walls = args
     run, policy, config, env, observe, bank = _load(run_dir, params, library)
     rng = random.Random(1_000_000 + index)
     up = index % 2 == 0
-    walk_name, walk = bank[rng.randrange(len(bank))]
-    start, end = (BOTTOM, TOP) if up else (TOP, BOTTOM)
-    for _ in range(len(bank)):
-        try:
-            reference = stair_walk(B.build_model(), walk, up, start, end, rng.uniform(-.05, .05))[0]["qpos"].astype(np.float64)
-            break
-        except ValueError:
-            walk_name, walk = bank[rng.randrange(len(bank))]
-    end = float(reference[-1, 0])
-    table = np.concatenate([reference, np.repeat(reference[-1:], 20, axis=0)]).astype(np.float32)
+    if walks:     # only the walks given for this direction (a stair gait the tracker follows)
+        allowed = set(json.loads(Path(walks).read_text())["up" if up else "down"])
+        bank = [b for b in bank if b[0] in allowed]
     scene = create_house()
     model = B.build_model(floor=None, extra_world=scene_elements(scene))
     model.opt.iterations, model.opt.ls_iterations = config.solver_iterations, config.solver_ls_iterations
     data = mujoco.MjData(model)
-    data.qpos[:] = reference[0]
-    mujoco.mj_forward(model, data)
     nb = len(B.SEGMENTS)
     body_geoms = {g for g in range(model.ngeom) if 1 <= model.geom_bodyid[g] <= nb}
     blocked = {model.geom(g["id"]).id: g["id"] for g in scene["geoms"] if g.get("semantic") not in ("floor", "stair")}
+    walk_name, walk = bank[rng.randrange(len(bank))]
+    start, end = (BOTTOM, TOP) if up else (TOP, BOTTOM)
+    for _ in range(4 * len(bank)):      # (a walk whose steps do not end in the end window raises ValueError)
+        try:
+            reference = stair_walk(B.build_model(), walk, up, start, end, rng.uniform(-.05, .05))[0]["qpos"].astype(np.float64)
+            if check_walls and _touches(model, data, reference, blocked, body_geoms):
+                raise ValueError("the reference itself touches a wall")      # a gait nobody would choose here
+            break
+        except ValueError:
+            walk_name, walk = bank[rng.randrange(len(bank))]
+    else:
+        raise ValueError(f"no walk fits the stair ({len(bank)} walks)")
+    end = float(reference[-1, 0])
+    table = np.concatenate([reference, np.repeat(reference[-1:], 20, axis=0)]).astype(np.float32)
+    data.qpos[:] = reference[0]
+    mujoco.mj_forward(model, data)
     info = {"clip": jp.int32(0), "frame": jp.int32(0), "last_act": jp.zeros(model.nu), "linvel": jp.zeros((nb, 3))}
     jtable, jlength = jp.asarray(table), jp.int32(len(table))
     key = jax.random.PRNGKey(index)
@@ -377,12 +399,12 @@ def evaluate(args):
     out = Path(args.output)
     out.mkdir(parents=True, exist_ok=True)
     started = time.time()
-    jobs = [(args.run, args.params, args.library, i, str(out)) for i in range(args.episodes)]
+    jobs = [(args.run, args.params, args.library, i, str(out), args.walks, args.check_walls) for i in range(args.episodes)]
     with get_context("spawn").Pool(args.workers) as pool:
         episodes = pool.map(_episode, jobs, chunksize=1)
     by = {d: [sum(e["success"] for e in episodes if e["direction"] == d), sum(e["direction"] == d for e in episodes)] for d in ("up", "down")}
     summary = {"run": Path(args.run).name, "episodes": len(episodes), "success": sum(e["success"] for e in episodes),
-               "byDirection": by, "elapsedSeconds": round(time.time() - started, 1)}
+               "byDirection": by, "walks": args.walks, "checkWalls": args.check_walls, "elapsedSeconds": round(time.time() - started, 1)}
     (out / "summary.json").write_text(json.dumps({"summary": summary, "episodes": episodes}, ensure_ascii=False, indent=1))
     print(json.dumps(summary, ensure_ascii=False))
 
@@ -394,6 +416,7 @@ def main():
     r.add_argument("--library", required=True, help="walk bank (motion-library-v1)")
     r.add_argument("--clips", type=int, default=240)
     r.add_argument("--workers", type=int, default=16)
+    r.add_argument("--walks", help="JSON {\"up\": [walk, ...], \"down\": [...]}: draw only these walks (default: the whole bank)")
     r.add_argument("--output", required=True)
     e = sub.add_parser("evaluate")
     e.add_argument("--run", required=True)
@@ -401,6 +424,8 @@ def main():
     e.add_argument("--library", required=True)
     e.add_argument("--episodes", type=int, default=16)
     e.add_argument("--workers", type=int, default=16)
+    e.add_argument("--walks", help="JSON {\"up\": [walk, ...], \"down\": [...]}: draw only these walks (default: the whole bank)")
+    e.add_argument("--check-walls", action="store_true", help="draw another walk when the reference itself touches a wall or a railing")
     e.add_argument("--output", required=True)
     args = parser.parse_args()
     references(args) if args.command == "references" else evaluate(args)

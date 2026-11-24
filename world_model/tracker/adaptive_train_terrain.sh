@@ -13,7 +13,7 @@ cd "$(dirname "$0")/../.."
 name=$1; library=$2; params=$3; rounds=$4; per=$5; shift 5
 runs=.runtime/world-model/tracker/runs
 out=$runs/$name
-export LD_LIBRARY_PATH="$PWD/.runtime/warp-cuda-shim:$PWD/.runtime/nvidia-595.91.07"
+. world_model/tracker/cuda_env.sh
 export CUDA_VISIBLE_DEVICES=0 XLA_PYTHON_CLIENT_MEM_FRACTION=.6
 python=.runtime/world-model/mjx-venv/bin/python
 terrain=
