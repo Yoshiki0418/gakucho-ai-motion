@@ -1,4 +1,3 @@
-import os
 from typing import AsyncIterator
 
 from agents import Agent, Runner, WebSearchTool
@@ -8,17 +7,6 @@ from app.agent.general_conversation.tools import (
     search_nearby_places,
 )
 from app.agent.general_conversation.tools.motion_tags import action_tag_instructions
-from dotenv import load_dotenv
-
-load_dotenv()
-
-api_key = os.getenv("OPENAI_API_KEY")
-if not api_key:
-    raise RuntimeError(
-        "OPENAI_API_KEY が設定されていません。 .env に書くか環境変数を渡してください。"
-    )
-
-os.environ["OPENAI_API_KEY"] = api_key
 
 
 class LocationAgent:

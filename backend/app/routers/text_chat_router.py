@@ -7,17 +7,12 @@ import json
 import os
 import re
 import time
+from pathlib import Path
 
 # import cv2
 # import numpy as np
 # import soundfile as sf
 from app.agent.agent_factory import build_conversation_orchestrator
-from app.agent.general_conversation.agent import GeneralConversationAgent
-from app.agent.general_conversation.domains import (
-    LifePlanningAgent,
-    LocationAgent,
-    ResearchAgent,
-)
 from app.agent.general_conversation.tools.conversation_motion.pipeline import (
     LayeredTurn,
     PlannedTag,
@@ -43,11 +38,13 @@ from app.agent.general_conversation.tools.motion_tool import (
     motion_backend_requires_audio,
     motion_data_queue_var,
 )
+from app.chat_models import ChatModel, model_settings, select_model
 from app.models import llm, tts
+from app.models.model_registry import create_llm
 from app.services.history_service import HistoryService
 
 # from app.models.lipsync.ditto_batch_streamer import AvatarStreamer
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import StreamingResponse
 
 # import queue as sync_queue
@@ -60,32 +57,50 @@ router = APIRouter(prefix="/api/text-chat", tags=["Text Chat"])
 DEFAULT_SESSION_ID = os.getenv("CHAT_DEFAULT_SESSION_ID", "default")
 
 
+@router.get("/model-settings")
+def chat_model_settings():
+    return model_settings()
+
+
+def _request_model(request: Request) -> ChatModel:
+    try:
+        return select_model(
+            request.query_params.get("llm_provider"),
+            request.query_params.get("llm_model"),
+        )
+    except ValueError as error:
+        raise HTTPException(status_code=400, detail=str(error)) from error
+    except RuntimeError as error:
+        raise HTTPException(status_code=503, detail=str(error)) from error
+
+
+def _request_tts(request: Request):
+    # There is one installed voice. Requests may name it, but cannot choose a model directory.
+    provider = request.query_params.get("tts_provider")
+    voice = request.query_params.get("tts_voice")
+    if provider and provider not in (
+        "default",
+        os.getenv("TTS_PROVIDER", "style-bert-vits2"),
+    ):
+        raise HTTPException(
+            status_code=400, detail="指定した音声合成プロバイダーは設定されていません。"
+        )
+    installed_voice = Path(os.getenv("TTS_MODEL_DIR", "gakucho_ai_v2")).name
+    if voice and voice not in ("default", installed_voice):
+        raise HTTPException(
+            status_code=400, detail="指定した音声モデルは設定されていません。"
+        )
+    return tts
+
+
 @router.get("/stream")
 async def text_chat_stream(request: Request):
     user_input = request.query_params.get("text", "こんにちは！")
     history = request.query_params.get("history", [])
 
-    # モデル選択（オプション）
-    llm_provider = request.query_params.get("llm_provider", None)
-    llm_model = request.query_params.get("llm_model", None)
-    tts_provider = request.query_params.get("tts_provider", None)
-    tts_voice = request.query_params.get("tts_voice", None)
-
-    if llm_model or tts_voice:
-        from app.models.model_registry import create_llm, create_tts
-
-        system_prompt = (
-            "あなたは金沢工業大学の学長です。親しみやすく、丁寧に回答してください。"
-        )
-
-        _llm = create_llm(
-            llm_provider or "openai",
-            llm_model or "gpt-4o-mini",
-            system_prompt=system_prompt,
-        )
-        _tts = create_tts(tts_provider or "style-bert-vits2")
-    else:
-        _llm, _tts = llm, tts
+    model = _request_model(request)
+    _llm = create_llm(model.provider, llm.system_prompt, model.name)
+    _tts = _request_tts(request)
 
     async def event_stream():
         yield f"data: {json.dumps({'type': 'start', 'message': f'{_llm.model_name} を使用します'})}\n\n"
@@ -111,29 +126,9 @@ async def char_stream(request: Request):
     user_input = request.query_params.get("text", "こんにちは！")
     history = request.query_params.get("history", [])
 
-    # モデル選択（オプション）
-    llm_provider = request.query_params.get("llm_provider", None)
-    llm_model = request.query_params.get("llm_model", None)
-    tts_provider = request.query_params.get("tts_provider", None)
-    tts_voice = request.query_params.get("tts_voice", None)
-
-    if llm_model or tts_voice:
-        from app.models.model_registry import create_llm, create_tts
-
-        system_prompt = (
-            "あなたは金沢工業大学の学長です。"
-            "常に相手の意図を正確に理解し、思いやりのある自然な言葉で説明します。"
-            "ユーザーを生徒として話し、長すぎる説明は避け、テンポよく短めの発言を心がけてください。"
-        )
-
-        _llm = create_llm(
-            llm_provider or "openai",
-            llm_model or "gpt-4o-mini",
-            system_prompt=system_prompt,
-        )
-        _tts = create_tts(tts_provider or "style-bert-vits2")
-    else:
-        _llm, _tts = llm, tts
+    model = _request_model(request)
+    _llm = create_llm(model.provider, llm.system_prompt, model.name)
+    _tts = _request_tts(request)
 
     PUNCTUATIONS = {"。", "！", "？", "!", "?"}
 
@@ -179,22 +174,8 @@ async def char_stream_agent(request: Request):
     user_input = request.query_params.get("text", "こんにちは！")
     # history = request.query_params.get("history", [])
 
-    # モデル選択（オプション）
-    tts_provider = request.query_params.get("tts_provider", None)
-    tts_voice = request.query_params.get("tts_voice", None)
-    research_agent = ResearchAgent()
-    life_planning_agent = LifePlanningAgent()
-    location_agent = LocationAgent()
-    agent = GeneralConversationAgent(
-        research_agent.agent, life_planning_agent.agent, location_agent.agent
-    )
-
-    if tts_voice:
-        from app.models.model_registry import create_tts
-
-        _tts = create_tts(tts_provider or "style-bert-vits2")
-    else:
-        _tts = tts
+    agent = build_conversation_orchestrator(_request_model(request)).daily_agent
+    _tts = _request_tts(request)
 
     PUNCTUATIONS = {"。", "！", "？", "!", "?"}
 
@@ -434,8 +415,6 @@ async def char_stream_agent(request: Request):
 #     return StreamingResponse(event_stream(), media_type="text/event-stream")
 
 
-conversation_orchestrator = build_conversation_orchestrator()
-
 # --- 対話履歴サービスの初期化 ---
 try:
     history_service = HistoryService()
@@ -475,6 +454,10 @@ async def char_stream_orchestrator(request: Request):
     motion_mode = parse_mode(request.query_params.get("motion_mode"))
     avatar_posture = request.query_params.get("posture", "standing")
 
+    _tts = _request_tts(request)
+    selected_model = _request_model(request)
+    conversation_orchestrator = build_conversation_orchestrator(selected_model)
+
     # --- 対話履歴の取得 ---
     history = []
     if history_service:
@@ -497,17 +480,6 @@ async def char_stream_orchestrator(request: Request):
             )
         except Exception as e:
             print(f"[WARNING] ユーザーメッセージ保存に失敗: {e}")
-
-    # モデル選択
-    tts_provider = request.query_params.get("tts_provider", None)
-    tts_voice = request.query_params.get("tts_voice", None)
-
-    if tts_voice:
-        from app.models.model_registry import create_tts
-
-        _tts = create_tts(tts_provider or "style-bert-vits2")
-    else:
-        _tts = tts
 
     PUNCTUATIONS = {"。", "！", "？", "!", "?"}
 
@@ -695,7 +667,19 @@ async def char_stream_orchestrator(request: Request):
             if response_type == "done":
                 break
             if response_type == "error":
-                raise payload
+                # Provider errors may contain credentials or request data. Expose only the next action.
+                print(
+                    f"[chat] {selected_model.provider} inference failed: {type(payload).__name__}"
+                )
+                message = (
+                    "ローカルLLMに接続できないか、モデルが応答できません。接続先とモデルIDを確認してください。"
+                    if selected_model.provider == "local"
+                    else "OpenAIの応答を取得できません。APIキーとモデルIDを確認してください。"
+                )
+                yield "data: " + json.dumps(
+                    {"type": "error", "message": message}
+                ) + "\n\n"
+                return
 
             chunk = payload
             raw_piece = str(chunk)

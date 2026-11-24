@@ -1,7 +1,8 @@
 import os
 from typing import Tuple
 
-from app.models.llm import OpenAILLM
+from app.chat_models import select_model
+from app.models.llm import LocalLLM, OpenAILLM
 from app.models.llm.base_llm import BaseLLM
 from app.models.tts import StyleBertVITS2_TTS
 
@@ -16,12 +17,9 @@ def read_prompt_from_file(path: str) -> str:
 
 
 def create_llm(provider: str, system_prompt: str, model_name: str = None) -> BaseLLM:
-    if provider == "openai":
-        return OpenAILLM(
-            system_prompt=system_prompt, model_name=model_name or "gpt-4o-mini"
-        )
-    else:
-        raise ValueError(f"Unknown LLM provider: {provider}")
+    selected = select_model(provider, model_name)
+    model_class = LocalLLM if selected.provider == "local" else OpenAILLM
+    return model_class(system_prompt=system_prompt, model_name=selected.name)
 
 
 def create_tts(provider: str, model_dir: str):
@@ -32,8 +30,7 @@ def create_tts(provider: str, model_dir: str):
 
 
 def load_models_from_env() -> Tuple[object, object]:
-    llm_provider = os.getenv("LLM_PROVIDER", "openai")
-    llm_model_name = os.getenv("LLM_MODEL_NAME", "gpt-5.2")
+    selected = select_model()
     tts_provider = os.getenv("TTS_PROVIDER", "style-bert-vits2")
 
     prompt_path = os.getenv(
@@ -44,6 +41,6 @@ def load_models_from_env() -> Tuple[object, object]:
     )
     system_prompt = read_prompt_from_file(prompt_path)
 
-    llm = create_llm(llm_provider, system_prompt, llm_model_name)
+    llm = create_llm(selected.provider, system_prompt, selected.name)
     tts = create_tts(tts_provider, tts_path)
     return llm, tts

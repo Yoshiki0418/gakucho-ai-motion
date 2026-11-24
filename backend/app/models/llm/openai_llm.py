@@ -1,20 +1,14 @@
-import os
 from typing import AsyncIterator, List, Optional
 
-from dotenv import load_dotenv
-from openai import AsyncOpenAI, OpenAI
+from app.chat_models import chat_client
 
 from .base_llm import BaseLLM, PromptContext
-
-load_dotenv()
-
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-openai_client = OpenAI(api_key=OPENAI_API_KEY)
-openai_streaming_client = AsyncOpenAI(api_key=OPENAI_API_KEY)
 
 
 class OpenAILLM(BaseLLM):
     """OpenAI Chat APIを利用したLLM実装クラス"""
+
+    provider = "openai"
 
     def __init__(
         self,
@@ -61,24 +55,22 @@ class OpenAILLM(BaseLLM):
         kwargs = {
             "model": self._model_name,
             "messages": messages,
-            "temperature": temperature,
         }
 
         # 新しいモデル（gpt-5.2やo1等）では max_completion_tokens を使用する
-        if (
-            "gpt-5" in self._model_name
-            or "o1" in self._model_name
-            or "o3" in self._model_name
+        if self.provider == "openai" and self._model_name.startswith(
+            ("gpt-5", "o1", "o3", "o4")
         ):
             kwargs["max_completion_tokens"] = max_tokens
         else:
             kwargs["max_tokens"] = max_tokens
+            kwargs["temperature"] = temperature
 
         if tool_calls:
             kwargs["tools"] = tool_calls
             kwargs["tool_choice"] = "auto"
 
-        response = openai_client.chat.completions.create(**kwargs)
+        response = await chat_client(self.provider).chat.completions.create(**kwargs)
 
         return response.choices[0].message.content.strip()
 
@@ -100,23 +92,22 @@ class OpenAILLM(BaseLLM):
         kwargs = {
             "model": self._model_name,
             "messages": messages,
-            "temperature": temperature,
             "stream": True,
         }
 
         # 新しいモデル（gpt-5.2やo1等）では max_completion_tokens を使用する
-        if (
-            "gpt-5" in self._model_name
-            or "o1" in self._model_name
-            or "o3" in self._model_name
+        if self.provider == "openai" and self._model_name.startswith(
+            ("gpt-5", "o1", "o3", "o4")
         ):
             kwargs["max_completion_tokens"] = max_tokens
         else:
             kwargs["max_tokens"] = max_tokens
+            kwargs["temperature"] = temperature
 
         # OpenAI 非同期ストリーム
-        stream = await openai_streaming_client.chat.completions.create(**kwargs)
+        stream = await chat_client(self.provider).chat.completions.create(**kwargs)
 
-        async for chunk in stream:
-            if chunk.choices and chunk.choices[0].delta.content:
-                yield chunk.choices[0].delta.content
+        async with stream:
+            async for chunk in stream:
+                if chunk.choices and chunk.choices[0].delta.content:
+                    yield chunk.choices[0].delta.content

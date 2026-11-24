@@ -1,5 +1,6 @@
 'use client'
 
+import type { ChatProvider } from '../ChatModelSettings'
 import { useState, useRef, useEffect, useCallback } from 'react'
 
 interface Message {
@@ -74,6 +75,8 @@ export type MotionModeStatus = {
 }
 
 export type StartChatOptions = {
+  llmProvider?: ChatProvider
+  llmModel?: string
   motionMode?: MotionMode
   /** アバターの現在の姿勢。座位中は層構成方式を使わない。 */
   posture?: string
@@ -150,8 +153,10 @@ type SSEAny =
   | SSEMotion
   | SSEMotionError
   | SSEMotionMode
+  | { type: 'error'; message: string }
 
 export function useTextChat(endpoint: string) {
+  const [chatError, setChatError] = useState<string | null>(null)
   const [messages, setMessages] = useState<Message[]>([])
   const [speakingMessageId, setSpeakingMessageId] = useState<string | null>(null)
   const [avatarFrameSrc, setAvatarFrameSrc] = useState<string | null>(null) // ★ 最新フレーム
@@ -198,6 +203,7 @@ export function useTextChat(endpoint: string) {
       eventSourceRef.current.close()
       eventSourceRef.current = null
     }
+    setChatError(null)
     setMessages([])
     setSpeakingMessageId(null)
     setAvatarFrameSrc(null)
@@ -465,6 +471,7 @@ export function useTextChat(endpoint: string) {
   ) => {
     // 新しい会話のたびにオーディオはリセット
     stopAllAudio()
+    setChatError(null)
     setLatestUrl(null)
     setMotionModeStatus(null)
 
@@ -479,10 +486,12 @@ export function useTextChat(endpoint: string) {
 
     // Nginx / Next.js と同じオリジンを経由してAPIへ接続する。
     // ビルド時の固定IPを使わないことで、どちらのLANからでもアクセスできる。
-    const motionParams =
-      (options.motionMode ? `&motion_mode=${encodeURIComponent(options.motionMode)}` : '') +
-      (options.posture ? `&posture=${encodeURIComponent(options.posture)}` : '')
-    const fullUrl = `${endpoint}?text=${encodeURIComponent(userText)}&mode=${mode}${motionParams}`
+    const params = new URLSearchParams({ text: userText, mode })
+    if (options.motionMode) params.set('motion_mode', options.motionMode)
+    if (options.posture) params.set('posture', options.posture)
+    if (options.llmProvider) params.set('llm_provider', options.llmProvider)
+    if (options.llmModel) params.set('llm_model', options.llmModel)
+    const fullUrl = `${endpoint}?${params}`
 
     console.log('[useTextChat] SSE connect to:', fullUrl)
 
@@ -621,6 +630,13 @@ export function useTextChat(endpoint: string) {
           return
         }
 
+        if (data.type === 'error') {
+          setChatError(data.message || '応答の生成に失敗しました。対話モデルの設定を確認してください。')
+          es.close()
+          eventSourceRef.current = null
+          return
+        }
+
         if (data.type === 'motion_error') {
           setMotionActivity((prev) => [
             ...prev.slice(-11),
@@ -676,6 +692,7 @@ export function useTextChat(endpoint: string) {
     }
 
     es.onerror = (err) => {
+      setChatError('会話への接続が中断されました。対話モデルの設定とバックエンドの起動状態を確認してください。')
       console.error('❌ SSE Error:', err)
       es.close()
       eventSourceRef.current = null
@@ -735,6 +752,7 @@ export function useTextChat(endpoint: string) {
   }, [])
 
   return {
+    chatError,
     messages,
     startChat,
     speakingMessageId,
