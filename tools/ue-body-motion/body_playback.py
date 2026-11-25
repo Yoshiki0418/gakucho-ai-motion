@@ -158,11 +158,48 @@ class BodyPlayback:
         self.previous_override = None
         self.previously_disabled = False
         self.instance = None
+        self.init_callback = None
+        self.rebound = False
+        self.animation = None
+        self.play_rate = self.position = 0.0
         self.active = None
         self.idle = None
         self.release_started = None
         self.release_length = 0.0
         self.release_asset = None
+
+    def _set_animation(self, animation, rate):
+        self.instance.set_animation_asset(animation, False, rate)
+        self.instance.set_playing(rate > 0)
+        self.animation, self.play_rate = animation, rate
+
+    def _set_position(self, position):
+        self.instance.set_position(position, False)
+        self.position = position
+
+    def _on_anim_initialized(self):
+        # Sequencer can reinitialize Body when it changes a Face track. Restore
+        # the owned animation before the next evaluation of the replacement.
+        if self.animation is None:
+            return
+        current = self.body.get_post_process_instance()
+        if current == self.instance or not isinstance(current, unreal.AnimSingleNodeInstance):
+            return
+        self.instance = current
+        self._set_animation(self.animation, self.play_rate)
+        self._set_position(self.position)
+        self.rebound = True
+
+    def refresh_instance(self):
+        if self.body is None:
+            return False
+        if not unreal.SystemLibrary.is_valid(self.body):
+            self.restore()
+            return False
+        # Some editor reinitialization paths do not broadcast the delegate.
+        self._on_anim_initialized()
+        defer_capture, self.rebound = self.rebound, False
+        return defer_capture
 
     def warmup(self):
         # Startup scripts can run before Sequencer spawns the Body. Prepare
@@ -240,7 +277,10 @@ class BodyPlayback:
                 self.instance = body.get_post_process_instance()
                 if not isinstance(self.instance, unreal.AnimSingleNodeInstance):
                     raise RuntimeError("Could not attach Body playback to the editor mesh")
+                self.init_callback = self._on_anim_initialized
+                body.on_anim_initialized.add_callable(self.init_callback)
                 self.idle = motion.reference
+                attach_window = True
             except Exception:
                 self.restore()
                 raise
@@ -248,10 +288,8 @@ class BodyPlayback:
         self.active = motion
         window = motion.window
         if attach_window:
-            self.instance.set_animation_asset(window.animation, False, window.interval / motion.clip.frame_time)
-            self.instance.set_playing(True)
-        position = (frame_index - window.start) * window.interval
-        self.instance.set_position(position, False)
+            self._set_animation(window.animation, window.interval / motion.clip.frame_time)
+        self._set_position((frame_index - window.start) * window.interval)
         return True
 
     def clear(self):
@@ -260,6 +298,7 @@ class BodyPlayback:
         try:
             motion = self.active
             self.instance.set_playing(False)
+            self.play_rate = 0.0
             current, _ = _skeleton(motion.body, evaluated=True)
             driven = motion.gesture.first.keys()
             start = {name: current[name][2] for name in driven}
@@ -298,15 +337,14 @@ class BodyPlayback:
                 self.release_length = self.release_asset.get_play_length()
             return
         if self.release_asset is not None:
-            self.instance.set_animation_asset(self.release_asset, False, 0)
-            self.instance.set_playing(False)
+            self._set_animation(self.release_asset, 0.0)
             self.release_asset = None
             self.release_started = time.monotonic()
         t = min((time.monotonic() - self.release_started) / 0.32, 1.0)
         if t >= 1:
             self.restore()
         else:
-            self.instance.set_position(self.release_length * t * t * (3 - 2 * t), False)
+            self._set_position(self.release_length * t * t * (3 - 2 * t))
 
     def _cancel_release(self):
         if self.release_builder is not None:
@@ -318,7 +356,13 @@ class BodyPlayback:
         self._cancel_release()
         body = self.body
         if body is not None and unreal.SystemLibrary.is_valid(body):
+            if self.init_callback is not None:
+                body.on_anim_initialized.remove_callable(self.init_callback)
             body.set_override_post_process_anim_bp(self.previous_override)
             body.disable_post_process_blueprint = self.previously_disabled
+        self.init_callback = None
+        self.rebound = False
         self.body = self.previous_override = self.instance = self.active = None
+        self.animation = None
+        self.play_rate = self.position = 0.0
         self.idle = self.release_started = self.release_asset = None

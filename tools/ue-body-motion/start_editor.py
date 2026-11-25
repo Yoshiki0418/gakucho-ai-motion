@@ -25,6 +25,10 @@ def start():
 
     def tick(_delta):
         try:
+            if scheduler.playback.refresh_instance():
+                # Let UE evaluate the reattached pose before a new utterance or
+                # a stop takes the currently displayed pose as its starting point.
+                return
             scheduler.tick()
             scheduler.playback.advance_release()
             if scheduler.desired is None:
