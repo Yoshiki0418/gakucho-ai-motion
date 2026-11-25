@@ -491,7 +491,7 @@ export function useTextChat(endpoint: string) {
     }
   }
 
-  const stopAllAudio = () => {
+  const stopAllAudio = useCallback(() => {
     stopLipSync()
     // 音声を止めたらタイムラインも無効になるので、スケジュール済みの
     // モーションと発話時刻の対応表も破棄する。
@@ -509,7 +509,7 @@ export function useTextChat(endpoint: string) {
     playbackTimeRef.current = 0
     currentAssistantIdRef.current = null
     setSpeakingMessageId(null)
-  }
+  }, [stopLipSync])
 
   const interruptChat = () => {
     stopAllAudio()
@@ -764,10 +764,6 @@ export function useTextChat(endpoint: string) {
 
   useEffect(() => {
     window.addEventListener('pagehide', stopLipSync)
-    return () => window.removeEventListener('pagehide', stopLipSync)
-  }, [stopLipSync])
-
-  useEffect(() => {
     const onUserInteract = () => {
       ensureAudioReady()
       window.removeEventListener('click', onUserInteract)
@@ -781,11 +777,12 @@ export function useTextChat(endpoint: string) {
     return () => {
       eventSourceRef.current?.close()
       stopAllAudio()
+      window.removeEventListener('pagehide', stopLipSync)
       window.removeEventListener('click', onUserInteract)
       window.removeEventListener('keydown', onUserInteract)
       window.removeEventListener('touchstart', onUserInteract)
     }
-  }, [])
+  }, [stopAllAudio, stopLipSync])
 
   return {
     chatError,
