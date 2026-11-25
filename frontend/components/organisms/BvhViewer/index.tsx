@@ -6,7 +6,7 @@ import * as THREE from 'three'
 import { BVHLoader } from 'three/examples/jsm/loaders/BVHLoader.js'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { DEFAULT_BVH } from './defaultBvh'
-import type { ScheduledMotion } from '@/features/text-chat/hooks/useTextChat'
+import { bvhDurationSeconds, type ScheduledMotion } from '@/features/text-chat/hooks/useTextChat'
 import {
   CHARACTER_MODEL_URL,
   bindCharacterToSource,
@@ -74,13 +74,6 @@ export type PostureKind = 'standing' | 'chair_sitting' | 'floor_sitting' | 'sitt
 
 /** 層構成方式の動作を切り替えるとき、直前の見た目から滑らかにつなぐ時間(ms)。 */
 const LAYERED_CROSSFADE_MS = 250
-
-/** BVH テキストから尺(秒)を読む。遅れて届いて、もう終わっている動作を飛ばすのに使う。 */
-const bvhDurationSeconds = (text: string): number => {
-  const frames = Number(/Frames:\s*(\d+)/.exec(text)?.[1] ?? 0)
-  const frameTime = Number(/Frame Time:\s*([\d.]+)/.exec(text)?.[1] ?? 0)
-  return Math.max(frames - 1, 0) * frameTime
-}
 
 type CharacterCrossfade = {
   quaternions: Map<THREE.Bone, THREE.Quaternion>

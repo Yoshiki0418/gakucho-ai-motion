@@ -3,6 +3,8 @@
 set -euo pipefail
 TASK_ROOT=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 cd "$TASK_ROOT"
+export GAKUCHO_UE_BRIDGE_DIR
+GAKUCHO_UE_BRIDGE_DIR=$(python3 "$TASK_ROOT/tools/ue-body-motion/bridge_path.py")
 python3 "$TASK_ROOT/tools/prepare-t2m-runtime.py"
 TASK_COMPOSE=(docker compose --project-name gakucho-ai-motion --project-directory "$TASK_ROOT" -f "$TASK_ROOT/docker-compose.prod.yml" -f "$TASK_ROOT/docker-compose.startup.yml")
 TASK_MODE=gpu

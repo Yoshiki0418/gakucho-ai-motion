@@ -8,6 +8,7 @@ import {
   type MotionMode,
 } from '@/features/text-chat/hooks/useTextChat'
 import { useChatModelSettings } from '@/features/text-chat/ChatModelSettings'
+import { useUnrealBodyMotion } from '@/features/text-chat/hooks/useUnrealBodyMotion'
 import { ConversationSettings, MOTION_MODES } from '@/features/settings/ConversationSettings'
 import { AvatarPanel } from '@/components/organisms/AvatarPanel'
 import { BvhViewer, type PostureKind } from '@/components/organisms/BvhViewer'
@@ -118,12 +119,14 @@ export default function ChatDemoPage() {
     bvhPrompt,
     interruptChat,
     scheduledMotions,
+    motionTurn,
     getAudioTime,
     motionModeStatus,
     motionActivity,
     chatError,
   } =
     useTextChat('/api/text-chat/char-stream-orchestrator')
+  const unrealMotionError = useUnrealBodyMotion(avatarViewMode === 'ue', motionTurn, scheduledMotions, getAudioTime)
 
   const handleMicClick = () => {
     console.log('🎙️ Mic clicked')
@@ -208,7 +211,8 @@ export default function ChatDemoPage() {
               )}
               {modelSettings.ttsNotice && <div role="status" style={{ padding: '6px 16px', color: '#fbbf24' }}>{modelSettings.ttsNotice}</div>}
               {chatError && <div role="alert" style={{ padding: '6px 16px', color: '#fbbf24' }}>{chatError}</div>}
-              {avatarViewMode === 'bvh' && (motionModeStatus || motionActivity.length > 0) && (
+              {avatarViewMode === 'ue' && unrealMotionError && <div role="alert" style={{ padding: '6px 16px', color: '#fbbf24' }}>{unrealMotionError}</div>}
+              {(motionModeStatus || motionActivity.length > 0) && (
                 <details className="gakucho-motion-status" style={{ padding: '6px 16px', color: '#cbd5e1', fontSize: 12 }}>
                   <summary style={{ cursor: 'pointer' }}>
                     動作の実行状況{motionModeStatus && ` · ${MOTION_MODES.find(mode => mode.id === motionModeStatus.effective)?.label ?? motionModeStatus.effective}`}
@@ -277,14 +281,16 @@ export default function ChatDemoPage() {
             <AvatarPanel frameSrc={avatarFrameSrc} />
           )}
 
-          <a
-            href="/world-model"
-            style={{ position: 'absolute', top: 12, right: avatarViewMode === 'ue' ? 100 : 16, zIndex: 3,
-              padding: '6px 12px', borderRadius: 8,
-              background: 'rgba(15,23,42,0.85)', color: '#cbd5e1', fontSize: 12, textDecoration: 'none' }}
-          >
-            物理・学習
-          </a>
+          {avatarViewMode === 'bvh' && (
+            <a
+              href="/world-model"
+              style={{ position: 'absolute', top: 12, right: 16, zIndex: 3,
+                padding: '6px 12px', borderRadius: 8,
+                background: 'rgba(15,23,42,0.85)', color: '#cbd5e1', fontSize: 12, textDecoration: 'none' }}
+            >
+              物理・学習
+            </a>
+          )}
           <QRCodeDisplay url={displayUrl} onClose={handleCloseQRCode} />
         </div>
       </section>

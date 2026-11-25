@@ -5,6 +5,8 @@ services:
   nginx:
     image: nginx:latest
     container_name: gakucho_motion_prod_nginx
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     restart: always
     ports:
       - "30930:30930"
@@ -42,6 +44,8 @@ services:
     ports:
       - "127.0.0.1:8087:8077"
     image: gakucho-ai-motion-backend:prod
+    volumes:
+      - ${GAKUCHO_UE_BRIDGE_DIR:-/tmp/gakucho-ai-motion-ue/bridge}:/tmp/gakucho-ai-motion-ue/bridge:ro
     env_file:
       - ./backend/.env
     deploy:
