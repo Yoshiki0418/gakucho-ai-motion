@@ -1,6 +1,7 @@
 """Shape a conversational gesture around the actual on-screen idle pose."""
 import math
 
+from torso_contact import TorsoContact
 from retarget import IDENTITY, add, cross, dot, inverse, mul, rotate, scale, sub, swing, unit
 
 
@@ -68,11 +69,18 @@ class Arm:
         aim = swing(add(self.arm, rotate(elbow, self.forearm)), reach) if dot(reach, reach) > 1e-8 else IDENTITY
         upper = mul(shoulder, aim)
         hand = mul(mul(inverse(mul(upper, elbow)), mul(shoulder, lower)), mapped[self.hand])
-        return upper, elbow, rotate_toward(idle[self.hand][2], hand, 1.0, math.radians(65))
+        return upper, elbow, self.limit_wrist(idle[self.hand][2], hand)
+
+    @staticmethod
+    def limit_wrist(neutral, target):
+        return rotate_toward(neutral, target, 1.0, math.radians(65))
 
     def flex(self, lower):
         direction = rotate(lower, self.forearm_axis)
         bend = math.acos(max(-1.0, min(1.0, dot(self.axis, direction))))
+        return self.flex_at(lower, bend)
+
+    def flex_at(self, lower, bend):
         flex = mul(_axis_angle(self.hinge, min(math.radians(145), bend)), self.straight)
         twist = _twist_angle(mul(inverse(flex), lower), self.forearm_axis)
         twist = max(-math.radians(75), min(math.radians(75), twist))
@@ -106,6 +114,8 @@ class GesturePose:
                 except ValueError:
                     # A straight bind pose or missing chain has no calibrated hinge.
                     pass
+        self.contact = (TorsoContact(idle, self.arms) if self.arms and
+                        all(n in idle for n in ("pelvis", "upperarm_l", "upperarm_r")) else None)
         self.arm_bones = {name for arm in self.arms for name in (arm.upper, arm.elbow, arm.hand)}
         self.rotations = {name: entry[name][2] for name in self.first}
         self.pelvis = entry["pelvis"][1]
@@ -143,6 +153,8 @@ class GesturePose:
                 target = rotate_toward(self.idle[n][2], target, weight)
                 next_rotations[n] = rotate_toward(self.rotations[n], target, alpha, math.radians(190) * dt)
             next_rotations[arm.elbow] = arm.flex(next_rotations[arm.elbow])
+        if self.contact:
+            self.contact.correct(next_rotations)
         self.rotations = next_rotations
         destination = self.idle["pelvis"][1]
         if self.whole_body:

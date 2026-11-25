@@ -1,13 +1,14 @@
 """Transient Body-only playback in the currently open MetaHuman Level Sequence."""
 
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
-from math import ceil
 import time
 
 import unreal
 
-from gesture_pose import GesturePose
-from retarget import Clip, dot, prepare_retarget, sub
+from gesture_pose import GesturePose, rotate_toward
+from pose_stream import PoseStream
+from retarget import Clip, add, dot, prepare_retarget, scale, sub
 
 
 @dataclass
@@ -27,15 +28,16 @@ class PreparedMotion:
     reference: dict
     scales: dict
     fixed: set
-    stride: int
+    stream: PoseStream
     window: Window = None
     pending: Window = None
     builder: object = None
-    sampled_frame: int = -1
+    last_update: float = 0.0
 
     def close(self):
         # A suspended writer owns an open UE controller bracket. Always close
         # it on the editor thread when a clip expires or gets superseded.
+        self.stream.close()
         if self.builder is not None:
             builder, self.builder = self.builder, None
             builder.close()
@@ -124,30 +126,21 @@ def _write_animation(motion, poses):
     return animation
 
 
-def _prepare_window(motion, start):
-    end = min(motion.clip.frame_count - 1, start + 31 * motion.stride)
-    span = end - start
-    # Cover the same first second with fewer keys so even short speech segments
-    # can start promptly. UE interpolates the keys at the audio-clock position.
-    stride = motion.stride if motion.window else max(motion.stride, round(1 / (15 * motion.clip.frame_time)))
-    key_count = max(2, ceil(span / stride) + 1)
-    poses = []
-    for index in range(key_count):
-        frame = start + round(index * span / (key_count - 1))
-        dt = max(0, frame - motion.sampled_frame) * motion.clip.frame_time if motion.sampled_frame >= 0 else 0
-        poses.append(motion.gesture.sample(frame, dt))
-        motion.sampled_frame = frame
-        yield
+def _prepare_window(motion, start, tick_interval):
+    stream = motion.stream
+    end = stream.submit(start, tick_interval, first=motion.window is None)
+    while not stream.future.done():
+        yield False  # Leave the editor thread immediately while the numeric worker runs.
+    poses = stream.future.result()
     animation = yield from _write_animation(motion, poses)
-    return Window(start, end, animation.get_play_length() / max(1, span), animation)
+    return Window(start, end, animation.get_play_length() / max(1, end - start), animation)
 
 
 def _advance_builder(builder, budget):
     deadline = time.perf_counter() + budget
     try:
         while True:
-            next(builder)
-            if time.perf_counter() >= deadline:
+            if next(builder) is False or time.perf_counter() >= deadline:
                 return None
     except StopIteration as result:
         return result.value
@@ -157,6 +150,7 @@ class BodyPlayback:
     """prepare/show/clear must run on the UE editor thread (Slate callback)."""
 
     def __init__(self):
+        self.workers = ThreadPoolExecutor(max_workers=2, thread_name_prefix="gakucho-pose")
         self.body = None
         self.seed = self.template = None
         self.next_warmup = 0.0
@@ -200,13 +194,16 @@ class BodyPlayback:
             diff = sub(pos, reference[name][1])
             if dot(diff, diff) > 0.0001 or abs(dot(q, reference[name][2])) < 0.99999:
                 fixed.add(name)
-        stride = max(1, ceil(1 / (30 * clip.frame_time) - 1e-4))
-        return PreparedMotion(body, self.template, clip, gesture, idle, scales, fixed, stride)
+        stream = PoseStream(self.workers, gesture, clip)
+        return PreparedMotion(body, self.template, clip, gesture, idle, scales, fixed, stream)
 
     def show(self, motion, frame_index):
         body = motion.body
         if not unreal.SystemLibrary.is_valid(body):
             raise RuntimeError("The Sequencer Body has despawned")
+        now = time.monotonic()
+        tick_interval = now - motion.last_update if motion.last_update else 1 / 30
+        motion.last_update = now
         inside = motion.window and frame_index <= motion.window.end
         attach_window = False
         if not inside and motion.pending and frame_index <= motion.pending.end:
@@ -222,8 +219,9 @@ class BodyPlayback:
         if more and motion.pending is None:
             if motion.builder is None:
                 start = motion.window.end if inside else frame_index
-                motion.builder = _prepare_window(motion, start)
-            motion.pending = _advance_builder(motion.builder, 0.005 if inside else 0.009)
+                motion.builder = _prepare_window(motion, start, tick_interval)
+            budget = max(0.005 if inside else 0.009, min(0.020, tick_interval * 0.16))
+            motion.pending = _advance_builder(motion.builder, budget)
             if motion.pending is not None:
                 motion.builder = None
         if not inside:
@@ -250,8 +248,8 @@ class BodyPlayback:
         self.active = motion
         window = motion.window
         if attach_window:
-            self.instance.set_animation_asset(window.animation, False, 0)
-            self.instance.set_playing(False)
+            self.instance.set_animation_asset(window.animation, False, window.interval / motion.clip.frame_time)
+            self.instance.set_playing(True)
         position = (frame_index - window.start) * window.interval
         self.instance.set_position(position, False)
         return True
@@ -261,13 +259,23 @@ class BodyPlayback:
             return
         try:
             motion = self.active
+            self.instance.set_playing(False)
             current, _ = _skeleton(motion.body, evaluated=True)
             driven = motion.gesture.first.keys()
             start = {name: current[name][2] for name in driven}
             end = {name: self.idle[name][2] for name in driven}
-            self.release_builder = _write_animation(motion, [
-                (start, current["pelvis"][1]), (end, self.idle["pelvis"][1])
-            ])
+            # The shortest rotation from a crossed arm back to the side can
+            # pass through the jacket even when both endpoint poses are safe.
+            poses = []
+            start_pos = current["pelvis"][1]
+            delta = sub(self.idle["pelvis"][1], start_pos)
+            for i in range(9):
+                t = i / 8
+                pose = {n: rotate_toward(start[n], end[n], t) for n in driven}
+                if motion.gesture.contact and 0 < i < 8:
+                    motion.gesture.contact.correct(pose)
+                poses.append((pose, add(start_pos, scale(delta, t))))
+            self.release_builder = _write_animation(motion, poses)
             self.release_started = time.monotonic()
         except Exception:
             self.restore()
