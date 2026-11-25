@@ -79,6 +79,7 @@ class Scheduler:
         self.recent = OrderedDict()
         self.last_play_received = -math.inf
         self.desired = self.active = self.handle = None
+        self.staging = self.staged_handle = None
         self.frame = -1
         self.failure = None
 
@@ -119,52 +120,96 @@ class Scheduler:
             if self.desired is cmd:
                 self.desired = None
 
+    def drop_staging(self):
+        handle = self.staged_handle
+        self.staging = self.staged_handle = None
+        if handle is not None:
+            handle.close()
+
     def clear(self):
-        if self.handle is not None:
-            self.playback.clear()
+        handle = self.handle
+        needs_release = self.active is not None or self.staging is not None
         self.active = self.handle = None
         self.frame = -1
+        try:
+            self.drop_staging()
+            if handle is not None:
+                handle.close()
+        finally:
+            if needs_release:
+                self.playback.clear()
+
+    def frame_at(self, cmd):
+        elapsed = self.clock() - cmd.received
+        position = cmd.offset + elapsed
+        if elapsed >= cmd.remaining or position >= cmd.clip.frame_count * cmd.clip.frame_time:
+            return None
+        return int(position / cmd.clip.frame_time)
+
+    def advance_visible(self):
+        if self.active is None:
+            return
+        frame = self.frame_at(self.active)
+        if frame is None:
+            self.handle.close()
+            self.playback.clear()
+            self.active = self.handle = None
+            self.frame = -1
+        elif frame != self.frame and self.playback.show(self.handle, frame) is not False:
+            self.frame = frame
 
     def tick(self):
         with self.lock:
             cmd = self.desired
         try:
-            if cmd is not self.active:
+            if not cmd or cmd.action == "stop":
                 self.clear()
-            if not cmd:
+                if cmd:
+                    self.finish(cmd, 200, success("stopped"))
                 return
-            if cmd.action == "stop":
-                self.finish(cmd, 200, success("stopped"))
+            if self.staging is not cmd:
+                self.drop_staging()
+            if cmd is self.active:
+                self.advance_visible()
+                if self.active is None:
+                    self.finish(cmd, 200, success("expired"))
                 return
             if cmd.clip is None:
+                self.advance_visible()
                 return
-            elapsed = self.clock() - cmd.received
-            deadline = min(cmd.remaining, cmd.clip.frame_count * cmd.clip.frame_time - cmd.offset)
-            if elapsed < deadline and self.handle is None:
-                self.handle = self.playback.prepare(cmd.clip, whole_body=cmd.whole_body)
-                self.active = cmd
-                elapsed = self.clock() - cmd.received
+            frame = self.frame_at(cmd)
+            if frame is not None and self.staged_handle is None:
+                self.staging = cmd
+                self.staged_handle = self.playback.prepare(cmd.clip, whole_body=cmd.whole_body)
+                frame = self.frame_at(cmd)
             with self.lock:
                 superseded = cmd is not self.desired
-            if superseded or elapsed >= deadline:
-                self.clear()
-                self.finish(cmd, 200, success("stale" if superseded else "expired"))
+            if superseded:
+                self.drop_staging()
+                self.finish(cmd, 200, success("stale"))
                 return
-            frame = int((cmd.offset + elapsed) / cmd.clip.frame_time)
-            if frame != self.frame:
-                if self.playback.show(self.handle, frame) is False:
-                    return
-                self.frame = frame
+            if frame is None:
+                self.clear()
+                self.finish(cmd, 200, success("expired"))
+                return
+            if self.playback.show(self.staged_handle, frame) is False:
+                # Keep the current movement on its audio clock while the next
+                # clip/revision uploads and prepares its first visible pose.
+                self.advance_visible()
+                return
+            if self.handle is not None:
+                self.handle.close()
+            self.active, self.handle = cmd, self.staged_handle
+            self.staging = self.staged_handle = None
+            self.frame = frame
             self.failure = None
             with self.lock:
                 cmd.finish(200, success("playing"))
         except Exception as exc:
             self.failure = str(exc)[:512]
             try:
-                self.playback.clear()
+                self.clear()
             finally:
-                self.active = self.handle = None
-                self.frame = -1
                 if cmd:
                     self.finish(cmd, 422, {"detail": "Unreal could not apply the body pose"})
             raise

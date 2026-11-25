@@ -111,7 +111,11 @@ class PortraitCamera:
             self.watched = bool(unreal.PixelStreaming2Blueprints.streamer_get_connected_players(STREAM_ID))
         if (self.watched and now >= self.capture_at
                 and unreal.SystemLibrary.is_valid(self.actor) and unreal.SystemLibrary.is_valid(self.body)):
-            self.capture_at = now + 1 / FPS
+            # Keep the 24 Hz cadence on a 30/60 Hz Slate clock. Scheduling
+            # from each rounded tick would repeatedly drop an extra frame.
+            self.capture_at += 1 / FPS
+            if self.capture_at <= now:
+                self.capture_at = now + 1 / FPS
             self.capture.capture_scene()
 
 

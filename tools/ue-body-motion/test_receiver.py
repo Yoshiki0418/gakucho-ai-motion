@@ -64,7 +64,7 @@ class SchedulingTest(unittest.TestCase):
     def test_prepare_time_revalidates_audio_deadline(self):
         def delayed_prepare(_clip, whole_body=False):
             self.now = 1.0
-            return object()
+            return Mock()
 
         self.body.prepare.side_effect = delayed_prepare
         cmd = play("a", 1, offset=1.5)
@@ -86,6 +86,49 @@ class SchedulingTest(unittest.TestCase):
         self.assertFalse(self.scheduler.reserve(play("a", 10)))
         self.scheduler.tick()
         self.body.prepare.assert_not_called()
+
+    def test_visible_clip_advances_through_upload_and_preparation_of_revision(self):
+        first, second = Mock(), Mock()
+        self.body.prepare.side_effect = [first, second]
+        old = play("a", 1)
+        self.scheduler.reserve(old)
+        self.scheduler.tick()
+        new = play("a", 2, revision=1)
+        clip, new.clip = new.clip, None
+        self.scheduler.reserve(new)
+        self.now = 0.25
+        self.scheduler.tick()
+        self.body.show.assert_called_with(first, 2)
+        new.clip = clip
+        self.now = 0.375
+        self.body.show.side_effect = lambda handle, frame: handle is first
+        self.scheduler.tick()
+        self.body.show.assert_called_with(first, 3)
+        self.assertFalse(new.done.is_set())
+        self.assertIs(self.scheduler.active, old)
+        self.body.show.side_effect = None
+        self.now = 0.5
+        self.scheduler.tick()
+        self.body.show.assert_called_with(second, 4)
+        first.close.assert_called_once()
+        second.close.assert_not_called()
+        self.body.clear.assert_not_called()
+        self.assertEqual(new.result[1]["state"], "playing")
+
+    def test_stop_closes_the_visible_and_the_unfinished_window(self):
+        first, pending = Mock(), Mock()
+        self.body.prepare.side_effect = [first, pending]
+        self.scheduler.reserve(play("a", 1))
+        self.scheduler.tick()
+        self.body.show.side_effect = lambda handle, frame: handle is first
+        self.scheduler.reserve(play("a", 2, revision=1))
+        self.scheduler.tick()
+        self.scheduler.reserve(Command("a", 3, 0.1, "stop"))
+        self.scheduler.tick()
+        first.close.assert_called_once()
+        pending.close.assert_called_once()
+        self.body.clear.assert_called_once()
+        self.assertFalse(self.scheduler.health()["playing"])
 
     def test_an_old_revision_and_a_previous_clients_stop_do_not_rewind_body(self):
         self.scheduler.reserve(play("a", 10))

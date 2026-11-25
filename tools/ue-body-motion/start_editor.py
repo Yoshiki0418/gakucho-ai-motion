@@ -27,6 +27,8 @@ def start():
         try:
             scheduler.tick()
             scheduler.playback.advance_release()
+            if scheduler.desired is None:
+                scheduler.playback.warmup()
         except Exception as exc:
             unreal.log_error(f"Gakucho body playback: {exc}")
 

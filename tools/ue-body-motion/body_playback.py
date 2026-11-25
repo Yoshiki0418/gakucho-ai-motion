@@ -21,7 +21,7 @@ class Window:
 @dataclass
 class PreparedMotion:
     body: unreal.SkeletalMeshComponent
-    seed: unreal.AnimSequence
+    template: unreal.AnimSequence
     clip: Clip
     gesture: GesturePose
     reference: dict
@@ -30,6 +30,15 @@ class PreparedMotion:
     stride: int
     window: Window = None
     pending: Window = None
+    builder: object = None
+    sampled_frame: int = -1
+
+    def close(self):
+        # A suspended writer owns an open UE controller bracket. Always close
+        # it on the editor thread when a clip expires or gets superseded.
+        if self.builder is not None:
+            builder, self.builder = self.builder, None
+            builder.close()
 
 
 def _find_body():
@@ -73,50 +82,75 @@ def _skeleton(body, *, evaluated=False):
     return transforms, scales
 
 
-def _write_animation(motion, poses):
-    # The source sequence supplies the compatible skeleton. Only its transient
-    # duplicate is edited. Preserve the original idle transforms of undriven bones.
-    transient_package = unreal.find_object(None, "/Engine/Transient")
-    animation = unreal.SystemLibrary.duplicate_object(motion.seed, transient_package)
-    controller = animation.controller
-    key_count = len(poses)
-    names = motion.fixed.union(poses[0][0])
-    controller.open_bracket("Prepare conversation Body motion", False)
+def _duplicate(animation):
+    return unreal.SystemLibrary.duplicate_object(animation, unreal.find_object(None, "/Engine/Transient"))
+
+
+def _empty_template(seed):
+    # Strip the potentially long Sequencer idle once per seed, before making
+    # any playback windows. Duplicating and stripping it on every beat stalls Slate.
+    asset = _duplicate(seed)
+    controller = asset.controller
+    controller.open_bracket("Initialize conversation Body template", False)
     try:
         controller.remove_all_bone_tracks(False)
+        controller.set_number_of_frames(unreal.FrameNumber(1), False)
+    finally:
+        controller.close_bracket(False)
+    return asset
+
+
+def _write_animation(motion, poses):
+    animation = _duplicate(motion.template)
+    controller = animation.controller
+    key_count = len(poses)
+    driven = poses[0][0]
+    controller.open_bracket("Prepare conversation Body motion", False)
+    try:
         controller.set_number_of_frames(unreal.FrameNumber(key_count - 1), False)
-        for name in names:
+        for name in motion.fixed.union(driven):
             if not controller.add_bone_curve(name, False):
                 raise RuntimeError(f"Cannot create Body bone track {name}")
             _, translation, rotation = motion.reference[name]
-            if name in poses[0][0]:
-                keys = [unreal.Quat(*rotations[name]) for rotations, _ in poses]
-            else:
-                keys = [unreal.Quat(*rotation)] * key_count
+            keys = ([unreal.Quat(*rotations[name]) for rotations, _ in poses]
+                    if name in driven else [unreal.Quat(*rotation)])
             positions = ([unreal.Vector(*p) for _, p in poses] if name == "pelvis"
-                         else [unreal.Vector(*translation)] * key_count)
-            if not controller.set_bone_track_keys(name, positions, keys, [motion.scales[name]] * key_count, False):
+                         else [unreal.Vector(*translation)] * len(keys))
+            if not controller.set_bone_track_keys(name, positions, keys, [motion.scales[name]] * len(keys), False):
                 raise RuntimeError(f"Cannot populate Body bone track {name}")
+            yield
     finally:
         controller.close_bracket(False)
     return animation
 
 
 def _prepare_window(motion, start):
-    remaining = motion.clip.frame_count - 1 - start
-    key_count = max(2, min(32, ceil(remaining / motion.stride) + 1))
+    end = min(motion.clip.frame_count - 1, start + 31 * motion.stride)
+    span = end - start
+    # Cover the same first second with fewer keys so even short speech segments
+    # can start promptly. UE interpolates the keys at the audio-clock position.
+    stride = motion.stride if motion.window else max(motion.stride, round(1 / (15 * motion.clip.frame_time)))
+    key_count = max(2, ceil(span / stride) + 1)
     poses = []
-    previous = motion.window.end if motion.window else -1
     for index in range(key_count):
-        frame = min(start + index * motion.stride, motion.clip.frame_count - 1)
-        # At the first visible frame (including a late revision), start from
-        # the pose on screen. Continue the same filter across subsequent windows.
-        dt = 0 if previous < 0 else max(0, frame - previous) * motion.clip.frame_time
+        frame = start + round(index * span / (key_count - 1))
+        dt = max(0, frame - motion.sampled_frame) * motion.clip.frame_time if motion.sampled_frame >= 0 else 0
         poses.append(motion.gesture.sample(frame, dt))
-        previous = frame
-    animation = _write_animation(motion, poses)
-    return Window(start, start + (key_count - 1) * motion.stride,
-                  animation.get_play_length() / (key_count - 1), animation)
+        motion.sampled_frame = frame
+        yield
+    animation = yield from _write_animation(motion, poses)
+    return Window(start, end, animation.get_play_length() / max(1, span), animation)
+
+
+def _advance_builder(builder, budget):
+    deadline = time.perf_counter() + budget
+    try:
+        while True:
+            next(builder)
+            if time.perf_counter() >= deadline:
+                return None
+    except StopIteration as result:
+        return result.value
 
 
 class BodyPlayback:
@@ -124,6 +158,9 @@ class BodyPlayback:
 
     def __init__(self):
         self.body = None
+        self.seed = self.template = None
+        self.next_warmup = 0.0
+        self.release_builder = None
         self.previous_override = None
         self.previously_disabled = False
         self.instance = None
@@ -132,15 +169,30 @@ class BodyPlayback:
         self.release_started = None
         self.release_length = 0.0
         self.release_asset = None
-        self.release_armed = False
+
+    def warmup(self):
+        # Startup scripts can run before Sequencer spawns the Body. Prepare
+        # the reusable empty sequence during idle time, ahead of the first clip.
+        if self.template is not None or time.monotonic() < self.next_warmup:
+            return
+        self.next_warmup = time.monotonic() + 2
+        try:
+            _, seed = _find_body()
+        except RuntimeError:
+            return
+        self.template = _empty_template(seed)
+        self.seed = seed
 
     def prepare(self, clip, whole_body=False):
         body, seed = _find_body()
+        if seed != self.seed:
+            self.template = _empty_template(seed)
+            self.seed = seed
         reference, _ = _skeleton(body)
         entry, scales = _skeleton(body, evaluated=True)
         idle = self.idle if body == self.body and self.idle is not None else entry
         mapper = prepare_retarget(clip, reference)
-        gesture = GesturePose(mapper, idle, entry, whole_body)
+        gesture = GesturePose(mapper, idle, entry, whole_body, reference)
         # Bones without tracks default to the mesh's reference pose. Retain
         # tracks wherever the live idle differs, including the component root.
         fixed = set()
@@ -149,22 +201,33 @@ class BodyPlayback:
             if dot(diff, diff) > 0.0001 or abs(dot(q, reference[name][2])) < 0.99999:
                 fixed.add(name)
         stride = max(1, ceil(1 / (30 * clip.frame_time) - 1e-4))
-        return PreparedMotion(body, seed, clip, gesture, idle, scales, fixed, stride)
+        return PreparedMotion(body, self.template, clip, gesture, idle, scales, fixed, stride)
 
     def show(self, motion, frame_index):
         body = motion.body
         if not unreal.SystemLibrary.is_valid(body):
             raise RuntimeError("The Sequencer Body has despawned")
-        if motion.window is None or frame_index > motion.window.end:
-            if motion.pending is None or frame_index > motion.pending.end:
-                # Keep the displayed pose this tick. Let UE evaluate the new
-                # transient sequence before assigning it to the visible mesh.
-                motion.pending = _prepare_window(motion, frame_index)
-                return False
+        inside = motion.window and frame_index <= motion.window.end
+        attach_window = False
+        if not inside and motion.pending and frame_index <= motion.pending.end:
             motion.window, motion.pending = motion.pending, None
             attach_window = True
-        else:
-            attach_window = False
+            inside = True
+
+        # Build the next sequence on the editor thread in small slices. Only
+        # attach a completed asset on a later tick, after UE evaluates it.
+        if motion.pending and frame_index > motion.pending.end:
+            motion.pending = None
+        more = not inside or motion.window.end < motion.clip.frame_count - 1
+        if more and motion.pending is None:
+            if motion.builder is None:
+                start = motion.window.end if inside else frame_index
+                motion.builder = _prepare_window(motion, start)
+            motion.pending = _advance_builder(motion.builder, 0.005 if inside else 0.009)
+            if motion.pending is not None:
+                motion.builder = None
+        if not inside:
+            return False
         if self.body != body or self.instance is None:
             self.restore()
             previous = body.get_post_process_instance()
@@ -183,18 +246,14 @@ class BodyPlayback:
             except Exception:
                 self.restore()
                 raise
-        self.release_started = self.release_asset = None
+        self._cancel_release()
         self.active = motion
         window = motion.window
         if attach_window:
             self.instance.set_animation_asset(window.animation, False, 0)
             self.instance.set_playing(False)
-        position = (frame_index - window.start) / motion.stride * window.interval
+        position = (frame_index - window.start) * window.interval
         self.instance.set_position(position, False)
-        # Stage the next window on an earlier tick without disturbing this one.
-        if (motion.pending is None and window.end < motion.clip.frame_count - 1
-                and (window.end - frame_index) * motion.clip.frame_time < 0.4):
-            motion.pending = _prepare_window(motion, window.end)
         return True
 
     def clear(self):
@@ -206,12 +265,9 @@ class BodyPlayback:
             driven = motion.gesture.first.keys()
             start = {name: current[name][2] for name in driven}
             end = {name: self.idle[name][2] for name in driven}
-            animation = _write_animation(motion, [
+            self.release_builder = _write_animation(motion, [
                 (start, current["pelvis"][1]), (end, self.idle["pelvis"][1])
             ])
-            self.release_asset = animation
-            self.release_armed = False
-            self.release_length = animation.get_play_length()
             self.release_started = time.monotonic()
         except Exception:
             self.restore()
@@ -223,10 +279,17 @@ class BodyPlayback:
         if not unreal.SystemLibrary.is_valid(self.body) or not unreal.SystemLibrary.is_valid(self.instance):
             self.restore()
             return
+        if self.release_builder is not None:
+            try:
+                self.release_asset = _advance_builder(self.release_builder, 0.005)
+            except Exception:
+                self.restore()
+                raise
+            if self.release_asset is not None:
+                self.release_builder = None
+                self.release_length = self.release_asset.get_play_length()
+            return
         if self.release_asset is not None:
-            if not self.release_armed:
-                self.release_armed = True
-                return
             self.instance.set_animation_asset(self.release_asset, False, 0)
             self.instance.set_playing(False)
             self.release_asset = None
@@ -237,7 +300,14 @@ class BodyPlayback:
         else:
             self.instance.set_position(self.release_length * t * t * (3 - 2 * t), False)
 
+    def _cancel_release(self):
+        if self.release_builder is not None:
+            self.release_builder.close()
+            self.release_builder = None
+        self.release_started = self.release_asset = None
+
     def restore(self):
+        self._cancel_release()
         body = self.body
         if body is not None and unreal.SystemLibrary.is_valid(body):
             body.set_override_post_process_anim_bp(self.previous_override)
