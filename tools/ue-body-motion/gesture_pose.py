@@ -41,6 +41,15 @@ class Arm:
         self.forearm = reference[self.hand][1]
         self.axis = unit(self.arm)
         self.forearm_axis = unit(self.forearm)
+        # The knuckle line distinguishes sideways deviation from palm flexion
+        # independently of the mesh's local axes and the handedness of the arm.
+        self.palm_width = None
+        index = reference.get(f"index_metacarpal_{side}")
+        pinky = reference.get(f"pinky_metacarpal_{side}")
+        if index and pinky and index[0] == pinky[0] == self.hand:
+            width = sub(index[1], pinky[1])
+            if dot(width, width) > 1e-8:
+                self.palm_width = width
         bent = rotate(rest, self.forearm_axis)
         self.hinge = unit(cross(self.axis, bent))
         self.straight = mul(swing(bent, self.axis), rest)
@@ -51,7 +60,7 @@ class Arm:
             parent = reference[parent][0]
         self.parents.reverse()
 
-    def solve(self, mapped, visible, idle):
+    def solve(self, mapped, visible, idle, conversational=False):
         # The conversational torso is quieter than the capture. Convert the
         # source shoulder to the parent frame that will actually be displayed.
         source_parent = visible_parent = IDENTITY
@@ -69,11 +78,52 @@ class Arm:
         aim = swing(add(self.arm, rotate(elbow, self.forearm)), reach) if dot(reach, reach) > 1e-8 else IDENTITY
         upper = mul(shoulder, aim)
         hand = mul(mul(inverse(mul(upper, elbow)), mul(shoulder, lower)), mapped[self.hand])
-        return upper, elbow, self.limit_wrist(idle[self.hand][2], hand)
+        neutral = idle[self.hand][2]
+        if self.palm_width is not None:
+            # Rotate the forearm about its length to turn the palm. Keep the
+            # wrist target and palm orientation when transferring that twist.
+            long_axis = rotate(inverse(neutral), self.forearm_axis)
+            roll = _twist_angle(mul(inverse(neutral), hand), long_axis)
+            rolled = self.flex(mul(elbow, _axis_angle(self.forearm_axis, 0.8 * roll)))
+            hand = mul(mul(inverse(rolled), elbow), hand)
+            elbow = rolled
+        if conversational:
+            upper = self._compact_lift(upper, elbow, idle[self.upper][2])
+        return upper, elbow, self.limit_wrist(neutral, hand)
 
-    @staticmethod
-    def limit_wrist(neutral, target):
-        return rotate_toward(neutral, target, 1.0, math.radians(65))
+    def _compact_lift(self, upper, elbow, neutral):
+        # Keep a raised, folded elbow closer to the body without redirecting
+        # an extended arm (for example, the stroke of a pointing gesture).
+        raised = swing(rotate(neutral, self.axis), rotate(upper, self.axis))
+        excursion = 2 * math.acos(min(1.0, raised[3]))
+        bend = math.acos(max(-1.0, min(1.0, dot(self.axis, rotate(elbow, self.forearm_axis)))))
+        folded = max(0.0, min(1.0, (bend - math.radians(25)) / math.radians(30)))
+        folded = folded * folded * (3 - 2 * folded)
+        trim = 0.36 * folded * max(0.0, excursion - math.radians(35))
+        return mul(rotate_toward(IDENTITY, inverse(raised), 1.0, trim), upper)
+
+    def limit_wrist(self, neutral, target):
+        target = rotate_toward(neutral, target, 1.0, math.radians(65))
+        if self.palm_width is None:
+            return target
+        axis = rotate(inverse(neutral), self.forearm_axis)
+        across = sub(self.palm_width, scale(axis, dot(axis, self.palm_width)))
+        if dot(across, across) < 1e-8:
+            return target
+        across = unit(across)
+        palm = cross(axis, across)
+        delta = mul(inverse(neutral), target)
+        direction = rotate(delta, axis)
+        side = math.asin(max(-1.0, min(1.0, dot(direction, across))))
+        flex = math.atan2(dot(direction, palm), dot(direction, axis))
+        # Elliptical envelope in the palm's own frame. A wrist bends more
+        # readily toward the palm than sideways toward the thumb or pinky.
+        radius = max(1.0, math.hypot(side / math.radians(22), flex / math.radians(48)))
+        side, flex = side / radius, flex / radius
+        bent = add(scale(axis, math.cos(flex)), scale(palm, math.sin(flex)))
+        bent = add(scale(bent, math.cos(side)), scale(across, math.sin(side)))
+        roll = max(-math.radians(15), min(math.radians(15), _twist_angle(delta, axis)))
+        return mul(neutral, mul(swing(axis, bent), _axis_angle(axis, roll)))
 
     def flex(self, lower):
         direction = rotate(lower, self.forearm_axis)
@@ -105,6 +155,9 @@ class GesturePose:
         self.mapper = mapper
         self.idle = idle
         self.whole_body = whole_body
+        # Time constants (seconds) and speed caps (degrees/second), in chain order.
+        # In dialogue the upper arm settles more slowly than the elbow and wrist.
+        self.arm_response = ((0.12, 190),) * 3 if whole_body else ((0.13, 175), (0.075, 255), (0.065, 230))
         self.first = mapper.pose(0)[0]
         self.arms = []
         for side in ("l", "r"):
@@ -149,9 +202,12 @@ class GesturePose:
             change = min(abs(dot(mapped[n], self.first[n])) for n in names)
             angle = 2 * math.acos(min(1.0, change))
             weight = 1.0 if self.whole_body else min(1.0, angle / math.radians(30))
-            for n, target in zip(names, arm.solve(mapped, next_rotations, self.idle)):
+            targets = arm.solve(mapped, next_rotations, self.idle, conversational=not self.whole_body)
+            for n, target, (tau, speed) in zip(names, targets, self.arm_response):
                 target = rotate_toward(self.idle[n][2], target, weight)
-                next_rotations[n] = rotate_toward(self.rotations[n], target, alpha, math.radians(190) * dt)
+                next_rotations[n] = rotate_toward(
+                    self.rotations[n], target, -math.expm1(-dt / tau), math.radians(speed) * dt
+                )
             next_rotations[arm.elbow] = arm.flex(next_rotations[arm.elbow])
         if self.contact:
             self.contact.correct(next_rotations)

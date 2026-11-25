@@ -11,6 +11,17 @@ def around_z(degrees):
     return 0, 0, math.sin(angle), math.cos(angle)
 
 
+def wrist_rig(side, sign):
+    upper, elbow, hand = (f"{name}_{side}" for name in ("upperarm", "lowerarm", "hand"))
+    return {
+        upper: (None, (0, 0, 0), IDENTITY),
+        elbow: (upper, (25 * sign, 0, 0), around_z(30)),
+        hand: (elbow, (23 * sign, 0, 0), IDENTITY),
+        f"index_metacarpal_{side}": (hand, (3 * sign, 1, 0), IDENTITY),
+        f"pinky_metacarpal_{side}": (hand, (3 * sign, -1, 0), IDENTITY),
+    }
+
+
 def distance(q, other=IDENTITY):
     return math.degrees(2 * math.acos(min(1, abs(dot(q, other)))))
 
@@ -78,6 +89,60 @@ class GestureTest(unittest.TestCase):
                     actual = rotate(mul(visible["chest"], upper), add(arm.arm, rotate(elbow, arm.forearm)))
                     self.assertLess(math.dist(actual, wanted), 1e-6)
                     self.assertLessEqual(distance(wrist), 65.0001)
+
+    def test_wrist_keeps_palm_flexion_and_limits_sideways_bending_on_both_hands(self):
+        for side, sign in (("l", 1), ("r", -1)):
+            with self.subTest(side=side):
+                arm = Arm(side, wrist_rig(side, sign))
+                sideways = arm.limit_wrist(IDENTITY, around_z(sign * 60))
+                self.assertLess(distance(sideways, around_z(sign * 22)), 1e-5)
+                palm_flex = (0, math.sin(math.radians(20)), 0, math.cos(math.radians(20)))
+                self.assertLess(distance(arm.limit_wrist(IDENTITY, palm_flex), palm_flex), 1e-5)
+                self.assertLess(distance(arm.limit_wrist(IDENTITY, sideways), sideways), 1e-5)
+
+    def test_turning_the_palm_rolls_the_forearm_and_keeps_the_hand_position_and_orientation(self):
+        for side, sign in (("l", 1), ("r", -1)):
+            with self.subTest(side=side):
+                rig = wrist_rig(side, sign)
+                arm = Arm(side, rig)
+                raw = {n: item[2] for n, item in rig.items()}
+                raw[arm.hand] = (sign * 0.5, 0, 0, math.sqrt(0.75))
+                upper, elbow, wrist = arm.solve(raw, {}, rig)
+                self.assertAlmostEqual(distance(elbow, raw[arm.elbow]), 48)
+                self.assertAlmostEqual(distance(wrist), 12)
+                self.assertLess(math.dist(rotate(elbow, arm.forearm), rotate(raw[arm.elbow], arm.forearm)), 1e-6)
+                original_palm = mul(raw[arm.elbow], raw[arm.hand])
+                self.assertLess(distance(mul(mul(upper, elbow), wrist), original_palm), 1e-5)
+
+    def test_conversational_lift_compacts_a_folded_arm_and_preserves_an_extended_reach(self):
+        for side, sign in (("l", 1), ("r", -1)):
+            rig = wrist_rig(side, sign)
+            arm = Arm(side, rig)
+            raw = {n: item[2] for n, item in rig.items()}
+            raw[arm.upper] = around_z(90)
+            for bend in (10, 85):
+                with self.subTest(side=side, bend=bend):
+                    raw[arm.elbow] = around_z(bend)
+                    full = arm.solve(raw, {}, rig)[0]
+                    conversational = arm.solve(raw, {}, rig, conversational=True)[0]
+                    self.assertAlmostEqual(distance(full), 90)
+                    if bend == 10:
+                        self.assertLess(distance(full, conversational), 1e-5)
+                    else:
+                        self.assertLess(distance(conversational), 75)
+
+    def test_conversational_stroke_reaches_the_wrist_and_elbow_faster_than_the_upper_arm(self):
+        rig = wrist_rig("l", 1)
+        rig["pelvis"] = (None, (0, 0, 95), IDENTITY)
+        rest = {n: rig[n][2] for n in ("upperarm_l", "lowerarm_l", "hand_l")}
+        palm_flex = (0, math.sin(math.radians(10)), 0, math.cos(math.radians(10)))
+        stroke = dict(upperarm_l=around_z(20), lowerarm_l=around_z(65), hand_l=palm_flex)
+        mapper = Mock()
+        mapper.pose.side_effect = lambda frame: (stroke if frame else rest, rig["pelvis"][1])
+        pose, _ = GesturePose(mapper, rig, rig, False, rig).sample(1, 1 / 30)
+        fraction = {n: distance(pose[n], rest[n]) / distance(stroke[n], rest[n]) for n in rest}
+        self.assertLess(fraction["upperarm_l"], fraction["lowerarm_l"])
+        self.assertLess(fraction["lowerarm_l"], fraction["hand_l"])
 
     def test_fully_folded_equal_length_arm_keeps_a_finite_limited_pose(self):
         rig = {
