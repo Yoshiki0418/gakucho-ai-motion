@@ -13,6 +13,7 @@ if module_dir not in sys.path:
 from body_playback import BodyPlayback
 from bridge_path import bridge_directory
 from receiver import EditorServer, Scheduler
+from portrait_camera import start_portrait_camera
 
 
 def start():
@@ -36,3 +37,4 @@ def start():
 
 
 start()
+start_portrait_camera()

@@ -143,6 +143,7 @@ export function ConversationSettings({ open, onClose, modelSettings, appMode, on
                 { id: 'bvh', label: '動作生成（BVH）' }, { id: 'ue', label: 'UE ストリーミング' },
               ]} value={avatarViewMode} onChange={onAvatarViewModeChange} />
               {avatarViewMode === 'bvh' && <div className={styles.viewer} ref={setViewerSettingsHost} />}
+              {avatarViewMode === 'ue' && <a href="/world-model">物理・学習</a>}
             </>}
           </section>
         ))}

@@ -123,7 +123,7 @@ q_dst = P_dst_now⁻¹ · D_src · W_dst_rest_aligned
 
 1. アプリと同じLinuxホストでUE 5.7の学長プロジェクトを開き、学長のシーケンス `FOR_GAKUTYO_AI` を再生します。受信処理は、このシーケンスにスポーンされた `Body` とその骨格に対応するアニメーションセクションを使用します。
 2. リポジトリのルートで `python3 tools/ue-body-motion/bridge_path.py` を実行し、共有ディレクトリを作成します。`tools/start-system.sh` も起動時にこれを実行します。既存環境を更新する場合はフロントエンド・バックエンドの新しいコードと、backend・nginxのCompose設定を反映してください。
-3. UEの「Tools → Execute Python Script」で、このリポジトリの `tools/ue-body-motion/start_editor.py` を実行します。再起動時も有効にするには、Python Editor Script Plugin の「Project Settings → Plugins → Python → Startup Scripts」に同じファイルの絶対パスを追加します。
+3. UEで Pixel Streaming 2 と Python Editor Script Plugin を有効にします。「Tools → Execute Python Script」で、このリポジトリの `tools/ue-body-motion/start_editor.py` を実行すると、身体受信と学長用カメラが起動します。再起動時も有効にするには、Python Editor Script Plugin の「Project Settings → Plugins → Python → Startup Scripts」に同じファイルの絶対パスを追加します。
 4. 次のコマンドで身体受信の `ok` と既存の顔制御の `sequence_playing` がともに `true` であることを確認します。公開先と証明書の場所は環境に合わせてください。
 
    ```sh
@@ -131,7 +131,7 @@ q_dst = P_dst_now⁻¹ · D_src · W_dst_rest_aligned
    curl --cacert nginx/certs/server.crt https://192.168.29.19:30930/lip-sync/health
    ```
 
-5. 「会話の設定 → アバター・空間 → UE ストリーミング」を選び、映像の開始ボタンを押します。「手を振りながら挨拶してください」などの指示を送り、身体の動きと口パクを確認します。生成方式は「会話の設定 → 動作生成」で変更できます。
+5. 「会話の設定 → アバター・空間 → UE ストリーミング」を選んで設定を閉じると、学長の頭から腰までの映像が自動で表示されます。「手を振りながら挨拶してください」などの指示を送り、身体の動きと口パクを確認します。生成方式は「会話の設定 → 動作生成」で変更できます。
 
 ### 再生経路
 
@@ -141,8 +141,11 @@ q_dst = P_dst_now⁻¹ · D_src · W_dst_rest_aligned
 
 UEの学長はすべての視聴者で共通です。複数のタブから送信したときは新しい動作が再生を引き継ぎます。ほかのタブを閉じても再生中の動作は続きます。
 
+学長用カメラはシーケンスのBodyの頭・肩・腰から正面の構図を決め、専用の配信名 `GakuchoPortrait` で映像を送ります。視聴中だけ継続して描画します。エディターのビューやSequencerの操作は会話画面に映りません。
+
 ### 接続の確認
 
 - **身体受信が503を返す** — エディターで起動スクリプトを実行し、backendコンテナに `/tmp/gakucho-ai-motion-ue/bridge` がマウントされていることを確認します。ホスト側の配置を変えるときは、エディターとComposeで同じ `GAKUCHO_UE_BRIDGE_DIR` を指定し、親ディレクトリを実行ユーザー専用にします。
+- **「学長のカメラに接続できません」と表示される** — 学長のシーケンスを再生し、起動スクリプトを実行してから「再接続」を押します。カメラのシグナリング接続先は既定で `ws://127.0.0.1:8899` です。配信サーバーのStreamer用ポートが異なる場合はUE起動前に `GAKUCHO_UE_SIGNALLING_URL` を設定します。
 - **映像または口パクが届かない** — Linuxのnginx構成では、Pixel Streamingの映像・WebSocketはホストの8080番、顔制御は8081番です。
 - **身体再生が422を返す** — 開いているシーケンスのBodyと互換アニメーションセクションを確認します。詳細はUEのOutput Logに出ます。

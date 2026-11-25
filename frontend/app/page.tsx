@@ -281,14 +281,16 @@ export default function ChatDemoPage() {
             <AvatarPanel frameSrc={avatarFrameSrc} />
           )}
 
-          <a
-            href="/world-model"
-            style={{ position: 'absolute', top: 12, right: avatarViewMode === 'ue' ? 100 : 16, zIndex: 3,
-              padding: '6px 12px', borderRadius: 8,
-              background: 'rgba(15,23,42,0.85)', color: '#cbd5e1', fontSize: 12, textDecoration: 'none' }}
-          >
-            物理・学習
-          </a>
+          {avatarViewMode === 'bvh' && (
+            <a
+              href="/world-model"
+              style={{ position: 'absolute', top: 12, right: 16, zIndex: 3,
+                padding: '6px 12px', borderRadius: 8,
+                background: 'rgba(15,23,42,0.85)', color: '#cbd5e1', fontSize: 12, textDecoration: 'none' }}
+            >
+              物理・学習
+            </a>
+          )}
           <QRCodeDisplay url={displayUrl} onClose={handleCloseQRCode} />
         </div>
       </section>
