@@ -164,6 +164,39 @@ type SSEAny =
   | SSEMotionMode
   | { type: 'error'; message: string }
 
+// UE expires a lip-sync client after seven seconds without a renewal.
+function beginLipSync() {
+  const client = crypto.randomUUID()
+  let active = true
+  let renewing = false
+  async function send(action: 'start' | 'stop') {
+    try {
+      const response = await fetch(`/lip-sync/${action}?client_id=${client}`, {
+        cache: 'no-store', keepalive: action === 'stop',
+        signal: AbortSignal.timeout(4000),
+      })
+      if (!response.ok) throw new Error(`HTTP ${response.status}`)
+    } catch (error) {
+      console.warn(`[LipSync] ${action}`, error)
+    }
+  }
+  async function renew() {
+    if (!active || renewing) return
+    renewing = true
+    await send('start')
+    renewing = false
+    // A late start from this playback must not leave the mouth moving.
+    if (!active) await send('stop')
+  }
+  void renew()
+  const timer = window.setInterval(renew, 2000)
+  return () => {
+    active = false
+    window.clearInterval(timer)
+    void send('stop')
+  }
+}
+
 export function useTextChat(endpoint: string) {
   const [chatError, setChatError] = useState<string | null>(null)
   const [messages, setMessages] = useState<Message[]>([])
@@ -205,6 +238,11 @@ export function useTextChat(endpoint: string) {
   // ========= Web Audio 再生制御 =========
   const audioCtxRef = useRef<AudioContext | null>(null)
   const playbackTimeRef = useRef<number>(0)
+  const lipSyncStopRef = useRef<(() => void) | null>(null)
+  const stopLipSync = useCallback(() => {
+    lipSyncStopRef.current?.()
+    lipSyncStopRef.current = null
+  }, [])
 
   const resetChat = async () => {
     stopAllAudio()
@@ -395,11 +433,14 @@ export function useTextChat(endpoint: string) {
 
     src.start(playbackTimeRef.current)
     playbackTimeRef.current += buf.duration
+    const endsAt = playbackTimeRef.current
+    lipSyncStopRef.current ??= beginLipSync()
 
     // 先に届いていたモーションがこの発話を待っていれば、ここで時刻が確定する
     if (segmentId !== undefined) resolvePendingMotions()
 
     src.onended = () => {
+      if (audioCtxRef.current === ctx && playbackTimeRef.current === endsAt) stopLipSync()
       const checkDelay = 600
       setTimeout(() => {
         const elapsed = Date.now() - lastAudioChunkTimeRef.current
@@ -451,6 +492,7 @@ export function useTextChat(endpoint: string) {
   }
 
   const stopAllAudio = () => {
+    stopLipSync()
     // 音声を止めたらタイムラインも無効になるので、スケジュール済みの
     // モーションと発話時刻の対応表も破棄する。
     segmentTimingRef.current.clear()
@@ -720,33 +762,10 @@ export function useTextChat(endpoint: string) {
 
   // ==========================================
 
-  const isSpeakingRef = useRef<boolean>(false)
-
   useEffect(() => {
-    const triggerLipSync = async (action: 'start' | 'stop') => {
-      try {
-        // Nginx および Next.js dev サーバーのプロキシを経由してアクセス (HTTPSのMixed Content対策)
-        const url = `/lip-sync/${action}`
-        // proxy 経由なので同生成元 (CORS 不要)
-        await fetch(url)
-        console.log(`[LipSync] ${action}`)
-      } catch (e) {
-        console.error(`[LipSync] failed to ${action}:`, e)
-      }
-    }
-
-    if (speakingMessageId) {
-      if (!isSpeakingRef.current) {
-        isSpeakingRef.current = true
-        triggerLipSync('start')
-      }
-    } else {
-      if (isSpeakingRef.current) {
-        isSpeakingRef.current = false
-        triggerLipSync('stop')
-      }
-    }
-  }, [speakingMessageId])
+    window.addEventListener('pagehide', stopLipSync)
+    return () => window.removeEventListener('pagehide', stopLipSync)
+  }, [stopLipSync])
 
   useEffect(() => {
     const onUserInteract = () => {

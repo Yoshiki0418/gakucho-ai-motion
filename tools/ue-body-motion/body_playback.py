@@ -88,10 +88,15 @@ def _duplicate(animation):
     return unreal.SystemLibrary.duplicate_object(animation, unreal.find_object(None, "/Engine/Transient"))
 
 
-def _empty_template(seed):
+def _empty_template(seed, mesh):
     # Strip the potentially long Sequencer idle once per seed, before making
     # any playback windows. Duplicating and stripping it on every beat stalls Slate.
     asset = _duplicate(seed)
+    # Tracks are authored in the displayed mesh's bone space. The Sequencer
+    # idle may have been recorded on a different MetaHuman with shorter legs.
+    asset.set_editor_property("retarget_source", "None")
+    asset.set_retarget_source_asset(mesh)
+    asset.update_retarget_source_asset_data()
     controller = asset.controller
     controller.open_bracket("Initialize conversation Body template", False)
     try:
@@ -152,7 +157,7 @@ class BodyPlayback:
     def __init__(self):
         self.workers = ThreadPoolExecutor(max_workers=2, thread_name_prefix="gakucho-pose")
         self.body = None
-        self.seed = self.template = None
+        self.seed = self.template_mesh = self.template = None
         self.next_warmup = 0.0
         self.release_builder = None
         self.previous_override = None
@@ -208,17 +213,20 @@ class BodyPlayback:
             return
         self.next_warmup = time.monotonic() + 2
         try:
-            _, seed = _find_body()
+            body, seed = _find_body()
         except RuntimeError:
             return
-        self.template = _empty_template(seed)
-        self.seed = seed
+        self._template_for(seed, body.skeletal_mesh_asset)
+
+    def _template_for(self, seed, mesh):
+        if seed != self.seed or mesh != self.template_mesh:
+            self.template = _empty_template(seed, mesh)
+            self.seed, self.template_mesh = seed, mesh
+        return self.template
 
     def prepare(self, clip, whole_body=False):
         body, seed = _find_body()
-        if seed != self.seed:
-            self.template = _empty_template(seed)
-            self.seed = seed
+        template = self._template_for(seed, body.skeletal_mesh_asset)
         reference, _ = _skeleton(body)
         entry, scales = _skeleton(body, evaluated=True)
         idle = self.idle if body == self.body and self.idle is not None else entry
@@ -232,7 +240,7 @@ class BodyPlayback:
             if dot(diff, diff) > 0.0001 or abs(dot(q, reference[name][2])) < 0.99999:
                 fixed.add(name)
         stream = PoseStream(self.workers, gesture, clip)
-        return PreparedMotion(body, self.template, clip, gesture, idle, scales, fixed, stream)
+        return PreparedMotion(body, template, clip, gesture, idle, scales, fixed, stream)
 
     def show(self, motion, frame_index):
         body = motion.body

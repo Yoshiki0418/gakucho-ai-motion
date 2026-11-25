@@ -18,6 +18,26 @@ def load_adapter():
 
 
 class BodyPlaybackTest(unittest.TestCase):
+    def test_playback_keys_use_the_displayed_mesh_retarget_pose(self):
+        adapter = load_adapter()
+        player = adapter.BodyPlayback()
+        self.addCleanup(player.workers.shutdown)
+        seed, first_mesh, second_mesh = Mock(), object(), object()
+        first_asset, second_asset = Mock(), Mock()
+        with patch.object(adapter, "_duplicate", side_effect=[first_asset, second_asset]) as duplicate:
+            with patch.object(adapter.unreal, "FrameNumber", int, create=True):
+                self.assertIs(player._template_for(seed, first_mesh), first_asset)
+                self.assertIs(player._template_for(seed, first_mesh), first_asset)
+                self.assertIs(player._template_for(seed, second_mesh), second_asset)
+        self.assertEqual(duplicate.call_args_list, [call(seed), call(seed)])
+        for asset, mesh in [(first_asset, first_mesh), (second_asset, second_mesh)]:
+            self.assertEqual(asset.mock_calls[:3], [
+                call.set_editor_property("retarget_source", "None"),
+                call.set_retarget_source_asset(mesh),
+                call.update_retarget_source_asset_data(),
+            ])
+        self.assertEqual(seed.mock_calls, [])
+
     def test_native_playback_continues_between_sparse_clock_updates_and_changes_windows(self):
         adapter = load_adapter()
         player = adapter.BodyPlayback()
